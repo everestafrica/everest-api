@@ -13,23 +13,25 @@ const tagName = "env"
 
 // Config is the configuration struct
 type Config struct {
-	Port          string `env:"PORT"`
-	JWTSecret     string `env:"JWT_SECRET"`
-	DatabaseURL   string `env:"DATABASE_URL"`
-	RedisURL      string `env:"REDIS_URL"`
-	RedisPassword string `env:"REDIS_PASSWORD"`
-	Env           string `env:"ENV"`
-	LogLevel      string `env:"LOG_LEVEL"`
-	ExpiryTime    string `env:"TOKEN_EXP_TIME"`
+	Port              string `env:"PORT"`
+	JWTSecret         string `env:"JWT_SECRET"`
+	DatabaseURL       string `env:"DATABASE_URL"`
+	RedisURL          string `env:"REDIS_URL"`
+	RedisPassword     string `env:"REDIS_PASSWORD"`
+	Env               string `env:"ENV"`
+	LogLevel          string `env:"LOG_LEVEL"`
+	ExpiryTime        string `env:"TOKEN_EXP_TIME"`
+	MonoWebhookSecret string `env:"MONO_WEBHOOK_SECRET"`
+	MonoSecretKey     string `env:"MONO_SECRET_KEY"`
 }
 
 var config *Config
 
 func LoadConfig() (*Config, error) {
-	if os.Getenv("ENV") == "development" {
-		godotenv.Load()
-		fmt.Println("Loaded .env.stage file")
-	}
+	//if os.Getenv("ENV") == "development" {
+	godotenv.Load()
+	//fmt.Println("Loaded .env.stage file")
+	//}
 
 	var cfg = Config{}
 

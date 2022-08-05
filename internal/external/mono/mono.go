@@ -1,20 +1,29 @@
 package mono
 
 import (
-	"github.com/gofiber/fiber"
-	"os"
+	"fmt"
+	"github.com/everestafrica/everest-api/internal/config"
+	"github.com/go-resty/resty/v2"
 )
 
-func VerifyWebhook() func(*fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		secret := os.Getenv("MONO_WEBHOOK_SECRET")
-		webhookSecret := c.Get("mono-webhook-secret")
-		if webhookSecret != secret {
-			return c.Status(401).JSON(
-				fiber.Map{
-					"message": " Unauthorized user",
-				})
-		}
-		return c.Next()
+const baseUrl = "https://api.withmono.com"
+
+func request() *resty.Request {
+	client := resty.New().R()
+	client.Header.Set("mono-sec-key", config.GetConf().MonoSecretKey)
+	return client
+}
+
+func GetAccountId(code string) (*resty.Response, error) {
+	url := fmt.Sprintf("%s/accounts/auth", baseUrl)
+	resp, err := request().Get(url)
+	if err != nil {
+		return nil, err
 	}
+	return resp, nil
+}
+func GetAccountDetails(id string) {
+
+}
+func GetBalance() {
 }

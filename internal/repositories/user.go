@@ -10,7 +10,7 @@ type IUserRepository interface {
 	Create(user *models.User) error
 	FindByUserId(userId string) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
-	FindByPhoneNumber(phoneNumber string) (*models.User, error)
+	FindByPassword(password, userId string) (*models.User, error)
 	Update(user *models.User) error
 	DoesUsernameExist(username string) (bool, error)
 	DoesEmailExist(email string) (bool, error)
@@ -51,10 +51,10 @@ func (r *userRepo) FindByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) FindByPhoneNumber(phoneNumber string) (*models.User, error) {
+func (r *userRepo) FindByPassword(password, userId string) (*models.User, error) {
 	var user models.User
 
-	if err := r.db.Where("phone_number = ?", phoneNumber).
+	if err := r.db.Where("password = ? AND user_id = ?", password, userId).
 		First(&user).Error; err != nil {
 		return nil, err
 	}

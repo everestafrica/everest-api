@@ -103,3 +103,5 @@ logrus.log
 
 /tmp
 .air.toml
+
+misc.go
