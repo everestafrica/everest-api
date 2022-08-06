@@ -23,6 +23,8 @@ type Config struct {
 	ExpiryTime        string `env:"TOKEN_EXP_TIME"`
 	MonoWebhookSecret string `env:"MONO_WEBHOOK_SECRET"`
 	MonoSecretKey     string `env:"MONO_SECRET_KEY"`
+	BscApiKey         string `env:"BSC_API_KEY"`
+	EthApiKey         string `env:"ETH_API_KEY"`
 }
 
 var config *Config

@@ -39,7 +39,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-type AccountIdRequest struct {
+type MonoAccountIdRequest struct {
 	Code string `json:"code"`
 }
 

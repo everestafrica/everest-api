@@ -1,17 +1,21 @@
 package models
 
-// Contains the model struct for everything that involves Mono
 import "time"
 
 type AccountDetail struct {
 	Base
-	MonoId        string `json:"mono_id"`
 	UserId        string `json:"user_id"`
+	AccountId     string `json:"account_id"`
+	MonoId        string `json:"mono_id"`
 	Institution   string `json:"institution"`
-	AccountId     int    `json:"account_id"`
 	AccountNumber string `json:"account_number"`
-	Balance       int    `json:"amount"`
+	Balance       int    `json:"balance"`
 	Currency      string `json:"currency"`
+}
+
+type UserMono struct {
+	UserId string `json:"user_id"`
+	MonoId string `json:"mono_id"`
 }
 
 type Webhook struct {

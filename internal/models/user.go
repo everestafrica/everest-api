@@ -27,13 +27,19 @@ type User struct {
 
 // Base contains common columns for all tables
 type Base struct {
-	ID        uint `gorm:"primaryKey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID uint `gorm:"primaryKey" json:"id"`
+	//UUID      string    `json:"uuid"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// BeforeCreate will set Base struct before every insert
-func (b *User) BeforeCreate(tx *gorm.DB) (err error) {
-	b.UserId = uuid.NewString()
+// BeforeCreate will set User struct before every insert
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	u.UserId = uuid.NewString()
 	return nil
 }
+
+//func (b *Base) BeforeSave(tx *gorm.DB) (err error) {
+//	b.UUID = uuid.NewString()
+//	return nil
+//}

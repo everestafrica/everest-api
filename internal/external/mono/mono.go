@@ -1,29 +1,73 @@
 package mono
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/config"
-	"github.com/go-resty/resty/v2"
+	"io"
+	"net/http"
 )
 
-const baseUrl = "https://api.withmono.com"
-
-func request() *resty.Request {
-	client := resty.New().R()
-	client.Header.Set("mono-sec-key", config.GetConf().MonoSecretKey)
-	return client
+type monoApi struct {
+	baseURL   string
+	secretKey string
 }
 
-func GetAccountId(code string) (*resty.Response, error) {
-	url := fmt.Sprintf("%s/accounts/auth", baseUrl)
-	resp, err := request().Get(url)
+const (
+	accountAuth = "/v1/accounts/auth"
+)
+
+var client = &http.Client{}
+
+func (api *monoApi) GetAccountId(request *types.MonoAccountIdRequest) (*string, error) {
+
+	requestJSON, err := json.Marshal(request)
+
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
-}
-func GetAccountDetails(id string) {
 
-}
-func GetBalance() {
+	r, _ := http.NewRequest(http.MethodPost,
+		fmt.Sprintf("%s%s",
+			api.baseURL, accountAuth), bytes.NewReader(requestJSON))
+
+	r.Header.Add("mono-sec-key", config.GetConf().MonoSecretKey)
+	r.Header.Add("Content-Type", "application/json")
+
+	fmt.Println(r.URL)
+
+	resp, err := client.Do(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusCreated {
+		return nil, errors.New(resp.Status)
+	}
+
+	var res map[string]json.RawMessage
+	err = json.NewDecoder(resp.Body).Decode(&res)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var data map[string]string
+	err = json.Unmarshal(res["data"], &data)
+
+	id := data["id"]
+
+	return &id, nil
+
 }
