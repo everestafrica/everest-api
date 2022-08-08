@@ -25,6 +25,8 @@ type Config struct {
 	MonoSecretKey     string `env:"MONO_SECRET_KEY"`
 	BscApiKey         string `env:"BSC_API_KEY"`
 	EthApiKey         string `env:"ETH_API_KEY"`
+	NewsApiKeyPry     string `env:"NEWS_API_KEY_PRY"`
+	NewsApiKeySec     string `env:"NEWS_API_KEY_SEC"`
 }
 
 var config *Config

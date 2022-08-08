@@ -1,73 +1,36 @@
 package mono
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/types"
-	"github.com/everestafrica/everest-api/internal/config"
-	"io"
-	"net/http"
 )
 
-type monoApi struct {
-	baseURL   string
-	secretKey string
+func GetAccountId(request *types.MonoAccountIdRequest) (*types.MonoAccountIdResponse, error) {
+	var resp *types.MonoAccountIdResponse
+	v, err := Post("/v1/accounts/auth", request, resp)
+	if err != nil {
+		return nil, err
+	}
+	res := v.(*types.MonoAccountIdResponse)
+	return res, nil
 }
 
-const (
-	accountAuth = "/v1/accounts/auth"
-)
-
-var client = &http.Client{}
-
-func (api *monoApi) GetAccountId(request *types.MonoAccountIdRequest) (*string, error) {
-
-	requestJSON, err := json.Marshal(request)
-
+func GetAccountDetails(id string) (*types.MonoAccountResponse, error) {
+	var resp *types.MonoAccountResponse
+	v, err := Get(fmt.Sprintf("/v1/accounts/%s", id), "", resp)
 	if err != nil {
 		return nil, err
 	}
+	res := v.(*types.MonoAccountResponse)
+	return res, nil
+}
 
-	r, _ := http.NewRequest(http.MethodPost,
-		fmt.Sprintf("%s%s",
-			api.baseURL, accountAuth), bytes.NewReader(requestJSON))
-
-	r.Header.Add("mono-sec-key", config.GetConf().MonoSecretKey)
-	r.Header.Add("Content-Type", "application/json")
-
-	fmt.Println(r.URL)
-
-	resp, err := client.Do(r)
-
+func GetAccountTransactions(id string) (*types.MonoTransactionResponse, error) {
+	var resp *types.MonoTransactionResponse
+	v, err := Get(fmt.Sprintf("/v1/accounts/%s/transactions", id), fmt.Sprintf("?limit=%d&paginate=%t", 30, false), resp)
 	if err != nil {
 		return nil, err
 	}
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			return
-		}
-	}(resp.Body)
-
-	if resp.StatusCode != http.StatusCreated {
-		return nil, errors.New(resp.Status)
-	}
-
-	var res map[string]json.RawMessage
-	err = json.NewDecoder(resp.Body).Decode(&res)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var data map[string]string
-	err = json.Unmarshal(res["data"], &data)
-
-	id := data["id"]
-
-	return &id, nil
-
+	res := v.(*types.MonoTransactionResponse)
+	return res, nil
 }

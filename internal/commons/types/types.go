@@ -1,6 +1,8 @@
 package types
 
-import "github.com/golang-jwt/jwt"
+import (
+	"github.com/golang-jwt/jwt"
+)
 
 type GenericResponse struct {
 	Success bool        `json:"success"`
@@ -47,4 +49,48 @@ type TokenResponse struct {
 	AccessToken string `json:"access_token"`
 	ExpiresAt   int64  `json:"expires_at"`
 	Issuer      string `json:"issuer"`
+}
+
+type MonoAccountIdResponse struct {
+	Id string `json:"id"`
+}
+
+type MonoTransactionResponse struct {
+	Paging struct {
+		Total    int    `json:"total"`
+		Page     int    `json:"page"`
+		Previous string `json:"previous"`
+		Next     string `json:"next"`
+	} `json:"paging"`
+	Data []struct {
+		ID        string `json:"_id"`
+		Type      string `json:"type"`
+		Amount    int    `json:"amount"`
+		Narration string `json:"narration"`
+		Date      string `json:"date"`
+		Balance   int    `json:"balance"`
+		Currency  string `json:"currency"`
+		Category  string `json:"category"`
+	} `json:"data"`
+}
+
+type MonoAccountResponse struct {
+	Meta struct {
+		DataStatus string `json:"data_status"`
+		AuthMethod string `json:"auth_method"`
+	} `json:"meta"`
+	Account struct {
+		ID          string `json:"_id"`
+		Institution struct {
+			Name     string `json:"name"`
+			BankCode string `json:"bankCode"`
+			Type     string `json:"type"`
+		} `json:"institution"`
+		Name          string `json:"name"`
+		AccountNumber string `json:"accountNumber"`
+		Type          string `json:"type"`
+		Balance       int    `json:"balance"`
+		Currency      string `json:"currency"`
+		Bvn           string `json:"bvn"`
+	} `json:"account"`
 }

@@ -7,8 +7,8 @@ import (
 )
 
 type ICryptoDetailsRepository interface {
-	Create(account *models.CryptoDetail) error
-	Update(account *models.CryptoDetail) error
+	Create(crypto *models.CryptoDetail) error
+	Update(crypto *models.CryptoDetail) error
 	FindByUserId(userId string) (*models.CryptoDetail, error)
 }
 
@@ -16,19 +16,19 @@ type cryptoDetailsRepo struct {
 	db *gorm.DB
 }
 
-// NewCryptoDetailsRepo will instantiate AccountDetails Repository
+// NewCryptoDetailsRepo will instantiate CryptoDetails Repository
 func NewCryptoDetailsRepo() ICryptoDetailsRepository {
 	return &cryptoDetailsRepo{
 		db: database.DB(),
 	}
 }
 
-func (r *cryptoDetailsRepo) Create(account *models.CryptoDetail) error {
-	return r.db.Create(account).Error
+func (r *cryptoDetailsRepo) Create(crypto *models.CryptoDetail) error {
+	return r.db.Create(crypto).Error
 }
 
-func (r *cryptoDetailsRepo) Update(account *models.CryptoDetail) error {
-	return r.db.Save(account).Error
+func (r *cryptoDetailsRepo) Update(crypto *models.CryptoDetail) error {
+	return r.db.Save(crypto).Error
 }
 
 func (r *cryptoDetailsRepo) FindByUserId(userId string) (*models.CryptoDetail, error) {

@@ -1,0 +1,55 @@
+package news
+
+import (
+	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/utils"
+	"github.com/gocolly/colly"
+	"log"
+)
+
+type News struct {
+	Title   string `json:"title"`
+	Img     string `json:"img"`
+	Author  string `json:"author"`
+	Link    string `json:"link"`
+	Date    string `json:"date"`
+	Excerpt string `json:"excerpt"`
+}
+
+func ScrapeNews() (*News, error) {
+	c := colly.NewCollector()
+	var news *News
+
+	c.OnHTML(".jeg_posts", func(e *colly.HTMLElement) {
+		e.ForEach(".jeg_pl_lg_2", func(i int, e *colly.HTMLElement) {
+			img := e.ChildAttr(".jeg_thumb > a > .thumbnail-container > img", "src")
+			title := e.ChildText(".jeg_postblock_content > .jeg_post_title ")
+			author := e.ChildText(".jeg_postblock_content > .jeg_post_meta .jeg_meta_author > a")
+			date := e.ChildText(".jeg_postblock_content > .jeg_post_meta .jeg_meta_date > a ")
+			excerpt := e.ChildText(".jeg_postblock_content > .jeg_post_excerpt > p ")
+			link := e.ChildAttr(".jeg_post_title > a", "href")
+
+			news = &News{
+				Img:     img,
+				Title:   title,
+				Author:  author,
+				Link:    link,
+				Date:    date,
+				Excerpt: excerpt,
+			}
+			fmt.Println(util.PrettyPrint(news))
+
+		})
+
+	})
+
+	// Before making a request
+	c.OnRequest(func(r *colly.Request) {
+		log.Println("Visiting", r.URL.String())
+	})
+	err := c.Visit("https://nairametrics.com/category/financial-literacy-for-nigerians/personal-finance/")
+	if err != nil {
+		return nil, err
+	}
+	return news, nil
+}

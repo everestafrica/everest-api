@@ -18,16 +18,14 @@ type User struct {
 	Currency    *string `json:"currency"`
 	Password    string  `json:"-"`
 	MonoId      *string `json:"mono_id"`
-	MonoCode    *string `json:"mono_code"`
 	MonoStatus  bool    `json:"mono_status"`
-	MonoReauth  *string `json:"mono_reauth"`
 	NetWorth    *int    `json:"net_worth"`
 	Persona     *string `json:"persona"`
 }
 
 // Base contains common columns for all tables
 type Base struct {
-	ID uint `gorm:"primaryKey" json:"id"`
+	ID int `gorm:"primaryKey" json:"id"`
 	//UUID      string    `json:"uuid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

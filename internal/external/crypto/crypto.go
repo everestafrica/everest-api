@@ -38,7 +38,7 @@ type TxnRes struct {
 	TimeStamp         string `json:"timeStamp"`
 	To                string `json:"to"`
 	TransactionIndex  string `json:"transactionIndex"`
-	Txreceipt_status  string `json:"txreceipt_status"`
+	TxreceiptStatus   string `json:"txreceipt_status"`
 	Value             string `json:"value"`
 }
 
@@ -145,20 +145,86 @@ func FetchETH(address string) *Coin {
 	return res
 }
 
-func FetchBTC(btcaddress string) interface{} {
-	resp, err := http.Get(fmt.Sprintf("https://api.blockcypher.com/v1/btc/main/addrs/%s/balance", btcaddress))
-
+func FetchBTC(address string) (*BtcTransaction, error) {
+	resp, err := http.Get(fmt.Sprintf("https://blockchain.info/rawaddr/%s", address))
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 
-	var result Btc
-	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
-		fmt.Println("Can not unmarshal JSON")
+	var result BtcTransaction
+	if err = json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
+		return nil, err
 	}
 	fmt.Println(util.PrettyPrint(result))
-	return result
-
+	return &result, nil
 }
+
+type BtcTransaction struct {
+	Hash160       string `json:"hash160"`
+	Address       string `json:"address"`
+	NTx           int    `json:"n_tx"`
+	NUnredeemed   int    `json:"n_unredeemed"`
+	TotalReceived int    `json:"total_received"`
+	TotalSent     int    `json:"total_sent"`
+	FinalBalance  int    `json:"final_balance"`
+	Txs           []struct {
+		Hash        string `json:"hash"`
+		Ver         int    `json:"ver"`
+		VinSz       int    `json:"vin_sz"`
+		VoutSz      int    `json:"vout_sz"`
+		Size        int    `json:"size"`
+		Weight      int    `json:"weight"`
+		Fee         int    `json:"fee"`
+		RelayedBy   string `json:"relayed_by"`
+		LockTime    int    `json:"lock_time"`
+		TxIndex     int64  `json:"tx_index"`
+		DoubleSpend bool   `json:"double_spend"`
+		Time        int    `json:"time"`
+		BlockIndex  int    `json:"block_index"`
+		BlockHeight int    `json:"block_height"`
+		Inputs      []struct {
+			Sequence int64  `json:"sequence"`
+			Witness  string `json:"witness"`
+			Script   string `json:"script"`
+			Index    int    `json:"index"`
+			PrevOut  struct {
+				TxIndex           int64  `json:"tx_index"`
+				Value             int    `json:"value"`
+				N                 int    `json:"n"`
+				Type              int    `json:"type"`
+				Spent             bool   `json:"spent"`
+				Script            string `json:"script"`
+				SpendingOutpoints []struct {
+					TxIndex int64 `json:"tx_index"`
+					N       int   `json:"n"`
+				} `json:"spending_outpoints"`
+				Addr string `json:"addr"`
+			} `json:"prev_out"`
+		} `json:"inputs"`
+		Out []struct {
+			Type              int  `json:"type"`
+			Spent             bool `json:"spent"`
+			Value             int  `json:"value"`
+			SpendingOutpoints []struct {
+				TxIndex int64 `json:"tx_index"`
+				N       int   `json:"n"`
+			} `json:"spending_outpoints"`
+			N       int    `json:"n"`
+			TxIndex int64  `json:"tx_index"`
+			Script  string `json:"script"`
+			Addr    string `json:"addr"`
+		} `json:"out"`
+		Result  int `json:"result"`
+		Balance int `json:"balance"`
+	} `json:"txs"`
+}
+
+//fmt.Sprintf("https://api.blockcypher.com/v1/btc/main/addrs/%s/balance", address)
+//spent:true --debit/credit
+//hash: ""
+//value:92300
+//time:1657802535
+
+//multiplier = 0.00000001
