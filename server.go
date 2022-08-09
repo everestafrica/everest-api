@@ -6,6 +6,7 @@ import (
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/routes"
+	"github.com/everestafrica/everest-api/internal/scheduler"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"golang.org/x/net/context"
@@ -34,7 +35,7 @@ func (s *server) Start() error {
 
 	setupSystemRouteHandler(app)
 
-	//scheduler.RegisterSchedulers()
+	scheduler.RegisterSchedulers()
 
 	go func() {
 		if err := app.Listen(":" + s.cfg.Port); err != nil && err != http.ErrServerClosed {

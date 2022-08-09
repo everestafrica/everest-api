@@ -1,4 +1,4 @@
-package mail
+package channels
 
 import (
 	"context"
@@ -27,7 +27,17 @@ func SendMail(email *Email) (*EmailResponse, error) {
 
 	// The message object allows you to add attachments and Bcc recipients
 	message := mg.NewMessage(email.Sender, email.Subject, email.Body, email.Recipient)
-	//message.SetHtml("<html><body><h1>Testing some Mailgun Awesomeness!!</h1></body></html>")
+	//body := `
+	//<html>
+	//<body>
+	//	<h1>Sending HTML emails with Mailgun</h1>
+	//	<p style="color:blue; font-size:30px;">Hello world</p>
+	//	<p style="font-size:30px;">More examples can be found <a href="https://documentation.mailgun.com/en/latest/api-sending.html#examples">here</a></p>
+	//</body>
+	//</html>
+	//`
+	//
+	//	message.SetHtml(body)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 

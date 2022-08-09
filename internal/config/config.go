@@ -25,8 +25,13 @@ type Config struct {
 	MonoSecretKey     string `env:"MONO_SECRET_KEY"`
 	BscApiKey         string `env:"BSC_API_KEY"`
 	EthApiKey         string `env:"ETH_API_KEY"`
+	NewsApiUrl        string `env:"NEWS_API_URL"`
 	NewsApiKeyPry     string `env:"NEWS_API_KEY_PRY"`
 	NewsApiKeySec     string `env:"NEWS_API_KEY_SEC"`
+	EmailSecretKey    string `env:"EMAIL_SECRET_KEY"`
+	EmailDomainUrl    string `env:"EMAIL_DOMAIN_URL"`
+	TestSmsApiKey     string `env:"TEST_SMS_API_KEY"`
+	TestSmsApiId      string `env:"TEST_SMS_API_ID"`
 }
 
 var config *Config

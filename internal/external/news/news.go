@@ -1,24 +1,43 @@
 package news
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/utils"
+	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/gocolly/colly"
+	"io"
+	"io/ioutil"
 	"log"
+	"net/http"
 )
 
+var client = &http.Client{}
+
 type News struct {
-	Title   string `json:"title"`
-	Img     string `json:"img"`
-	Author  string `json:"author"`
-	Link    string `json:"link"`
-	Date    string `json:"date"`
-	Excerpt string `json:"excerpt"`
+	Title       string `json:"title"`
+	Img         string `json:"img"`
+	Author      string `json:"author"`
+	Link        string `json:"link"`
+	Date        string `json:"date"`
+	Description string `json:"excerpt"`
 }
 
-func ScrapeNews() (*News, error) {
+type Response struct {
+	Author      string `json:"author"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Url         string `json:"url"`
+	UrlToImage  string `json:"urlToImage"`
+	PublishedAt string `json:"publishedAt"`
+	Content     string `json:"content"`
+}
+
+func ScrapeNews() ([]*News, error) {
 	c := colly.NewCollector()
 	var news *News
+	var response []*News
 
 	c.OnHTML(".jeg_posts", func(e *colly.HTMLElement) {
 		e.ForEach(".jeg_pl_lg_2", func(i int, e *colly.HTMLElement) {
@@ -30,13 +49,14 @@ func ScrapeNews() (*News, error) {
 			link := e.ChildAttr(".jeg_post_title > a", "href")
 
 			news = &News{
-				Img:     img,
-				Title:   title,
-				Author:  author,
-				Link:    link,
-				Date:    date,
-				Excerpt: excerpt,
+				Img:         img,
+				Title:       title,
+				Author:      author,
+				Link:        link,
+				Date:        date,
+				Description: excerpt,
 			}
+			response = append(response, news)
 			fmt.Println(util.PrettyPrint(news))
 
 		})
@@ -51,5 +71,35 @@ func ScrapeNews() (*News, error) {
 	if err != nil {
 		return nil, err
 	}
-	return news, nil
+	return response, nil
+}
+
+func FetchNews() ([]*Response, error) {
+	r, _ := http.NewRequest(http.MethodGet, config.GetConf().NewsApiUrl, nil)
+
+	resp, err := client.Do(r)
+	if err != nil {
+		//logger := log.WithField("error in Mono GET request", err)
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+	if resp.StatusCode >= http.StatusBadRequest {
+		return nil, errors.New(resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	// s, _ := json.MarshalIndent(response, "", "\t")
+	var responses []*Response
+	err = json.Unmarshal(body, &responses)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return responses, nil
 }

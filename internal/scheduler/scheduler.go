@@ -1,25 +1,27 @@
 package scheduler
 
 import (
+	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/go-co-op/gocron"
-	//"github.com/everestafrica/everet-api/internal/services"
 	"time"
 )
 
 type scheduler struct {
+	news services.INewsService
 }
 
 func RegisterSchedulers() {
-	//s := scheduler{}
+	s := scheduler{
+		news: services.NewNewsService(),
+	}
 
 	sch := gocron.NewScheduler(time.UTC)
 
-	sch.Every(1).Hour().Do(func() {
-		//s.rateService.UpdateRates()
+	sch.Every(59).Minute().Do(func() {
+		s.news.DeleteNews()
 	})
-
-	sch.Every(10).Minute().Do(func() {
-		//s.reversalService.ReverseAll()
+	sch.Every(1).Hour().Do(func() {
+		s.news.SetNews()
 	})
 
 	sch.StartAsync()

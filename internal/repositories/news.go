@@ -7,7 +7,7 @@ import (
 )
 
 type INewsRepository interface {
-	Create(sub *models.News) error
+	Create(news *models.News) error
 	Delete() error
 }
 

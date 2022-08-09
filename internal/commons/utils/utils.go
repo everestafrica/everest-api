@@ -24,7 +24,7 @@ func IsStringEmpty(s string) bool { return len(strings.TrimSpace(s)) == 0 }
 type Token struct{}
 
 // ExtractBearerToken Remove "Bearer " from "Authorization" token string
-func (Token) ExtractBearerToken(t string) (string, error) {
+func (tk Token) ExtractBearerToken(t string) (string, error) {
 	f := strings.Split(t, " ")
 	if len(f) != 2 || f[0] != "Bearer" {
 		return "", nil
