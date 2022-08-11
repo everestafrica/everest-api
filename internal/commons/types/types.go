@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/golang-jwt/jwt"
+	"time"
 )
 
 type GenericResponse struct {
@@ -42,7 +43,7 @@ type Claims struct {
 }
 
 type MonoAccountIdRequest struct {
-	Code string `json:"code"`
+	Code string `json:"code" binding:"required"`
 }
 
 type TokenResponse struct {
@@ -63,14 +64,14 @@ type MonoTransactionResponse struct {
 		Next     string `json:"next"`
 	} `json:"paging"`
 	Data []struct {
-		ID        string `json:"_id"`
-		Type      string `json:"type"`
-		Amount    int    `json:"amount"`
-		Narration string `json:"narration"`
-		Date      string `json:"date"`
-		Balance   int    `json:"balance"`
-		Currency  string `json:"currency"`
-		Category  string `json:"category"`
+		ID        string          `json:"_id"`
+		Type      string          `json:"type"`
+		Amount    int             `json:"amount"`
+		Narration string          `json:"narration"`
+		Date      string          `json:"date"`
+		Balance   int             `json:"balance"`
+		Currency  string          `json:"currency"`
+		Category  TransactionType `json:"category"`
 	} `json:"data"`
 }
 
@@ -94,3 +95,65 @@ type MonoAccountResponse struct {
 		Bvn           string `json:"bvn"`
 	} `json:"account"`
 }
+
+type SubscriptionRequest struct {
+	Product     string         `json:"product" binding:"required"`
+	Price       string         `json:"price" binding:"required"`
+	Currency    CurrencySymbol `json:"currency" binding:"required"`
+	Logo        string         `json:"logo" binding:"required"`
+	Frequency   Frequency      `json:"frequency" binding:"required"`
+	NextPayment time.Time      `json:"next_payment" binding:"required"`
+}
+
+type BudgetRequest struct {
+	Categories []struct {
+		Name   TransactionCategory `json:"name"`
+		Amount int                 `json:"amount"`
+	} `json:"categories"`
+}
+
+type CurrencySymbol string
+type Frequency string
+type TransactionType string
+type TransactionCategory string
+
+const (
+	NGN CurrencySymbol = "NGN"
+	GBP CurrencySymbol = "GBP"
+	USD CurrencySymbol = "USD"
+	EUR CurrencySymbol = "EUR"
+	KES CurrencySymbol = "KES"
+	GHC CurrencySymbol = "GHC"
+	ZAR CurrencySymbol = "ZAR"
+
+	MONTHLY  Frequency = "MONTHLY"
+	ANNUALLY Frequency = "ANNUALLY"
+)
+
+const (
+	Credit TransactionType = "credit"
+	Debit  TransactionType = "debit"
+
+	Grocery             TransactionCategory = "groceries"
+	Entertainment       TransactionCategory = "entertainment"
+	Travel              TransactionCategory = "travel"
+	Transport           TransactionCategory = "transportation"
+	Salary              TransactionCategory = "salary"
+	Investment          TransactionCategory = "investment"
+	PhoneAndInternet    TransactionCategory = "phone_and_internet"
+	Food                TransactionCategory = "food"
+	Health              TransactionCategory = "health"
+	SelfCare            TransactionCategory = "self_care"
+	LoanRepayment       TransactionCategory = "loan_repayment"
+	Bills               TransactionCategory = "bills/fees"
+	Transfer            TransactionCategory = "transfer"
+	OnlineTransactions  TransactionCategory = "online_transactions"
+	OfflineTransactions TransactionCategory = "offline_transactions"
+	BankCharges         TransactionCategory = "bank_charges"
+	AtmWithdrawal       TransactionCategory = "atm_withdrawal"
+	Miscellaneous       TransactionCategory = "miscellaneous"
+	Others              TransactionCategory = "others"
+)
+
+// Track debtors, snap receipt, family tracker
+// GiftsAndDonations TransactionCategory = "gifts_and_donations" 	Education TransactionCategory = "education"

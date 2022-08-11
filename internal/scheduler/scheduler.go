@@ -3,6 +3,7 @@ package scheduler
 import (
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/go-co-op/gocron"
+	"log"
 	"time"
 )
 
@@ -17,11 +18,20 @@ func RegisterSchedulers() {
 
 	sch := gocron.NewScheduler(time.UTC)
 
-	sch.Every(59).Minute().Do(func() {
-		s.news.DeleteNews()
+	sch.Every(58).Minute().Do(func() {
+		err := s.news.DeleteNews()
+		if err != nil {
+			log.Print(err)
+			return
+		}
 	})
+
 	sch.Every(1).Hour().Do(func() {
-		s.news.SetNews()
+		err := s.news.SetNews()
+		if err != nil {
+			log.Print(err)
+			return
+		}
 	})
 
 	sch.StartAsync()

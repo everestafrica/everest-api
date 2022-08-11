@@ -3,8 +3,6 @@ package news
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/gocolly/colly"
 	"io"
@@ -25,6 +23,11 @@ type News struct {
 }
 
 type Response struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    []Data `json:"data"`
+}
+type Data struct {
 	Author      string `json:"author"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -57,7 +60,7 @@ func ScrapeNews() ([]*News, error) {
 				Description: excerpt,
 			}
 			response = append(response, news)
-			fmt.Println(util.PrettyPrint(news))
+			//fmt.Println(util.PrettyPrint(news))
 
 		})
 
@@ -74,7 +77,7 @@ func ScrapeNews() ([]*News, error) {
 	return response, nil
 }
 
-func FetchNews() ([]*Response, error) {
+func FetchNews() (*Response, error) {
 	r, _ := http.NewRequest(http.MethodGet, config.GetConf().NewsApiUrl, nil)
 
 	resp, err := client.Do(r)
@@ -94,7 +97,7 @@ func FetchNews() ([]*Response, error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	// s, _ := json.MarshalIndent(response, "", "\t")
-	var responses []*Response
+	var responses *Response
 	err = json.Unmarshal(body, &responses)
 
 	if err != nil {

@@ -28,8 +28,9 @@ func (r *newsRepo) Create(news *models.News) error {
 
 func (r *newsRepo) Delete() error {
 	var news models.News
-	if err := r.db.Delete(&news).Error; err != nil {
+	if err := r.db.Where("title = ?", "data").Delete(&news).Error; err != nil {
 		return err
 	}
 	return nil
+
 }

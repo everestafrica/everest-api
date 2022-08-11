@@ -9,6 +9,7 @@ import (
 type ISubscriptionRepository interface {
 	Create(sub *models.Subscription) error
 	Update(sub *models.Subscription) error
+	Delete(userId, subscriptionId string) error
 	FindAllByUserId(userId string) (*[]models.Subscription, error)
 	FindByUserIdAndSubId(userId string, subscriptionId int) (*models.Subscription, error)
 }
@@ -33,7 +34,7 @@ func (r *subscriptionRepo) Update(sub *models.Subscription) error {
 }
 func (r *subscriptionRepo) Delete(userId, subscriptionId string) error {
 	var sub models.Subscription
-	if err := r.db.Where("user_id = ? AND id", userId, subscriptionId).Delete(&sub).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND id =  ?", userId, subscriptionId).Delete(&sub).Error; err != nil {
 		return err
 	}
 	return nil
@@ -49,7 +50,7 @@ func (r *subscriptionRepo) FindAllByUserId(userId string) (*[]models.Subscriptio
 
 func (r *subscriptionRepo) FindByUserIdAndSubId(userId string, subscriptionId int) (*models.Subscription, error) {
 	var sub models.Subscription
-	if err := r.db.Where("user_id = ? AND id", userId, subscriptionId).First(&sub).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND id = ?", userId, subscriptionId).First(&sub).Error; err != nil {
 		return nil, err
 	}
 

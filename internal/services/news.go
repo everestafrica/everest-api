@@ -4,6 +4,7 @@ import (
 	"github.com/everestafrica/everest-api/internal/external/news"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
+	"log"
 )
 
 type INewsService interface {
@@ -42,7 +43,7 @@ func (ns newsService) SetNews() error {
 			return err
 		}
 	}
-	for _, f := range fetched {
+	for _, f := range fetched.Data {
 		fetchedNews := models.News{
 			Title:       f.Title,
 			Img:         f.UrlToImage,
@@ -56,6 +57,7 @@ func (ns newsService) SetNews() error {
 			return err
 		}
 	}
+	log.Print("stored in db!")
 	return nil
 }
 func (ns newsService) DeleteNews() error {
@@ -63,5 +65,6 @@ func (ns newsService) DeleteNews() error {
 	if err != nil {
 		return err
 	}
+	log.Print("deleted from db!")
 	return nil
 }
