@@ -3,12 +3,16 @@ package everest_api
 import (
 	"errors"
 	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/constants"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/routes"
 	"github.com/everestafrica/everest-api/internal/scheduler"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"github.com/google/uuid"
 	"golang.org/x/net/context"
 	"log"
 	"net/http"
@@ -27,10 +31,21 @@ func (s *server) Start() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 
 	defer stop()
+
 	app := fiber.New()
+
+	app.Use(requestid.New(requestid.Config{
+		Header: constants.RequestIdentifier,
+		Generator: func() string {
+			return uuid.NewString()
+		},
+	}))
+	app.Use(logger.New())
+
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("You're home, yaay!!")
 	})
+
 	routes.RegisterRoutes(app)
 
 	setupSystemRouteHandler(app)
@@ -69,14 +84,11 @@ func (s *server) Start() error {
 
 func setupSystemRouteHandler(app *fiber.App) {
 	app.Use(cors.New(handlers.Cors()))
+
 	// 404 Handler
 	app.Use(func(c *fiber.Ctx) error {
-		return c.SendStatus(404) // => 404 "Not Found"
+		return c.Status(fiber.StatusNotFound).SendString("Sorry can't find that!")
 	})
 	// 405 Handler
-	//app.Use(func(c *fiber.Ctx) error {
-	//	return c.SendStatus(405) // => 404 "Not Found"
-	//})
 	//router.NoMethod(handlers.Http405Handler())
-	//router.NoRoute(handlers.Http404Handler())
 }

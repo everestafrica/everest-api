@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"github.com/everestafrica/everest-api/internal/commons/constants"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type IAuthController interface {
@@ -34,9 +32,6 @@ func (ctl authController) RegisterRoutes(app *fiber.App) {
 
 func (ctl authController) Register(ctx *fiber.Ctx) error {
 	var body types.RegisterRequest
-	requestIdentifier := uuid.NewString()
-
-	ctx.Set(constants.RequestIdentifier, requestIdentifier)
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
@@ -61,9 +56,6 @@ func (ctl authController) Register(ctx *fiber.Ctx) error {
 }
 func (ctl authController) Login(ctx *fiber.Ctx) error {
 	var body types.LoginRequest
-	requestIdentifier := uuid.NewString()
-
-	ctx.Set(constants.RequestIdentifier, requestIdentifier)
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{

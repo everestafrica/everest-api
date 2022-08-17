@@ -7,4 +7,5 @@ import (
 
 func RegisterRoutes(router *fiber.App) {
 	controllers.NewAuthController().RegisterRoutes(router)
+	controllers.NewSubscriptionController().RegisterRoutes(router)
 }

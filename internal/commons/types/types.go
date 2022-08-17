@@ -84,18 +84,25 @@ type MonoAccountResponse struct {
 		ID          string `json:"_id"`
 		Institution struct {
 			Name     string `json:"name"`
-			BankCode string `json:"bankCode"`
+			BankCode string `json:"bank_code"`
 			Type     string `json:"type"`
 		} `json:"institution"`
 		Name          string `json:"name"`
-		AccountNumber string `json:"accountNumber"`
+		AccountNumber string `json:"account_number"`
 		Type          string `json:"type"`
 		Balance       int    `json:"balance"`
 		Currency      string `json:"currency"`
 		Bvn           string `json:"bvn"`
 	} `json:"account"`
 }
-
+type MonoManualsyncResponse struct {
+	Status     string `json:"status"`
+	HasNewData *bool  `json:"hasNewData"`
+	Code       string `json:"code"`
+}
+type MonoReauthResponse struct {
+	Token string `json:"token"`
+}
 type SubscriptionRequest struct {
 	Product     string         `json:"product" binding:"required"`
 	Price       string         `json:"price" binding:"required"`
@@ -111,7 +118,8 @@ type BudgetRequest struct {
 		Amount int                 `json:"amount"`
 	} `json:"categories"`
 }
-
+type CryptoSymbol string
+type CryptoName string
 type CurrencySymbol string
 type Frequency string
 type TransactionType string
@@ -125,6 +133,10 @@ const (
 	KES CurrencySymbol = "KES"
 	GHC CurrencySymbol = "GHC"
 	ZAR CurrencySymbol = "ZAR"
+
+	BTC CryptoSymbol = "BTC"
+	ETH CryptoSymbol = "ETH"
+	BNB CryptoSymbol = "BNB"
 
 	MONTHLY  Frequency = "MONTHLY"
 	ANNUALLY Frequency = "ANNUALLY"

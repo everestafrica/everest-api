@@ -1,6 +1,7 @@
 package mono
 
 import (
+	"errors"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 )
@@ -32,5 +33,38 @@ func GetAccountTransactions(id string) (*types.MonoTransactionResponse, error) {
 		return nil, err
 	}
 	res := v.(*types.MonoTransactionResponse)
+	return res, nil
+}
+
+func SyncUserData(id string) (bool, error) {
+	var resp *types.MonoManualsyncResponse
+	s, err := Get(fmt.Sprintf("/v1/accounts/%s/sync", id), "", resp)
+	if err != nil {
+		return false, err
+	}
+	res := s.(*types.MonoManualsyncResponse)
+	if res.Status == "failed" {
+		if res.Code == "REAUTHORISATION_REQUIRED" {
+			return false, errors.New("REAUTHORISATION_REQUIRED")
+		} else if res.Code == "SYNC_ERROR" {
+			return false, errors.New("SYNC_ERROR")
+		}
+	}
+	if res.Code == "INCOMPLETE_STATEMENT_ERROR" {
+		s, err = Get(fmt.Sprintf("/v1/accounts/%s/sync", id), "?allow_incomplete_statement=true", resp)
+		//if err != nil{
+		//	return false, err
+		//}
+	}
+	return true, nil
+}
+
+func ReauthoriseUser(id string) (*types.MonoReauthResponse, error) {
+	var resp *types.MonoReauthResponse
+	s, err := Get(fmt.Sprintf("/v1/accounts/%s/reauthorise", id), "", resp)
+	if err != nil {
+		return nil, err
+	}
+	res := s.(*types.MonoReauthResponse)
 	return res, nil
 }

@@ -31,9 +31,9 @@ func (ss subscriptionService) AddSubscription(request *types.SubscriptionRequest
 		UserId:      userId,
 		Product:     request.Product,
 		Price:       request.Price,
-		Currency:    types.CurrencySymbol(request.Currency),
+		Currency:    request.Currency,
 		Logo:        request.Logo,
-		Frequency:   types.Frequency(request.Frequency),
+		Frequency:   request.Frequency,
 		NextPayment: time.Time{},
 	}
 	err := ss.subscriptionRepo.Create(&sub)

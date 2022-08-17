@@ -86,8 +86,8 @@ func (ad accountDetailsService) SetAccountTransactions(txn *types.MonoTransactio
 			Balance:   v.Balance,
 			Date:      v.Date,
 			Narration: v.Narration,
-			Type:      v.Type,
-			Category:  v.Category,
+			Type:      types.TransactionType(v.Type),
+			Category:  types.TransactionCategory(v.Category),
 		}
 		err := ad.accountTransactionRepo.Create(&transaction)
 		if err != nil {

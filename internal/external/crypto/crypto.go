@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/log"
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
 	"io"
@@ -59,7 +60,7 @@ type Btc struct {
 	FinalNTx           int    `json:"final_n_tx"`
 }
 
-func GetBalance(address, coin string) (interface{}, error) {
+func GetBalance(address string, coin types.CryptoSymbol) (*string, error) {
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
 	var url string
@@ -80,17 +81,21 @@ func GetBalance(address, coin string) (interface{}, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-
+	body, ioerr := io.ReadAll(resp.Body)
+	if ioerr != nil {
+		fmt.Println(ioerr)
+		return nil, ioerr
+	}
 	var result Balance
 	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
 		fmt.Println("Can not unmarshal JSON")
+		return nil, err
 	}
-	fmt.Println(util.PrettyPrint(result))
-	return result.Result, nil
+	//fmt.Println(util.PrettyPrint(result))
+	return &result.Result, nil
 }
 
-func GetTxn(address, coin string) ([]TxnRes, error) {
+func GetTxn(address string, coin types.CryptoSymbol) ([]TxnRes, error) {
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
 
@@ -117,32 +122,10 @@ func GetTxn(address, coin string) ([]TxnRes, error) {
 	var result Transactions
 	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
 		fmt.Println("Can not unmarshal JSON")
+		return nil, err
 	}
 	fmt.Println(util.PrettyPrint(result))
 	return result.Result, nil
-}
-
-func FetchBNB(address string) *Coin {
-
-	bal, _ := GetBalance(address, "BNB")
-	txn, _ := GetTxn(address, "BNB")
-
-	res := &Coin{
-		balance:      bal,
-		transactions: txn,
-	}
-	return res
-}
-
-func FetchETH(address string) *Coin {
-	bal, _ := GetBalance(address, "ETH")
-	txn, _ := GetTxn(address, "ETH")
-
-	res := &Coin{
-		balance:      bal,
-		transactions: txn,
-	}
-	return res
 }
 
 func FetchBTC(address string) (*BtcTransaction, error) {
@@ -157,7 +140,7 @@ func FetchBTC(address string) (*BtcTransaction, error) {
 	if err = json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
 		return nil, err
 	}
-	fmt.Println(util.PrettyPrint(result))
+	//fmt.Println(util.PrettyPrint(result))
 	return &result, nil
 }
 

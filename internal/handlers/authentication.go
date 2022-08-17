@@ -20,8 +20,12 @@ const (
 var utilToken = util.Token{}
 
 // UserFromContext extracts the user_id from context
-func UserFromContext(ctx *fiber.Ctx) string {
-	return ctx.Get(AuthUserContextKey)
+func UserFromContext(ctx *fiber.Ctx) (string, error) {
+	id := ctx.Get(AuthUserContextKey)
+	if id == "" {
+		return "", ctx.Status(fiber.StatusUnauthorized).JSON("unable to fetch user info from token")
+	}
+	return id, nil
 }
 
 // StructToMap converts a struct of any type to a map[string]interface{}.
