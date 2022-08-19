@@ -9,36 +9,41 @@ import (
 	"github.com/google/uuid"
 )
 
-type IAccountDetailsService interface {
+type IAccountService interface {
 	SetAccountDetails(code, userId string) error
 	SetAccountTransactions(transaction *types.MonoTransactionResponse, userId string) error
+	UnlinkAccount(id string, userId string) error
 }
 
-type accountDetailsService struct {
-	accountTransactionRepo repositories.IAccountTransactionRepository
+type accountService struct {
 	userRepo               repositories.IUserRepository
+	accountTransactionRepo repositories.IAccountTransactionRepository
 	accountDetailsRepo     repositories.IAccountDetailsRepository
 }
 
-// NewAccountDetailsService will instantiate AccountDetailsService
-func NewAccountDetailsService() IAccountDetailsService {
-	return &accountDetailsService{
-		accountTransactionRepo: repositories.NewAccountTransactionRepo(),
+// NewAccountService will instantiate AccountService
+func NewAccountService() IAccountService {
+	return &accountService{
 		userRepo:               repositories.NewUserRepo(),
+		accountTransactionRepo: repositories.NewAccountTransactionRepo(),
 		accountDetailsRepo:     repositories.NewAccountDetailsRepo(),
 	}
 }
 
-func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
+func (ad accountService) SetAccountDetails(code, userId string) error {
 	monoCode := types.MonoAccountIdRequest{
 		Code: code,
 	}
 	monoId, err := mono.GetAccountId(&monoCode)
+	if err != nil {
+		return err
+	}
 
 	details, err := mono.GetAccountDetails(monoId.Id)
 	if err != nil {
 		return err
 	}
+
 	user, err := ad.accountDetailsRepo.FindByUserId(userId)
 	if user != nil {
 		user.Balance = details.Account.Balance
@@ -69,7 +74,7 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 	return nil
 }
 
-func (ad accountDetailsService) SetAccountTransactions(txn *types.MonoTransactionResponse, userId string) error {
+func (ad accountService) SetAccountTransactions(txn *types.MonoTransactionResponse, userId string) error {
 	u, err := ad.userRepo.FindByUserId(userId)
 	if err != nil {
 		return err
@@ -95,5 +100,13 @@ func (ad accountDetailsService) SetAccountTransactions(txn *types.MonoTransactio
 		}
 	}
 
+	return nil
+}
+
+func (ad accountService) UnlinkAccount(id string, userId string) error {
+	err := mono.Unlink(id)
+	if err != nil {
+		return err
+	}
 	return nil
 }

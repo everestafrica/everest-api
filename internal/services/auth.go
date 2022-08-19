@@ -22,17 +22,45 @@ type IAuthService interface {
 }
 
 type authService struct {
-	jwtSecret string
-	userRepo  repositories.IUserRepository
+	jwtSecret  string
+	userRepo   repositories.IUserRepository
+	otpService IOTPService
 }
 
 // NewAuthService will instantiate AuthService
 func NewAuthService() IAuthService {
 	return &authService{
-		jwtSecret: config.GetConf().JWTSecret,
-		userRepo:  repositories.NewUserRepo(),
+		jwtSecret:  config.GetConf().JWTSecret,
+		userRepo:   repositories.NewUserRepo(),
+		otpService: NewOTPService(),
 	}
 }
+
+//func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
+//
+//	code, err := as.otpService.Generate(request.Receiver)
+//
+//	if err != nil {
+//		return errors.New("oops an error occurred please try again")
+//	}
+//
+//	message := fmt.Sprintf("Your wirepay code is %s", *code)
+//
+//	if !request.IsEmail {
+//		go rehook.SendSMS(message, request.Receiver)
+//	} else {
+//		go sendgrid.SendEmail(sendgrid.Email{
+//			ToName:  "",
+//			ToEmail: request.Receiver,
+//			Subject: "Your Wirepay code",
+//			HTML:    fmt.Sprintf("<html><body>%s</body></html>", message),
+//			Text:    message,
+//		})
+//	}
+//
+//	return nil
+//
+//}
 
 func (as *authService) Register(body types.RegisterRequest) (*types.RegisterResponse, error) {
 	stringUtil := util.StringUtil{}

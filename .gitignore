@@ -105,3 +105,4 @@ logrus.log
 .air.toml
 
 misc.go
+start.sh

@@ -68,3 +68,12 @@ func ReauthoriseUser(id string) (*types.MonoReauthResponse, error) {
 	res := s.(*types.MonoReauthResponse)
 	return res, nil
 }
+
+func Unlink(id string) error {
+	var resp string
+	_, err := Get(fmt.Sprintf("/v1/accounts/%s/unlink", id), "", resp)
+	if err != nil {
+		return err
+	}
+	return nil
+}

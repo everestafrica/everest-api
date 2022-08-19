@@ -40,7 +40,9 @@ func (s *server) Start() error {
 			return uuid.NewString()
 		},
 	}))
-	app.Use(logger.New())
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("You're home, yaay!!")

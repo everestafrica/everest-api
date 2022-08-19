@@ -28,10 +28,10 @@ func NewSubscriptionController() ISubscriptionController {
 
 func (ctl subscriptionController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
-	subs := v1.Group("/subscription")
+	subs := v1.Group("/subscriptions")
 	subs.Get("/:id", handlers.SecureAuth(), ctl.GetSubscription)
-	subs.Get("", handlers.SecureAuth(), ctl.GetAllSubscriptions)
-	subs.Post("", handlers.SecureAuth(), ctl.AddSubscription)
+	subs.Get("/", handlers.SecureAuth(), ctl.GetAllSubscriptions)
+	subs.Post("/", handlers.SecureAuth(), ctl.AddSubscription)
 	subs.Delete("/:id", handlers.SecureAuth(), ctl.DeleteSubscription)
 }
 
