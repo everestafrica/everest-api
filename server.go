@@ -1,4 +1,4 @@
-package everest_api
+package main
 
 import (
 	"errors"

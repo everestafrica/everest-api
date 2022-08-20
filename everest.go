@@ -1,4 +1,4 @@
-package everest_api
+package main
 
 import "github.com/everestafrica/everest-api/internal/config"
 
