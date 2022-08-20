@@ -29,7 +29,7 @@ func NewClient(connectionURL, password, namespace string, params ...Param) *Clie
 
 	c := redis.NewClient(&redis.Options{
 		Addr:        connectionURL,
-		Password:    password, // no password set
+		Password:    "", // no password set
 		DB:          0,
 		DialTimeout: 15 * time.Second,
 		MaxRetries:  10, // use default DB
