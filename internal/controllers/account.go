@@ -27,7 +27,7 @@ func (ctl accountController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
 	accounts := v1.Group("/accounts")
 	accounts.Post("/connect", handlers.SecureAuth(), ctl.LinkAccount)
-	accounts.Post("/connect", handlers.SecureAuth(), ctl.LinkAccount)
+	accounts.Post("/disconnect", handlers.SecureAuth(), ctl.UnLinkAccount)
 }
 
 func (ctl accountController) LinkAccount(ctx *fiber.Ctx) error {

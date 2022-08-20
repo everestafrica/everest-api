@@ -12,6 +12,8 @@ import (
 type IAccountService interface {
 	SetAccountDetails(code, userId string) error
 	SetAccountTransactions(transaction *types.MonoTransactionResponse, userId string) error
+	GetAccountDetails(accountId string, userId string) (*models.AccountDetail, error)
+	GetAllAccountsDetails(userId string) (*[]models.AccountDetail, error)
 	UnlinkAccount(id string, userId string) error
 }
 
@@ -44,7 +46,7 @@ func (ad accountService) SetAccountDetails(code, userId string) error {
 		return err
 	}
 
-	user, err := ad.accountDetailsRepo.FindByUserId(userId)
+	user, err := ad.accountDetailsRepo.FindByUserId("", userId)
 	if user != nil {
 		user.Balance = details.Account.Balance
 		err = ad.accountDetailsRepo.Update(user)
@@ -101,6 +103,21 @@ func (ad accountService) SetAccountTransactions(txn *types.MonoTransactionRespon
 	}
 
 	return nil
+}
+
+func (ad accountService) GetAccountDetails(accountId string, userId string) (*models.AccountDetail, error) {
+	account, err := ad.accountDetailsRepo.FindByUserId(accountId, userId)
+	if err != nil {
+		return nil, err
+	}
+	return account, nil
+}
+func (ad accountService) GetAllAccountsDetails(userId string) (*[]models.AccountDetail, error) {
+	accounts, err := ad.accountDetailsRepo.FindAllByUserId(userId)
+	if err != nil {
+		return nil, err
+	}
+	return accounts, nil
 }
 
 func (ad accountService) UnlinkAccount(id string, userId string) error {

@@ -26,13 +26,13 @@ func RegisterSchedulers() {
 		}
 	})
 
-	sch.Every(1).Hour().Do(func() {
-		err := s.news.SetNews()
-		if err != nil {
-			log.Print(err)
-			return
-		}
-	})
+	//sch.Every(1).Hour().Do(func() {
+	//	err := s.news.SetNews()
+	//	if err != nil {
+	//		log.Print(err)
+	//		return
+	//	}
+	//})
 
 	sch.StartAsync()
 }

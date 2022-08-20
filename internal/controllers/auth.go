@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
 )
@@ -36,15 +37,20 @@ func (ctl authController) Register(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
-			Message: err,
+			Message: err.Error(),
 		})
+	}
+	errors := util.ValidateStruct(body)
+	if errors != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors)
+
 	}
 
 	res, err := ctl.authService.Register(body)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
-			Message: err,
+			Message: err.Error(),
 		})
 	}
 
@@ -60,7 +66,7 @@ func (ctl authController) Login(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
-			Message: err,
+			Message: err.Error(),
 		})
 	}
 
@@ -68,7 +74,7 @@ func (ctl authController) Login(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
-			Message: err,
+			Message: err.Error(),
 		})
 	}
 

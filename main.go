@@ -35,7 +35,7 @@ func main() {
 	}()
 
 	// Create new Redis
-	redis.NewClient(cfg.RedisURL, cfg.RedisPassword, "Everest")
+	redis.NewClient(cfg.RedisURL, "Everest")
 
 	err = Main(cfg)
 

@@ -25,7 +25,7 @@ type Param func(*Client)
 var redisClient *Client
 
 // NewClient is a client constructor.
-func NewClient(connectionURL, password, namespace string, params ...Param) *Client {
+func NewClient(connectionURL, namespace string, params ...Param) *Client {
 
 	c := redis.NewClient(&redis.Options{
 		Addr:        connectionURL,

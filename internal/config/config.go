@@ -37,11 +37,7 @@ type Config struct {
 var config *Config
 
 func LoadConfig() (*Config, error) {
-	//if os.Getenv("ENV") == "development" {
 	godotenv.Load()
-	//fmt.Println("Loaded .env.stage file")
-	//}
-
 	var cfg = Config{}
 
 	tempCfg := reflect.TypeOf(cfg)

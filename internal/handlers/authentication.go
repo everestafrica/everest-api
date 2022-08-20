@@ -50,18 +50,26 @@ func SecureAuth() func(*fiber.Ctx) error {
 		jwtKey := config.GetConf().JWTSecret
 
 		accessToken, err := utilToken.ExtractBearerToken(c.Get("Authorization"))
-		claims := new(types.Claims)
 		if err != nil {
 			logger.Error("error while extracting token: %v", err)
 			return c.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
 				Success: false,
-				Message: err,
+				Message: err.Error(),
 			})
 		}
+		claims := new(types.Claims)
 		token, err := jwt.ParseWithClaims(accessToken, claims,
 			func(token *jwt.Token) (interface{}, error) {
-				return jwtKey, nil
+				return []byte(jwtKey), nil
 			})
+
+		if err != nil {
+			logger.Error("error while parsing claims: %v", err)
+			return c.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
+				Success: false,
+				Message: err.Error(),
+			})
+		}
 
 		if token.Valid {
 			if claims.ExpiresAt < time.Now().Unix() {

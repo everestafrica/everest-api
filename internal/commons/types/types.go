@@ -12,21 +12,20 @@ type GenericResponse struct {
 }
 
 type RegisterRequest struct {
-	FirstName   string `json:"first_name" binding:"required"`
-	LastName    string `json:"last_name" binding:"required"`
+	FirstName   string `json:"first_name" validate:"required"`
+	LastName    string `json:"last_name" validate:"required"`
 	PhoneNumber string `json:"phone_number"`
-	Email       string `json:"email" binding:"required"`
-	Password    string `json:"password" binding:"required"`
+	Email       string `json:"email" validate:"required"`
+	Password    string `json:"password" validate:"required"`
 }
-
 type RegisterResponse struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 type LoginResponse struct {
 	Token     *TokenResponse `json:"token"`
@@ -43,7 +42,7 @@ type Claims struct {
 }
 
 type MonoAccountIdRequest struct {
-	Code string `json:"code" binding:"required"`
+	Code string `json:"code" validate:"required"`
 }
 
 type TokenResponse struct {
@@ -103,13 +102,14 @@ type MonoManualsyncResponse struct {
 type MonoReauthResponse struct {
 	Token string `json:"token"`
 }
+
 type SubscriptionRequest struct {
-	Product     string         `json:"product" binding:"required"`
-	Price       string         `json:"price" binding:"required"`
-	Currency    CurrencySymbol `json:"currency" binding:"required"`
-	Logo        string         `json:"logo" binding:"required"`
-	Frequency   Frequency      `json:"frequency" binding:"required"`
-	NextPayment time.Time      `json:"next_payment" binding:"required"`
+	Product     string         `json:"product" validate:"required"`
+	Price       string         `json:"price" validate:"required"`
+	Currency    CurrencySymbol `json:"currency" validate:"required"`
+	Logo        string         `json:"logo" validate:"required"`
+	Frequency   Frequency      `json:"frequency" validate:"required"`
+	NextPayment time.Time      `json:"next_payment" validate:"required"`
 }
 
 type BudgetRequest struct {
@@ -118,6 +118,7 @@ type BudgetRequest struct {
 		Amount int                 `json:"amount"`
 	} `json:"categories"`
 }
+
 type CryptoSymbol string
 type CryptoName string
 type CurrencySymbol string
