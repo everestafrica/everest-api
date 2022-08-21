@@ -107,24 +107,29 @@ type SubscriptionRequest struct {
 	Product     string         `json:"product" validate:"required"`
 	Price       string         `json:"price" validate:"required"`
 	Currency    CurrencySymbol `json:"currency" validate:"required"`
-	Logo        string         `json:"logo" validate:"required"`
+	Logo        string         `json:"logo"`
 	Frequency   Frequency      `json:"frequency" validate:"required"`
 	NextPayment time.Time      `json:"next_payment" validate:"required"`
 }
 
 type BudgetRequest struct {
-	Categories []struct {
+	TotalAmount int `json:"total_amount" validate:"required"`
+	Categories  []struct {
 		Name   TransactionCategory `json:"name"`
 		Amount int                 `json:"amount"`
-	} `json:"categories"`
+	} `json:"categories"  validate:"required"`
+	Start string `json:"start" validate:"required"`
+	End   string `json:"end" validate:"required"`
 }
 
-type CryptoSymbol string
-type CryptoName string
-type CurrencySymbol string
-type Frequency string
-type TransactionType string
-type TransactionCategory string
+type (
+	CryptoSymbol        string
+	CryptoName          string
+	CurrencySymbol      string
+	Frequency           string
+	TransactionType     string
+	TransactionCategory string
+)
 
 const (
 	NGN CurrencySymbol = "NGN"

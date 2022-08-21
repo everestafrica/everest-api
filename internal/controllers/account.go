@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -44,6 +45,12 @@ func (ctl accountController) LinkAccount(ctx *fiber.Ctx) error {
 			Message: "Problem while parsing request body",
 		})
 	}
+	errors := util.ValidateStruct(body)
+	if errors != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors)
+
+	}
+
 	err = ctl.accountService.SetAccountDetails(body.Code, userId)
 	if err != nil {
 		return err

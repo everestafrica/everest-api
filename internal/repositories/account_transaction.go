@@ -39,3 +39,14 @@ func (r *accountTransactionRepo) FindByUserId(userId string) (*models.AccountTra
 
 	return &transaction, nil
 }
+
+//chain := t.db.Scopes(paginate(page, pageSize)).Preload("Counterparty").Where("user_id = ?", userId)
+//
+//if status != "" {
+//chain = chain.Where("status = ?", status)
+//}
+//if entry != "" {
+//chain = chain.Where("entry = ?", entry)
+//}
+//
+//chain.Order("id DESC").Find(&transactions)

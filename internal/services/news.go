@@ -31,6 +31,7 @@ func (ns newsService) SetNews() error {
 	}
 	for _, s := range scraped {
 		scrapedNews := models.News{
+			Source:      "nairametrics",
 			Title:       s.Title,
 			Img:         s.Img,
 			Author:      s.Author,
@@ -45,6 +46,7 @@ func (ns newsService) SetNews() error {
 	}
 	for _, f := range fetched.Data {
 		fetchedNews := models.News{
+			Source:      "newsapi",
 			Title:       f.Title,
 			Img:         f.UrlToImage,
 			Author:      f.Author,

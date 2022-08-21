@@ -9,6 +9,7 @@ import (
 type IAccountDetailsRepository interface {
 	Create(account *models.AccountDetail) error
 	Update(account *models.AccountDetail) error
+	FindByAccountId(accountId string) (*models.AccountDetail, error)
 	FindByUserId(accountId string, userId string) (*models.AccountDetail, error)
 	ExistsByUserId(userId string) bool
 	FindAllByUserId(userId string) (*[]models.AccountDetail, error)
@@ -32,6 +33,14 @@ func (r *accountDetailsRepo) Create(account *models.AccountDetail) error {
 
 func (r *accountDetailsRepo) Update(account *models.AccountDetail) error {
 	return r.db.Save(account).Error
+}
+
+func (r *accountDetailsRepo) FindByAccountId(accountId string) (*models.AccountDetail, error) {
+	var account models.AccountDetail
+	if err := r.db.Where("account_id = ?", accountId).First(&account).Error; err != nil {
+		return nil, err
+	}
+	return &account, nil
 }
 
 func (r *accountDetailsRepo) FindByUserId(accountId string, userId string) (*models.AccountDetail, error) {

@@ -2,6 +2,7 @@ package models
 
 type News struct {
 	Base
+	Source      string `json:"source"`
 	Title       string `json:"title"`
 	Img         string `json:"img"`
 	Author      string `json:"author"`

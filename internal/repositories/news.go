@@ -4,6 +4,7 @@ import (
 	"github.com/everestafrica/everest-api/internal/database"
 	"github.com/everestafrica/everest-api/internal/models"
 	"gorm.io/gorm"
+	"time"
 )
 
 type INewsRepository interface {
@@ -28,10 +29,9 @@ func (r *newsRepo) Create(news *models.News) error {
 
 func (r *newsRepo) Delete() error {
 	var news models.News
-	if err := r.db.Find(&news).Error; err != nil {
-		return err
-	}
-	if err := r.db.Where("title = ?", "data").Delete(&news).Error; err != nil {
+	
+	lastHour := time.Now().Add(-1 * time.Hour)
+	if err := r.db.Where("created_at < ?", lastHour).Delete(&news).Error; err != nil {
 		return err
 	}
 	return nil

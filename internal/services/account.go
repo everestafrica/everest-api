@@ -46,33 +46,33 @@ func (ad accountService) SetAccountDetails(code, userId string) error {
 		return err
 	}
 
-	user, err := ad.accountDetailsRepo.FindByUserId("", userId)
-	if user != nil {
-		user.Balance = details.Account.Balance
-		err = ad.accountDetailsRepo.Update(user)
+	//account, err := ad.accountDetailsRepo.FindByAccountId(monoId.Id)
+	//if account != nil {
+	//	account.Balance = details.Account.Balance
+	//	err = ad.accountDetailsRepo.Update(account)
+	//	if err != nil {
+	//		return err
+	//	}
+	//} else {
+	if details.Meta.DataStatus == "AVAILABLE" {
+		account := models.AccountDetail{
+			UserId:        userId,
+			AccountId:     uuid.NewString(),
+			MonoId:        monoId.Id,
+			Institution:   details.Account.Institution.Name,
+			AccountNumber: details.Account.AccountNumber,
+			Balance:       details.Account.Balance,
+			Currency:      details.Account.Currency,
+		}
+		err := ad.accountDetailsRepo.Create(&account)
 		if err != nil {
 			return err
 		}
-	} else {
-		if details.Meta.DataStatus == "AVAILABLE" {
-			account := models.AccountDetail{
-				UserId:        userId,
-				AccountId:     uuid.NewString(),
-				MonoId:        monoId.Id,
-				Institution:   details.Account.Institution.Name,
-				AccountNumber: details.Account.AccountNumber,
-				Balance:       details.Account.Balance,
-				Currency:      details.Account.Currency,
-			}
-			err := ad.accountDetailsRepo.Create(&account)
-			if err != nil {
-				return err
-			}
-		}
-		if details.Meta.DataStatus == "FAILED" {
-			return errors.New("request for user details failed")
-		}
 	}
+	if details.Meta.DataStatus == "FAILED" {
+		return errors.New("request for user details failed")
+	}
+	//}
 	return nil
 }
 
@@ -81,20 +81,23 @@ func (ad accountService) SetAccountTransactions(txn *types.MonoTransactionRespon
 	if err != nil {
 		return err
 	}
-
+	account, err := ad.accountDetailsRepo.FindByAccountId(*u.MonoId)
+	if err != nil {
+		return err
+	}
 	for _, v := range txn.Data {
 		transaction := models.AccountTransaction{
 			UserId:        userId,
 			MonoId:        u.MonoId,
 			TransactionId: uuid.NewString(),
-			//Institution:   "",
-			Currency:  v.Currency,
-			Amount:    v.Amount,
-			Balance:   v.Balance,
-			Date:      v.Date,
-			Narration: v.Narration,
-			Type:      types.TransactionType(v.Type),
-			Category:  types.TransactionCategory(v.Category),
+			Institution:   account.Institution,
+			Currency:      v.Currency,
+			Amount:        v.Amount,
+			Balance:       v.Balance,
+			Date:          v.Date,
+			Narration:     v.Narration,
+			Type:          types.TransactionType(v.Type),
+			Category:      types.TransactionCategory(v.Category),
 		}
 		err := ad.accountTransactionRepo.Create(&transaction)
 		if err != nil {
@@ -122,6 +125,10 @@ func (ad accountService) GetAllAccountsDetails(userId string) (*[]models.Account
 
 func (ad accountService) UnlinkAccount(id string, userId string) error {
 	err := mono.Unlink(id)
+	if err != nil {
+		return err
+	}
+	err = ad.accountDetailsRepo.Delete(id, userId)
 	if err != nil {
 		return err
 	}
