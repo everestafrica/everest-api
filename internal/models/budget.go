@@ -6,17 +6,16 @@ import (
 
 type Budget struct {
 	Base
-	BudgetId    string     `json:"budget_id"`
 	UserId      string     `json:"user_id"`
 	TotalAmount int        `json:"total_amount"`
 	Categories  []Category `json:"categories"`
-	StartDay    string     `json:"start_day"`
-	EndDay      string     `json:"end_day"`
+	StartDate   string     `json:"start_date"`
+	EndDate     string     `json:"end_date"`
 }
 
 type Category struct {
 	Base
-	BudgetId string                    `json:"budget_id"`
+	BudgetId int                       `json:"budget_id"`
 	Name     types.TransactionCategory `json:"name"`
-	Amount   int                       `json:"amount"`
+	Amount   int                       `json:"amount" gorm:"default:0"`
 }

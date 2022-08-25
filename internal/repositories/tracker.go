@@ -9,7 +9,7 @@ import (
 type ITrackerRepository interface {
 	Create(tracker *models.Tracker) error
 	Update(tracker *models.Tracker) error
-	FindAllByUserId(userId string) (*[]models.Tracker, error)
+	FindByUserId(userId string) (*models.Tracker, error)
 	//Delete(userId, trackerId string) error
 }
 
@@ -32,9 +32,9 @@ func (r trackerRepo) Update(tracker *models.Tracker) error {
 	return r.db.Save(tracker).Error
 }
 
-func (r trackerRepo) FindAllByUserId(userId string) (*[]models.Tracker, error) {
-	var tracker []models.Tracker
-	if err := r.db.Where("user_id = ?", userId).Find(&tracker).Error; err != nil {
+func (r trackerRepo) FindByUserId(userId string) (*models.Tracker, error) {
+	var tracker models.Tracker
+	if err := r.db.Where("user_id = ?", userId).First(&tracker).Error; err != nil {
 		return nil, err
 	}
 	return &tracker, nil

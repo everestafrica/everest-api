@@ -15,7 +15,6 @@ func VerifyMonoWebhook() func(*fiber.Ctx) error {
 					"message": " Unauthorized user",
 				})
 		}
-		c.Next()
-		return nil
+		return c.Next()
 	}
 }

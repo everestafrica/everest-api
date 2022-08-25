@@ -29,9 +29,9 @@ func (r *newsRepo) Create(news *models.News) error {
 
 func (r *newsRepo) Delete() error {
 	var news models.News
-	
-	lastHour := time.Now().Add(-1 * time.Hour)
-	if err := r.db.Where("created_at < ?", lastHour).Delete(&news).Error; err != nil {
+
+	lastHalfHour := time.Now().Add(-30 * time.Minute)
+	if err := r.db.Where("created_at < ?", lastHalfHour).Delete(&news).Error; err != nil {
 		return err
 	}
 	return nil

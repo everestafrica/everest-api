@@ -41,66 +41,10 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-type MonoAccountIdRequest struct {
-	Code string `json:"code" validate:"required"`
-}
-
 type TokenResponse struct {
 	AccessToken string `json:"access_token"`
 	ExpiresAt   int64  `json:"expires_at"`
 	Issuer      string `json:"issuer"`
-}
-
-type MonoAccountIdResponse struct {
-	Id string `json:"id"`
-}
-
-type MonoTransactionResponse struct {
-	Paging struct {
-		Total    int    `json:"total"`
-		Page     int    `json:"page"`
-		Previous string `json:"previous"`
-		Next     string `json:"next"`
-	} `json:"paging"`
-	Data []struct {
-		ID        string          `json:"_id"`
-		Type      string          `json:"type"`
-		Amount    int             `json:"amount"`
-		Narration string          `json:"narration"`
-		Date      string          `json:"date"`
-		Balance   int             `json:"balance"`
-		Currency  string          `json:"currency"`
-		Category  TransactionType `json:"category"`
-	} `json:"data"`
-}
-
-type MonoAccountResponse struct {
-	Meta struct {
-		DataStatus string `json:"data_status"`
-		AuthMethod string `json:"auth_method"`
-	} `json:"meta"`
-	Account struct {
-		ID          string `json:"_id"`
-		Institution struct {
-			Name     string `json:"name"`
-			BankCode string `json:"bank_code"`
-			Type     string `json:"type"`
-		} `json:"institution"`
-		Name          string `json:"name"`
-		AccountNumber string `json:"account_number"`
-		Type          string `json:"type"`
-		Balance       int    `json:"balance"`
-		Currency      string `json:"currency"`
-		Bvn           string `json:"bvn"`
-	} `json:"account"`
-}
-type MonoManualsyncResponse struct {
-	Status     string `json:"status"`
-	HasNewData *bool  `json:"hasNewData"`
-	Code       string `json:"code"`
-}
-type MonoReauthResponse struct {
-	Token string `json:"token"`
 }
 
 type SubscriptionRequest struct {
@@ -112,11 +56,22 @@ type SubscriptionRequest struct {
 	NextPayment time.Time      `json:"next_payment" validate:"required"`
 }
 
-type BudgetRequest struct {
+type CreateBudgetRequest struct {
 	TotalAmount int `json:"total_amount" validate:"required"`
 	Categories  []struct {
 		Name   TransactionCategory `json:"name"`
 		Amount int                 `json:"amount"`
+	} `json:"categories"  validate:"required"`
+	Start string `json:"start" validate:"required"`
+	End   string `json:"end" validate:"required"`
+}
+
+type UpdateBudgetRequest struct {
+	BudgetId    string `json:"budget_id" validate:"required"`
+	TotalAmount *int   `json:"total_amount" validate:"required"`
+	Categories  *[]struct {
+		Name   *TransactionCategory `json:"name"`
+		Amount *int                 `json:"amount"`
 	} `json:"categories"  validate:"required"`
 	Start string `json:"start" validate:"required"`
 	End   string `json:"end" validate:"required"`
