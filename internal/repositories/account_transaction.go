@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/database"
 	"github.com/everestafrica/everest-api/internal/models"
 	"gorm.io/gorm"
@@ -9,7 +10,10 @@ import (
 type IAccountTransactionRepository interface {
 	Create(transaction *models.AccountTransaction) error
 	Update(transaction *models.AccountTransaction) error
-	FindByUserId(userId string) (*models.AccountTransaction, error)
+	FindTransaction(transactionId string, userId string) (*models.AccountTransaction, error)
+	FindAllTransactions(userId string, p types.Pagination) (*[]models.AccountTransaction, error)
+	FindAllByInstitution(institution string, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
+	FindAllByType(txnType string, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
 }
 
 type accountTransactionRepo struct {
@@ -31,16 +35,42 @@ func (r *accountTransactionRepo) Update(transaction *models.AccountTransaction) 
 	return r.db.Save(transaction).Error
 }
 
-func (r *accountTransactionRepo) FindByUserId(userId string) (*models.AccountTransaction, error) {
+func (r *accountTransactionRepo) FindTransaction(transactionId string, userId string) (*models.AccountTransaction, error) {
 	var transaction models.AccountTransaction
-	if err := r.db.Where("user_id = ?", userId).First(&transaction).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND transaction_id", userId, transactionId).First(&transaction).Error; err != nil {
 		return nil, err
 	}
 
 	return &transaction, nil
 }
 
-//chain := t.db.Scopes(paginate(page, pageSize)).Preload("Counterparty").Where("user_id = ?", userId)
+func (r *accountTransactionRepo) FindAllTransactions(userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
+	var transactions []models.AccountTransaction
+	if err := r.db.Scopes(paginate(p)).Where("user_id = ?", userId).Order("id DESC").Find(&transactions).Error; err != nil {
+		return nil, err
+	}
+
+	return &transactions, nil
+}
+
+func (r *accountTransactionRepo) FindAllByInstitution(institution string, userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
+	var transactions []models.AccountTransaction
+	if err := r.db.Scopes(paginate(p)).Where("user_id = ? AND institution = ?", userId, institution).Order("id DESC").Find(&transactions).Error; err != nil {
+		return nil, err
+	}
+
+	return &transactions, nil
+}
+func (r *accountTransactionRepo) FindAllByType(txnType string, userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
+	var transactions []models.AccountTransaction
+	if err := r.db.Scopes(paginate(p)).Where("user_id = ? AND type = ?", userId, txnType).Order("id DESC").Find(&transactions).Error; err != nil {
+		return nil, err
+	}
+
+	return &transactions, nil
+}
+
+//chain := t.db.Scopes(paginate(types.Pagination, types.PageSize)).Preload("Counterparty").Where("user_id = ?", userId)
 //
 //if status != "" {
 //chain = chain.Where("status = ?", status)

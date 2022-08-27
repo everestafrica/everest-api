@@ -36,11 +36,11 @@ type MonoAccountResponse struct {
 		ID          string `json:"_id"`
 		Institution struct {
 			Name     string `json:"name"`
-			BankCode string `json:"bank_code"`
+			BankCode string `json:"bankCode"`
 			Type     string `json:"type"`
 		} `json:"institution"`
 		Name          string `json:"name"`
-		AccountNumber string `json:"account_number"`
+		AccountNumber string `json:"accountNumber"`
 		Type          string `json:"type"`
 		Balance       int    `json:"balance"`
 		Currency      string `json:"currency"`
@@ -60,13 +60,21 @@ type MonoWebhookPayload struct {
 	Event string      `json:"event"`
 	Data  interface{} `json:"data"`
 }
-type MonoWebhookDataSyncData struct {
+type MonoWebhookDataSync struct {
 	Account struct {
 		Id string `json:"_id"`
 	}
 }
-type MonoWebhookUnlinkData struct {
+type MonoWebhookConnect struct {
+	Id string `json:"id"`
+}
+type MonoWebhookUnlink struct {
 	Account struct {
 		Id string `json:"id"`
 	}
+}
+
+type MonoWebhookAccountSync struct {
+	Account string `json:"account"`
+	Updated bool   `json:"updated"`
 }

@@ -12,6 +12,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
+	github.com/lib/pq v1.10.2
 	github.com/mailgun/mailgun-go/v4 v4.8.1
 	github.com/messagebird/go-rest-api/v9 v9.1.0
 	github.com/sirupsen/logrus v1.9.0

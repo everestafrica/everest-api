@@ -34,11 +34,10 @@ func (bs budgetService) CreateBudget(request *types.CreateBudgetRequest, userId 
 		return errors.New("budget created already")
 	}
 	budget := models.Budget{
-		//BudgetId:    uuid.NewString(),
 		UserId:      userId,
 		TotalAmount: request.TotalAmount,
-		//StartDay:    request.Start,
-		//EndDay:      request.End,
+		StartDate:   request.Start,
+		EndDate:     request.End,
 	}
 	err = bs.budgetRepo.Create(&budget)
 	if err != nil {

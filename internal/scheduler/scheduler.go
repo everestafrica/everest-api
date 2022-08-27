@@ -9,6 +9,7 @@ import (
 
 type scheduler struct {
 	news services.INewsService
+	//account services.IAccountService
 }
 
 func RegisterSchedulers() {
@@ -17,6 +18,10 @@ func RegisterSchedulers() {
 	}
 
 	sch := gocron.NewScheduler(time.UTC)
+
+	//sch.Every(12).Hour().Do(func() {
+	//	err := s.account.SetAccountTransactions()
+	//})
 
 	sch.Every(58).Minute().Do(func() {
 		err := s.news.DeleteNews()

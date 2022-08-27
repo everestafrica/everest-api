@@ -24,14 +24,14 @@ func NewAuthController() IAuthController {
 	}
 }
 
-func (ctl authController) RegisterRoutes(app *fiber.App) {
+func (ctl *authController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
 	auth := v1.Group("/auth")
 	auth.Post("/register", ctl.Register)
 	auth.Post("/login", ctl.Login)
 }
 
-func (ctl authController) Register(ctx *fiber.Ctx) error {
+func (ctl *authController) Register(ctx *fiber.Ctx) error {
 	var body types.RegisterRequest
 
 	if err := ctx.BodyParser(&body); err != nil {

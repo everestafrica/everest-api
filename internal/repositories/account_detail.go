@@ -10,10 +10,9 @@ type IAccountDetailsRepository interface {
 	Create(account *models.AccountDetail) error
 	Update(account *models.AccountDetail) error
 	FindByAccountId(accountId string) (*models.AccountDetail, error)
-	FindByUserId(accountId string, userId string) (*models.AccountDetail, error)
-	ExistsByUserId(userId string) bool
+	ExistsByAccountInstitution(institution string, userId string) bool
 	FindAllByUserId(userId string) (*[]models.AccountDetail, error)
-	Delete(accountId string, userId string) error
+	Delete(accountId string) error
 }
 
 type accountDetailsRepo struct {
@@ -43,26 +42,17 @@ func (r *accountDetailsRepo) FindByAccountId(accountId string) (*models.AccountD
 	return &account, nil
 }
 
-func (r *accountDetailsRepo) FindByUserId(accountId string, userId string) (*models.AccountDetail, error) {
+func (r *accountDetailsRepo) ExistsByAccountInstitution(institution string, userId string) bool {
 	var account models.AccountDetail
-	if err := r.db.Where("user_id = ? AND account_id = ?", userId, accountId).First(&account).Error; err != nil {
-		return nil, err
+
+	if err := r.db.Where("user_id = ? AND institution = ?", userId, institution).First(&account).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false
+		}
+		return false
 	}
 
-	return &account, nil
-}
-func (r *accountDetailsRepo) ExistsByUserId(userId string) bool {
 	return true
-	//var user models.User
-	//
-	//if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {
-	//	if err == gorm.ErrRecordNotFound {
-	//		return false, nil
-	//	}
-	//	return false, err
-	//}
-	//
-	//return true, nil
 }
 func (r *accountDetailsRepo) FindAllByUserId(userId string) (*[]models.AccountDetail, error) {
 	var account []models.AccountDetail
@@ -72,9 +62,9 @@ func (r *accountDetailsRepo) FindAllByUserId(userId string) (*[]models.AccountDe
 
 	return &account, nil
 }
-func (r *accountDetailsRepo) Delete(accountId string, userId string) error {
+func (r *accountDetailsRepo) Delete(accountId string) error {
 	var account models.AccountDetail
-	if err := r.db.Where("user_id = ? AND account_id =  ?", userId, accountId).Delete(&account).Error; err != nil {
+	if err := r.db.Where("account_id =  ?", accountId).Delete(&account).Error; err != nil {
 		return err
 	}
 	return nil

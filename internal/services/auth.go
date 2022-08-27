@@ -15,6 +15,7 @@ import (
 
 type IAuthService interface {
 	Register(body types.RegisterRequest) (*types.RegisterResponse, error)
+	//SendOTPCode(request *types.SendCodeRequest) error
 	Login(body types.LoginRequest) (*types.LoginResponse, error)
 	IssueToken(u *models.User) (*types.TokenResponse, error)
 	ParseToken(token string) (*types.Claims, error)
@@ -97,7 +98,7 @@ func (as *authService) Login(body types.LoginRequest) (*types.LoginResponse, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
-		return nil, errors.New("invalid pin")
+		return nil, errors.New("invalid password")
 	}
 
 	issueResponse, err := as.IssueToken(user)
@@ -210,3 +211,28 @@ func (as *authService) RefreshToken(token string) (*types.TokenResponse, error) 
 		Issuer:      claims.Issuer,
 	}, nil
 }
+
+//func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
+//
+//	code, err := as.otpService.Generate(request.Receiver)
+//
+//	if err != nil {
+//		return errors.New("oops an error occurred please try again")
+//	}
+//
+//	message := fmt.Sprintf("Your Everest code is %s", *code)
+//
+//	if !request.IsEmail {
+//		//go channels.SendSMS(message, request.Receiver)
+//	} else {
+//		go channels.SendMail(&channels.Email{
+//			Sender:    "Everest",
+//			Subject:   "OTP",
+//			Body:      message,
+//			Recipient: request.Receiver,
+//		})
+//	}
+//
+//	return nil
+//
+//}

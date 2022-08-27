@@ -33,6 +33,10 @@ type LoginResponse struct {
 	LastName  string         `json:"last_name"`
 	Email     string         `json:"email"`
 }
+type SendCodeRequest struct {
+	IsEmail  bool   `json:"is_email" form:"is_email"`
+	Receiver string `json:"receiver" form:"receiver" binding:"required"`
+}
 
 // Claims represent the structure of the JWT token
 type Claims struct {
@@ -75,6 +79,11 @@ type UpdateBudgetRequest struct {
 	} `json:"categories"  validate:"required"`
 	Start string `json:"start" validate:"required"`
 	End   string `json:"end" validate:"required"`
+}
+
+type Pagination struct {
+	Number int
+	Size   int
 }
 
 type (

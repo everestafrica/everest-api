@@ -1,11 +1,14 @@
 package repositories
 
-import "gorm.io/gorm"
+import (
+	"github.com/everestafrica/everest-api/internal/commons/types"
+	"gorm.io/gorm"
+)
 
-func paginate(page int, size int) func(db *gorm.DB) *gorm.DB {
+func paginate(p types.Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 
-		offset := (page - 1) * size
-		return db.Offset(offset).Limit(size)
+		offset := (p.Number - 1) * p.Size
+		return db.Offset(offset).Limit(p.Size)
 	}
 }

@@ -14,24 +14,24 @@ type IAccountController interface {
 }
 
 type accountController struct {
-	accountService services.IAccountService
+	accountDetailsService services.IAccountDetailsService
 }
 
 // NewAccountController instantiates Account Controller
 func NewAccountController() IAccountController {
 	return &accountController{
-		accountService: services.NewAccountService(),
+		accountDetailsService: services.NewAccountDetailsService(),
 	}
 }
 
-func (ctl accountController) RegisterRoutes(app *fiber.App) {
+func (ctl *accountController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
 	accounts := v1.Group("/accounts")
 	accounts.Post("/connect", handlers.SecureAuth(), ctl.LinkAccount)
 	accounts.Post("/disconnect", handlers.SecureAuth(), ctl.UnLinkAccount)
 }
 
-func (ctl accountController) LinkAccount(ctx *fiber.Ctx) error {
+func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func (ctl accountController) LinkAccount(ctx *fiber.Ctx) error {
 
 	}
 
-	err = ctl.accountService.SetAccountDetails(body.Code, userId)
+	err = ctl.accountDetailsService.SetAccountDetails(body.Code, userId)
 	if err != nil {
 		return err
 	}
@@ -61,20 +61,10 @@ func (ctl accountController) LinkAccount(ctx *fiber.Ctx) error {
 	})
 }
 
-func (ctl accountController) UnLinkAccount(ctx *fiber.Ctx) error {
-	userId, err := handlers.UserFromContext(ctx)
-	if err != nil {
-		return err
-	}
+func (ctl *accountController) UnLinkAccount(ctx *fiber.Ctx) error {
 
 	accountId := ctx.Params("id")
-	//if err := ctx.BodyParser(body); err != nil {
-	//	return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
-	//		Success: false,
-	//		Message: "Problem while parsing request body",
-	//	})
-	//}
-	err = ctl.accountService.UnlinkAccount(accountId, userId)
+	err := ctl.accountDetailsService.UnlinkAccount(accountId)
 	if err != nil {
 		return err
 	}

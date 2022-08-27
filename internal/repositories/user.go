@@ -9,6 +9,7 @@ import (
 type IUserRepository interface {
 	Create(user *models.User) error
 	FindByUserId(userId string) (*models.User, error)
+	FindByMonoId(monoId string) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
 	FindByPassword(password, userId string) (*models.User, error)
 	Update(user *models.User) error
@@ -35,6 +36,15 @@ func (r *userRepo) Create(user *models.User) error {
 func (r *userRepo) FindByUserId(userId string) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("user_id = ?", userId).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *userRepo) FindByMonoId(userId string) (*models.User, error) {
+	var user models.User
+	if err := r.db.Where("mono_id = ?", userId).First(&user).Error; err != nil {
 		return nil, err
 	}
 
