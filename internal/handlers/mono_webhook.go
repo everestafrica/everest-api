@@ -12,7 +12,7 @@ func VerifyMonoWebhook() func(*fiber.Ctx) error {
 		if webhookSecret != secret {
 			return c.Status(fiber.StatusUnauthorized).JSON(
 				fiber.Map{
-					"message": " Unauthorized user",
+					"message": "Unauthorized user",
 				})
 		}
 		return c.Next()

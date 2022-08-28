@@ -10,6 +10,7 @@ import (
 )
 
 type IWebhookService interface {
+	MonoWebhook(payload types.MonoWebhookPayload) error
 }
 
 type webhookService struct {
