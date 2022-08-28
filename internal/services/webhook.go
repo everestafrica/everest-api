@@ -53,7 +53,6 @@ func (ws webhookService) MonoWebhook(payload types.MonoWebhookPayload) error {
 		log.Print(response)
 		return nil
 	}
-
 	if payload.Event == "mono.events.account_unlinked" {
 		response := payload.Data.(types.MonoWebhookUnlink)
 		log.Print(response)

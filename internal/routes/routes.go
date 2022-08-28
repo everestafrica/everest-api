@@ -9,4 +9,6 @@ func RegisterRoutes(router *fiber.App) {
 	controllers.NewAuthController().RegisterRoutes(router)
 	controllers.NewSubscriptionController().RegisterRoutes(router)
 	controllers.NewAccountController().RegisterRoutes(router)
+	controllers.NewBudgetController().RegisterRoutes(router)
+	controllers.NewWebhookController().RegisterRoutes(router)
 }
