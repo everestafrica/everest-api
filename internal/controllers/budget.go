@@ -28,7 +28,7 @@ func NewBudgetController() IBudgetController {
 
 func (bc *budgetController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1/budget")
-	v1.Post("/")
+	v1.Delete("/:id", handlers.SecureAuth(), bc.DeleteBudget)
 
 }
 
