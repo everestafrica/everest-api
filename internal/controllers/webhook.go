@@ -26,6 +26,7 @@ func NewWebhookController() IWebhookController {
 func (ctl webhookController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1/webhook")
 	v1.Post("/mono", handlers.VerifyMonoWebhook(), ctl.Mono)
+
 }
 
 func (ctl webhookController) Mono(ctx *fiber.Ctx) error {

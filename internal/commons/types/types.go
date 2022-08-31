@@ -61,24 +61,20 @@ type SubscriptionRequest struct {
 }
 
 type CreateBudgetRequest struct {
-	TotalAmount int `json:"total_amount" validate:"required"`
-	Categories  []struct {
-		Name   TransactionCategory `json:"name"`
-		Amount int                 `json:"amount"`
-	} `json:"categories"  validate:"required"`
-	Start string `json:"start" validate:"required"`
-	End   string `json:"end" validate:"required"`
+	TotalAmount int          `json:"total_amount" validate:"required"`
+	Categories  []Categories `json:"categories"  validate:"required"`
+	Month       string       `json:"month" validate:"required"`
+	Year        int          `json:"year" validate:"required"`
+}
+type Categories struct {
+	Name   TransactionCategory `json:"name"`
+	Amount int                 `json:"amount"`
 }
 
 type UpdateBudgetRequest struct {
-	BudgetId    string `json:"budget_id" validate:"required"`
-	TotalAmount *int   `json:"total_amount" validate:"required"`
-	Categories  *[]struct {
-		Name   *TransactionCategory `json:"name"`
-		Amount *int                 `json:"amount"`
-	} `json:"categories"  validate:"required"`
-	Start string `json:"start" validate:"required"`
-	End   string `json:"end" validate:"required"`
+	Categories []Categories `json:"categories"  validate:"required"`
+	Month      string       `json:"month" validate:"required"`
+	Year       int          `json:"year" validate:"required"`
 }
 
 type Pagination struct {

@@ -5,7 +5,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
-	"github.com/google/uuid"
 	"log"
 )
 
@@ -36,7 +35,6 @@ func (ws webhookService) MonoWebhook(payload types.MonoWebhookPayload) error {
 			}
 			account := models.AccountDetail{
 				UserId:        user.UserId,
-				AccountId:     uuid.NewString(),
 				MonoId:        response.Account.ID,
 				Institution:   response.Account.Institution.Name,
 				AccountNumber: response.Account.AccountNumber,

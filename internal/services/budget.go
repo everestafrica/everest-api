@@ -8,9 +8,10 @@ import (
 )
 
 type IBudgetService interface {
+	GetBudget(month string, year int, userId string) (*[]models.Budget, error)
 	CreateBudget(request *types.CreateBudgetRequest, userId string) error
-	UpdateBudget(userId string, category int, request *types.UpdateBudgetRequest) error
-	DeleteBudget(budgetId string, userId string) error
+	UpdateBudget(request *types.UpdateBudgetRequest, userId string) error
+	DeleteBudget(month string, year int, userId string) error
 }
 
 type budgetService struct {
@@ -28,28 +29,31 @@ func NewBudgetService() IBudgetService {
 	}
 }
 
+func (bs budgetService) GetBudget(month string, year int, userId string) (*[]models.Budget, error) {
+	budget, err := bs.budgetRepo.FindByPeriod(userId, month, year)
+	if err != nil {
+		return nil, err
+	}
+	return budget, nil
+}
+
 func (bs budgetService) CreateBudget(request *types.CreateBudgetRequest, userId string) error {
-	tracker, err := bs.trackerRepo.FindByUserId(userId)
-	if tracker.CreatedBudget {
-		return errors.New("budget created already")
-	}
-	budget := models.Budget{
-		UserId:      userId,
-		TotalAmount: request.TotalAmount,
-		StartDate:   request.Start,
-		EndDate:     request.End,
-	}
-	err = bs.budgetRepo.Create(&budget)
+	b, err := bs.budgetRepo.FindByPeriod(userId, request.Month, request.Year)
 	if err != nil {
 		return err
 	}
+	if len(*b) > 0 {
+		return errors.New("budget exists for selected time period")
+	}
 	for _, v := range request.Categories {
-		category := models.Category{
-			BudgetId: budget.ID,
-			Name:     v.Name,
+		budget := models.Budget{
+			UserId:   userId,
+			Category: v.Name,
 			Amount:   v.Amount,
+			Month:    request.Month,
+			Year:     request.Year,
 		}
-		err := bs.budgetRepo.CreateCategory(&category)
+		err = bs.budgetRepo.Create(&budget)
 		if err != nil {
 			return err
 		}
@@ -58,28 +62,30 @@ func (bs budgetService) CreateBudget(request *types.CreateBudgetRequest, userId 
 	return nil
 }
 
-func (bs budgetService) UpdateBudget(userId string, category int, request *types.UpdateBudgetRequest) error {
-	//cat, err := bs.budgetRepo.FindByUserIdAndCategoryId(userId, category)
-	//if err != nil {
-	//	return err
-	//}
-	//for _, v := range request.Categories {
-	//	category := models.Category{
-	//		BudgetId: budget.BudgetId,
-	//		Name:     v.Name,
-	//		Amount:   v.Amount,
-	//	}
-	//	err := bs.budgetRepo.CreateCategory(&category)
-	//	if err != nil {
-	//		return err
-	//	}
-	//}
+func (bs budgetService) UpdateBudget(request *types.UpdateBudgetRequest, userId string) error {
+	err := bs.budgetRepo.Delete(userId, request.Month, request.Year)
+	if err != nil {
+		return err
+	}
 
+	for _, v := range request.Categories {
+		budget := models.Budget{
+			UserId:   userId,
+			Category: v.Name,
+			Amount:   v.Amount,
+			Month:    request.Month,
+			Year:     request.Year,
+		}
+		err = bs.budgetRepo.Create(&budget)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func (bs budgetService) DeleteBudget(budgetId string, userId string) error {
-	err := bs.budgetRepo.Delete(userId, budgetId)
+func (bs budgetService) DeleteBudget(month string, year int, userId string) error {
+	err := bs.budgetRepo.Delete(userId, month, year)
 	if err != nil {
 		return err
 	}

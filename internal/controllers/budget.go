@@ -10,6 +10,7 @@ import (
 )
 
 type IBudgetController interface {
+	GetBudget(ctx *fiber.Ctx) error
 	AddBudget(ctx *fiber.Ctx) error
 	UpdateBudget(ctx *fiber.Ctx) error
 	DeleteBudget(ctx *fiber.Ctx) error
@@ -28,8 +29,36 @@ func NewBudgetController() IBudgetController {
 
 func (bc *budgetController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1/budget")
-	v1.Delete("/:id", handlers.SecureAuth(), bc.DeleteBudget)
+	
+	v1.Get("/", handlers.SecureAuth(), bc.GetBudget)
+	v1.Post("/", handlers.SecureAuth(), bc.AddBudget)
+	v1.Put("/", handlers.SecureAuth(), bc.UpdateBudget)
+	v1.Delete("/", handlers.SecureAuth(), bc.DeleteBudget)
 
+}
+
+func (bc *budgetController) GetBudget(ctx *fiber.Ctx) error {
+	userId, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	month := ctx.Query("month")
+	year, _ := strconv.Atoi(ctx.Query("year"))
+
+	budget, err := bc.budgetService.GetBudget(month, year, userId)
+	if err != nil {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: "unable to get budget",
+		})
+	}
+
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "budget successfully added",
+		Data:    budget,
+	})
 }
 
 func (bc *budgetController) AddBudget(ctx *fiber.Ctx) error {
@@ -70,7 +99,6 @@ func (bc *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	categoryId, _ := strconv.Atoi(ctx.Params("id"))
 
 	var body *types.UpdateBudgetRequest
 	if err := ctx.BodyParser(body); err != nil {
@@ -84,7 +112,7 @@ func (bc *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
 	if errors != nil {
 		return ctx.JSON(errors)
 	}
-	err = bc.budgetService.UpdateBudget(userId, categoryId, body)
+	err = bc.budgetService.UpdateBudget(body, userId)
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,
@@ -103,9 +131,11 @@ func (bc *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	budgetId := ctx.Params("id")
 
-	err = bc.budgetService.DeleteBudget(budgetId, userId)
+	month := ctx.Query("month")
+	year, _ := strconv.Atoi(ctx.Query("year"))
+
+	err = bc.budgetService.DeleteBudget(month, year, userId)
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,

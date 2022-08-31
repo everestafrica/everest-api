@@ -25,7 +25,7 @@ func NewCryptoService() ICryptoService {
 	}
 }
 
-func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address, userId string) error {
+func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address string, userId string) error {
 	balance, err := crypto.GetBalance(address, coin)
 	if err != nil {
 		return err
@@ -48,13 +48,10 @@ func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address, userId strin
 	return nil
 }
 
+func (cs cryptoService) DeleteWallet(coin types.CryptoSymbol, userId string) error {
+	return nil
+}
+
 func GetCoinName(coin types.CryptoSymbol) string {
 	return ""
-}
-
-func (cs cryptoService) UpdateWallet() {
-}
-
-func (cs cryptoService) DeleteWallet(coin types.CryptoSymbol) error {
-	return nil
 }

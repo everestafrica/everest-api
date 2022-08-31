@@ -6,11 +6,27 @@ import (
 	"golang.org/x/text/language"
 	"net/mail"
 	"strings"
+	"time"
 )
 
 func PrettyPrint(i interface{}) string {
 	s, _ := json.MarshalIndent(i, "", "\t")
 	return string(s)
+}
+
+func MonthYearSort(month time.Month, year int) (time.Time, time.Time) {
+	currentLocation := time.Now().Location()
+
+	first := time.Date(year, month, 1, 0, 0, 0, 0, currentLocation)
+	last := first.AddDate(0, 1, -1)
+	//lastOfMonth := first.AddDate(0, 1, -1).Format("2006-01-02")
+	return first, last
+}
+
+func isNewMonth(month time.Month, year int) bool {
+	//thisMonth := time.Now().Month()
+	//thisYear := time.Now().Year()
+	return true
 }
 
 type StringUtil struct{}

@@ -38,7 +38,6 @@ func MigrateAll(db *gorm.DB) error {
 		models.AccountTransaction{},
 		models.AccountDetail{},
 		models.Budget{},
-		models.Category{},
 		models.CryptoTransaction{},
 		models.CryptoDetail{},
 		models.Subscription{},

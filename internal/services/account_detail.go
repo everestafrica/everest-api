@@ -6,7 +6,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/external/mono"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
-	"github.com/google/uuid"
 	"log"
 )
 
@@ -55,7 +54,6 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 	if details.Meta.DataStatus == "AVAILABLE" {
 		account := models.AccountDetail{
 			UserId:        userId,
-			AccountId:     uuid.NewString(),
 			MonoId:        monoId.Id,
 			Institution:   details.Account.Institution.Name,
 			AccountNumber: details.Account.AccountNumber,
