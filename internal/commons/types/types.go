@@ -100,9 +100,12 @@ const (
 	GHC CurrencySymbol = "GHC"
 	ZAR CurrencySymbol = "ZAR"
 
-	BTC CryptoSymbol = "BTC"
-	ETH CryptoSymbol = "ETH"
-	BNB CryptoSymbol = "BNB"
+	BTC  CryptoSymbol = "BTC"
+	ETH  CryptoSymbol = "ETH"
+	BSC  CryptoSymbol = "BSC"
+	USDT CryptoSymbol = "USDT"
+	SOL  CryptoSymbol = "SOL"
+	DOGE CryptoSymbol = "DOGE"
 
 	MONTHLY  Frequency = "MONTHLY"
 	ANNUALLY Frequency = "ANNUALLY"

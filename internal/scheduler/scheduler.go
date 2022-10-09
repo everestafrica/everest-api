@@ -12,6 +12,10 @@ type scheduler struct {
 	//account services.IAccountService
 }
 
+type IScheduler interface {
+	RegisterSchedulers()
+}
+
 func RegisterSchedulers() {
 	s := scheduler{
 		news: services.NewNewsService(),

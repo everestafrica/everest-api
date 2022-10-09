@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-var yourDomain string = config.GetConf().EmailDomainUrl
-var privateAPIKey string = config.GetConf().EmailSecretKey
-
 type Email struct {
 	Sender    string
 	Subject   string
@@ -22,7 +19,8 @@ type EmailResponse struct {
 }
 
 func SendMail(email *Email) (*EmailResponse, error) {
-
+	yourDomain := config.GetConf().EmailDomainUrl
+	privateAPIKey := config.GetConf().EmailSecretKey
 	mg := mailgun.NewMailgun(yourDomain, privateAPIKey)
 
 	// The message object allows you to add attachments and Bcc recipients

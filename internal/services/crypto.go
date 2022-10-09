@@ -5,53 +5,82 @@ import (
 	"github.com/everestafrica/everest-api/internal/external/crypto"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
-	"strconv"
 )
 
 type ICryptoService interface {
-	AddWallet(coin types.CryptoSymbol, address, userId string) error
+	SetWallet(coin types.CryptoSymbol, address, userId string) error
+	DeleteWallet(coin types.CryptoSymbol, userId string) error
 }
 
 type cryptoService struct {
-	userRepo   repositories.IUserRepository
-	cryptoRepo repositories.ICryptoDetailsRepository
+	userRepo          repositories.IUserRepository
+	cryptoDetailsRepo repositories.ICryptoDetailsRepository
+	cryptoTrxRepo     repositories.ICryptoTransactionRepository
 }
 
 // NewCryptoService will instantiate CryptoService
 func NewCryptoService() ICryptoService {
 	return &cryptoService{
-		userRepo:   repositories.NewUserRepo(),
-		cryptoRepo: repositories.NewCryptoDetailsRepo(),
+		userRepo:          repositories.NewUserRepo(),
+		cryptoDetailsRepo: repositories.NewCryptoDetailsRepo(),
+		cryptoTrxRepo:     repositories.NewCryptoTransactionRepo(),
 	}
 }
 
-func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address string, userId string) error {
+func (cs cryptoService) SetWallet(coin types.CryptoSymbol, address string, userId string) error {
 	balance, err := crypto.GetBalance(address, coin)
 	if err != nil {
 		return err
 	}
-	bal, err := strconv.Atoi(*balance)
-	if err != err {
-		return err
-	}
+
 	c := &models.CryptoDetail{
 		UserId:        userId,
 		WalletAddress: address,
-		Balance:       bal,
+		Balance:       balance.Value,
 		Name:          types.CryptoName(GetCoinName(coin)),
 		Symbol:        coin,
 	}
-	err = cs.cryptoRepo.Create(c)
+	err = cs.cryptoDetailsRepo.Create(c)
 	if err != nil {
 		return err
 	}
+
+	transactions, err := crypto.GetTransaction(address, coin)
+	if err != nil {
+		return err
+	}
+	for _, transaction := range *transactions {
+		trx := &models.CryptoTransaction{
+			UserId:        userId,
+			WalletAddress: address,
+			Name:          types.CryptoName(GetCoinName(coin)),
+			Symbol:        coin,
+			Value:         transaction.Value,
+			Date:          transaction.Date,
+			Type:          transaction.Type,
+		}
+		err := cs.cryptoTrxRepo.Create(trx)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
 func (cs cryptoService) DeleteWallet(coin types.CryptoSymbol, userId string) error {
+	//cs.cryptoRepo.
 	return nil
 }
 
 func GetCoinName(coin types.CryptoSymbol) string {
-	return ""
+	coins := map[types.CryptoSymbol]string{
+		"BTC":  "Bitcoin",
+		"ETH":  "Ethereum",
+		"BSC":  "Binance Coin",
+		"USDT": "Tether",
+		"SOL":  "Solana",
+		"DOGE": "Dogecoin",
+	}
+	return coins[coin]
 }

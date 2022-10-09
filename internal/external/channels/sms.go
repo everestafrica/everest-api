@@ -7,11 +7,9 @@ import (
 	"github.com/messagebird/go-rest-api/v9/balance"
 )
 
-// Access keys can be managed through our dashboard.
-var accessKey = config.GetConf().TestSmsApiKey
-
 func SendSMS() {
-
+	// Access keys can be managed through our dashboard.
+	accessKey := config.GetConf().TestSmsApiKey
 	// Create a client.
 	client := messagebird.New(accessKey)
 	//sms.Create(client, "",)

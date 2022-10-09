@@ -15,17 +15,15 @@ type IBudgetService interface {
 }
 
 type budgetService struct {
-	userRepo    repositories.IUserRepository
-	trackerRepo repositories.ITrackerRepository
-	budgetRepo  repositories.IBudgetRepository
+	userRepo   repositories.IUserRepository
+	budgetRepo repositories.IBudgetRepository
 }
 
 // NewBudgetService will instantiate BudgetService
 func NewBudgetService() IBudgetService {
 	return &budgetService{
-		userRepo:    repositories.NewUserRepo(),
-		trackerRepo: repositories.NewTrackerRepo(),
-		budgetRepo:  repositories.NewBudgetRepo(),
+		userRepo:   repositories.NewUserRepo(),
+		budgetRepo: repositories.NewBudgetRepo(),
 	}
 }
 

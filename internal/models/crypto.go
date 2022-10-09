@@ -6,19 +6,20 @@ type CryptoDetail struct {
 	Base
 	UserId        string             `json:"user_id"`
 	WalletAddress string             `json:"wallet_address"`
-	Balance       int                `json:"balance"`
+	Balance       float64            `json:"balance"`
 	Name          types.CryptoName   `json:"name"`
 	Symbol        types.CryptoSymbol `json:"symbol"`
 }
 
 type CryptoTransaction struct {
 	Base
-	UserId string             `json:"user_id"`
-	Hash   string             `json:"hash"`
-	Name   types.CryptoName   `json:"name"`
-	Symbol types.CryptoSymbol `json:"symbol"`
-	Amount int                `json:"amount"`
-	Value  int                `json:"value"`
-	Date   string             `json:"date"`
-	Type   string             `json:"type"`
+	UserId        string                `json:"user_id"`
+	WalletAddress string                `json:"wallet_address"`
+	Hash          string                `json:"hash"`
+	Name          types.CryptoName      `json:"name"`
+	Symbol        types.CryptoSymbol    `json:"symbol"`
+	Fees          string                `json:"fees"`
+	Value         string                `json:"value"`
+	Date          string                `json:"date"`
+	Type          types.TransactionType `json:"type"`
 }

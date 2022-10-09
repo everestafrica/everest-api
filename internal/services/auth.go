@@ -2,13 +2,16 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
+	"github.com/everestafrica/everest-api/internal/external/channels"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"strconv"
 	"time"
 )
@@ -212,27 +215,32 @@ func (as *authService) RefreshToken(token string) (*types.TokenResponse, error) 
 	}, nil
 }
 
-//func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
-//
-//	code, err := as.otpService.Generate(request.Receiver)
-//
-//	if err != nil {
-//		return errors.New("oops an error occurred please try again")
-//	}
-//
-//	message := fmt.Sprintf("Your Everest code is %s", *code)
-//
-//	if !request.IsEmail {
-//		//go channels.SendSMS(message, request.Receiver)
-//	} else {
-//		go channels.SendMail(&channels.Email{
-//			Sender:    "Everest",
-//			Subject:   "OTP",
-//			Body:      message,
-//			Recipient: request.Receiver,
-//		})
-//	}
-//
-//	return nil
-//
-//}
+func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
+
+	code, err := as.otpService.Generate(request.Receiver)
+
+	if err != nil {
+		return errors.New("oops an error occurred please try again")
+	}
+
+	message := fmt.Sprintf("Your Everest code is %s", *code)
+
+	if !request.IsEmail {
+		//go channels.SendSMS(message, request.Receiver)
+	} else {
+		go func() {
+			_, err := channels.SendMail(&channels.Email{
+				Sender:    "Everest",
+				Subject:   "OTP",
+				Body:      message,
+				Recipient: request.Receiver,
+			})
+			if err != nil {
+				log.Print(err)
+			}
+		}()
+	}
+
+	return nil
+
+}

@@ -2,27 +2,40 @@ package crypto
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
-	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
-	"io"
-	"net/http"
 )
 
-type Balance struct {
-	Status  string
-	Message string
-	Result  string
-}
-type Transactions struct {
-	Message string
-	Result  []TxnRes
-	Status  string
+type Transaction struct {
+	WalletAddress string                `json:"wallet_address"`
+	Hash          string                `json:"hash"`
+	Fees          string                `json:"fees"`
+	Value         string                `json:"value"`
+	Date          string                `json:"date"`
+	Type          types.TransactionType `json:"type"`
 }
 
-type TxnRes struct {
+type Balance struct {
+	WalletAddress string  `json:"wallet_address"`
+	Value         float64 `json:"value"`
+	Time          string  `json:"time"`
+}
+
+type EthTransaction struct {
+	Message string
+	Result  []EthTxnRes
+	Status  string
+}
+type EthTxnRes struct {
 	BlockHash         string `json:"blockHash"`
 	BlockNumber       string `json:"blockNumber"`
 	Confirmations     string `json:"confirmations"`
@@ -42,13 +55,51 @@ type TxnRes struct {
 	TxreceiptStatus   string `json:"txreceipt_status"`
 	Value             string `json:"value"`
 }
-
-type Coin struct {
-	balance      interface{}
-	transactions []TxnRes
+type EthBalance struct {
+	Status  string
+	Message string
+	Result  string
 }
 
-type Btc struct {
+type BtcTxn struct {
+	Data struct {
+		Page  int `json:"page"`
+		Limit int `json:"limit"`
+		Pages int `json:"pages"`
+		List  []struct {
+			Segwit            bool        `json:"segwit"`
+			Rbf               bool        `json:"rbf"`
+			TxID              string      `json:"txId"`
+			Version           int         `json:"version"`
+			Size              int         `json:"size"`
+			VSize             int         `json:"vSize"`
+			BSize             int         `json:"bSize"`
+			LockTime          int         `json:"lockTime"`
+			Confirmations     int         `json:"confirmations"`
+			BlockTime         int         `json:"blockTime"`
+			BlockIndex        int         `json:"blockIndex"`
+			Coinbase          bool        `json:"coinbase"`
+			Fee               int         `json:"fee"`
+			Data              interface{} `json:"data"`
+			Amount            int         `json:"amount"`
+			Weight            int         `json:"weight"`
+			BlockHeight       int         `json:"blockHeight"`
+			Timestamp         int         `json:"timestamp"`
+			InputsAmount      int         `json:"inputsAmount"`
+			InputAddressCount int         `json:"inputAddressCount"`
+			OutAddressCount   int         `json:"outAddressCount"`
+			InputsCount       int         `json:"inputsCount"`
+			OutsCount         int         `json:"outsCount"`
+			OutputsAmount     int         `json:"outputsAmount"`
+			AddressReceived   int         `json:"addressReceived"`
+			AddressOuts       int         `json:"addressOuts"`
+			AddressSent       int         `json:"addressSent"`
+			AddressInputs     int         `json:"addressInputs"`
+		} `json:"list"`
+	} `json:"data"`
+	Time float64 `json:"time"`
+}
+type BtcBal struct {
 	Address            string `json:"address"`
 	TotalReceived      int    `json:"total_received"`
 	TotalSent          int    `json:"total_sent"`
@@ -60,154 +111,253 @@ type Btc struct {
 	FinalNTx           int    `json:"final_n_tx"`
 }
 
-func GetBalance(address string, coin types.CryptoSymbol) (*string, error) {
+type SolTransaction struct {
+	BlockTime         int      `json:"blockTime"`
+	Slot              int      `json:"slot"`
+	TxHash            string   `json:"txHash"`
+	Fee               int      `json:"fee"`
+	Status            string   `json:"status"`
+	Lamport           int      `json:"lamport"`
+	Signer            []string `json:"signer"`
+	ParsedInstruction []struct {
+		ProgramID string `json:"programId"`
+		Program   string `json:"program"`
+		Type      string `json:"type"`
+	} `json:"parsedInstruction"`
+	IncludeSPLTransfer bool `json:"includeSPLTransfer,omitempty"`
+}
+type SolBal struct {
+	Lamports     int    `json:"lamports"`
+	OwnerProgram string `json:"ownerProgram"`
+	Type         string `json:"type"`
+	RentEpoch    int    `json:"rentEpoch"`
+	Executable   bool   `json:"executable"`
+	Account      string `json:"account"`
+}
+
+const LamportsPerSol = 0.00000001
+const SatsPerBtc = 0.00000001
+const WeiPerEth = 0.000000000000000001
+
+func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
+
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
+
 	var url string
-	if coin == "ETH" {
+	var result Balance
+	var response interface{}
+
+	switch coin {
+	case types.ETH:
 		url = fmt.Sprintf("https://api.etherscan.io/api?module=account&action=balance&address=%s&apikey=%s", address, EthApiKey)
-	}
-	if coin == "BNB" {
-		url = fmt.Sprintf("https://api.bscscan.com/api?module=account&action=balance&address=%s&apikey=%s", address, BscApiKey)
+		response = response.(EthBalance)
 		log.Info(url)
 
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		res := v.(EthBalance)
+		val, _ := strconv.Atoi(res.Result)
+		bal := Balance{
+			WalletAddress: address,
+			Value:         float64(val) * WeiPerEth,
+			Time:          time.Now().String(),
+		}
+		result = bal
+	case types.BSC:
+		url = fmt.Sprintf("https://api.bscscan.com/api?module=account&action=balance&address=%s&apikey=%s", address, BscApiKey)
+		response = response.(EthBalance)
+		log.Info(url)
+
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		res := v.(EthBalance)
+		val, _ := strconv.Atoi(res.Result)
+		bal := Balance{
+			WalletAddress: address,
+			Value:         float64(val) * WeiPerEth,
+			Time:          time.Now().String(),
+		}
+		result = bal
+	case types.SOL:
+		url = fmt.Sprintf("https://public-api.solscan.io/account/%s", address)
+		response = response.(SolBal)
+		log.Info(url)
+
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		res := v.(SolBal)
+		bal := Balance{
+			WalletAddress: address,
+			Value:         float64(res.Lamports) * LamportsPerSol,
+			Time:          time.Now().String(),
+		}
+		result = bal
+	case types.BTC:
+		url = fmt.Sprintf(" https://api.bitaps.com/btc/v1/blockchain/address/state/%s", address)
+		response = response.(BtcBal)
+		log.Info(url)
+
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		res := v.(BtcBal)
+		bal := Balance{
+			WalletAddress: address,
+			Value:         float64(res.FinalBalance) * SatsPerBtc,
+			Time:          time.Now().String(),
+		}
+		result = bal
 	}
-	log.Info(url)
 
-	resp, err := http.Get(url)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, ioerr := io.ReadAll(resp.Body)
-	if ioerr != nil {
-		fmt.Println(ioerr)
-		return nil, ioerr
-	}
-	var result Balance
-	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
-		fmt.Println("Can not unmarshal JSON")
-		return nil, err
-	}
-	//fmt.Println(util.PrettyPrint(result))
-	return &result.Result, nil
-}
-
-func GetTxn(address string, coin types.CryptoSymbol) ([]TxnRes, error) {
-	BscApiKey := config.GetConf().BscApiKey
-	EthApiKey := config.GetConf().EthApiKey
-
-	var url string
-	if coin == "ETH" {
-		url = fmt.Sprintf("https://api.etherscan.io/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=30&sort=asc&apikey=%s", address, EthApiKey)
-
-	}
-	if coin == "BNB" {
-		url = fmt.Sprintf("https://api.bscscan.com/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=30&sort=asc&apikey=%s", address, BscApiKey)
-
-	}
-	log.Info(url)
-
-	resp, err := http.Get(url)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-
-	var result Transactions
-	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
-		fmt.Println("Can not unmarshal JSON")
-		return nil, err
-	}
-	fmt.Println(util.PrettyPrint(result))
-	return result.Result, nil
-}
-
-func FetchBTC(address string) (*BtcTransaction, error) {
-	resp, err := http.Get(fmt.Sprintf("https://blockchain.info/rawaddr/%s", address))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-
-	var result BtcTransaction
-	if err = json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
-		return nil, err
-	}
-	//fmt.Println(util.PrettyPrint(result))
+	log.Info("response: ", response)
 	return &result, nil
 }
 
-type BtcTransaction struct {
-	Hash160       string `json:"hash160"`
-	Address       string `json:"address"`
-	NTx           int    `json:"n_tx"`
-	NUnredeemed   int    `json:"n_unredeemed"`
-	TotalReceived int    `json:"total_received"`
-	TotalSent     int    `json:"total_sent"`
-	FinalBalance  int    `json:"final_balance"`
-	Txs           []struct {
-		Hash        string `json:"hash"`
-		Ver         int    `json:"ver"`
-		VinSz       int    `json:"vin_sz"`
-		VoutSz      int    `json:"vout_sz"`
-		Size        int    `json:"size"`
-		Weight      int    `json:"weight"`
-		Fee         int    `json:"fee"`
-		RelayedBy   string `json:"relayed_by"`
-		LockTime    int    `json:"lock_time"`
-		TxIndex     int64  `json:"tx_index"`
-		DoubleSpend bool   `json:"double_spend"`
-		Time        int    `json:"time"`
-		BlockIndex  int    `json:"block_index"`
-		BlockHeight int    `json:"block_height"`
-		Inputs      []struct {
-			Sequence int64  `json:"sequence"`
-			Witness  string `json:"witness"`
-			Script   string `json:"script"`
-			Index    int    `json:"index"`
-			PrevOut  struct {
-				TxIndex           int64  `json:"tx_index"`
-				Value             int    `json:"value"`
-				N                 int    `json:"n"`
-				Type              int    `json:"type"`
-				Spent             bool   `json:"spent"`
-				Script            string `json:"script"`
-				SpendingOutpoints []struct {
-					TxIndex int64 `json:"tx_index"`
-					N       int   `json:"n"`
-				} `json:"spending_outpoints"`
-				Addr string `json:"addr"`
-			} `json:"prev_out"`
-		} `json:"inputs"`
-		Out []struct {
-			Type              int  `json:"type"`
-			Spent             bool `json:"spent"`
-			Value             int  `json:"value"`
-			SpendingOutpoints []struct {
-				TxIndex int64 `json:"tx_index"`
-				N       int   `json:"n"`
-			} `json:"spending_outpoints"`
-			N       int    `json:"n"`
-			TxIndex int64  `json:"tx_index"`
-			Script  string `json:"script"`
-			Addr    string `json:"addr"`
-		} `json:"out"`
-		Result  int `json:"result"`
-		Balance int `json:"balance"`
-	} `json:"txs"`
+func GetTransaction(address string, coin types.CryptoSymbol) (*[]Transaction, error) {
+	BscApiKey := config.GetConf().BscApiKey
+	EthApiKey := config.GetConf().EthApiKey
+
+	var url string
+	var result []Transaction
+	var response interface{}
+
+	switch coin {
+	case types.ETH:
+		url = fmt.Sprintf("https://api.etherscan.io/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=30&sort=asc&apikey=%s", address, EthApiKey)
+		response = response.(EthTransaction)
+		log.Info(url)
+
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		res := v.(EthTransaction)
+		for _, data := range res.Result {
+			txnType := types.Debit
+			if data.To == address {
+				txnType = types.Credit
+			}
+			txn := Transaction{
+				WalletAddress: address,
+				Hash:          data.Hash,
+				Fees:          data.GasPrice,
+				Value:         data.Value,
+				Date:          data.TimeStamp,
+				Type:          txnType,
+			}
+			result = append(result, txn)
+		}
+	case types.BSC:
+		url = fmt.Sprintf("https://api.bscscan.com/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=30&sort=asc&apikey=%s", address, BscApiKey)
+		response = response.(EthTransaction)
+		log.Info(url)
+
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		transaction := v.(EthTransaction)
+		for _, data := range transaction.Result {
+			txnType := types.Debit
+			if data.To == address {
+				txnType = types.Credit
+			}
+			txn := Transaction{
+				WalletAddress: address,
+				Hash:          data.Hash,
+				Fees:          data.GasPrice,
+				Value:         data.Value,
+				Date:          data.TimeStamp,
+				Type:          txnType,
+			}
+			result = append(result, txn)
+		}
+	case types.SOL:
+		url = fmt.Sprintf("https://public-api.solscan.io/account/transactions?account=%s", address)
+		response = response.([]SolTransaction)
+		log.Info(url)
+
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		transactions := v.([]SolTransaction)
+		for _, data := range transactions {
+			txnType := types.Debit
+			if data.Signer[0] == address {
+				txnType = types.Credit
+			}
+			txn := Transaction{
+				WalletAddress: address,
+				Hash:          data.TxHash,
+				Fees:          string(rune(data.Fee)),
+				Value:         string(rune(data.Lamport)),
+				Date:          string(rune(data.BlockTime)),
+				Type:          txnType,
+			}
+			result = append(result, txn)
+		}
+	case types.BTC:
+		url = fmt.Sprintf("https://api.bitaps.com/btc/v1/blockchain/address/transactions/%s", address)
+		response = response.(BtcTxn)
+		log.Info(url)
+
+		v, err := Get(url, response)
+		if err != nil {
+			return nil, err
+		}
+		res := v.(BtcTxn)
+		for _, data := range res.Data.List {
+			txnType := types.Debit
+			if data.Amount > 0 {
+				txnType = types.Credit
+			}
+			txn := Transaction{
+				WalletAddress: address,
+				Hash:          data.TxID,
+				Fees:          string(rune(data.Fee)),
+				Value:         string(rune(data.Amount)),
+				Date:          string(rune(data.Timestamp)),
+				Type:          txnType,
+			}
+			result = append(result, txn)
+		}
+	}
+
+	log.Info("response: ", response)
+	return &result, nil
 }
 
-//fmt.Sprintf("https://api.blockcypher.com/v1/btc/main/addrs/%s/balance", address)
-//spent:true --debit/credit
-//hash: ""
-//value:92300
-//time:1657802535
+func Get(url string, response interface{}) (interface{}, error) {
+	resp, err := http.Get(url)
 
-//multiplier = 0.00000001
+	if err != nil {
+		//logger := log.WithField("error in Mono GET request", err)
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+	if resp.StatusCode >= http.StatusBadRequest {
+		return nil, errors.New(resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}

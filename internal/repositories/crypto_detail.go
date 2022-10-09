@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/database"
 	"github.com/everestafrica/everest-api/internal/models"
 	"gorm.io/gorm"
@@ -9,6 +10,7 @@ import (
 type ICryptoDetailsRepository interface {
 	Create(crypto *models.CryptoDetail) error
 	Update(crypto *models.CryptoDetail) error
+	Delete(userId string, coin types.CryptoSymbol) error
 	FindByUserId(userId string) (*models.CryptoDetail, error)
 }
 
@@ -29,6 +31,11 @@ func (r *cryptoDetailsRepo) Create(crypto *models.CryptoDetail) error {
 
 func (r *cryptoDetailsRepo) Update(crypto *models.CryptoDetail) error {
 	return r.db.Save(crypto).Error
+}
+
+func (r *cryptoDetailsRepo) Delete(userId string, coin types.CryptoSymbol) error {
+	var crypto models.CryptoDetail
+	return r.db.Where("user_id = ? AND coin = ?", userId, coin).Delete(&crypto).Error
 }
 
 func (r *cryptoDetailsRepo) FindByUserId(userId string) (*models.CryptoDetail, error) {
