@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type MonoAccountIdRequest struct {
 	Code string `json:"code" validate:"required"`
 }
@@ -20,7 +22,7 @@ type MonoTransactionResponse struct {
 		Type      string          `json:"type"`
 		Amount    int             `json:"amount"`
 		Narration string          `json:"narration"`
-		Date      string          `json:"date"`
+		Date      time.Time       `json:"date"`
 		Balance   int             `json:"balance"`
 		Currency  string          `json:"currency"`
 		Category  TransactionType `json:"category"`

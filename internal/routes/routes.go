@@ -11,4 +11,5 @@ func RegisterRoutes(router *fiber.App) {
 	controllers.NewAccountController().RegisterRoutes(router)
 	controllers.NewBudgetController().RegisterRoutes(router)
 	controllers.NewWebhookController().RegisterRoutes(router)
+	controllers.NewCryptoController().RegisterRoutes(router)
 }

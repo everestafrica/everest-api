@@ -1,6 +1,9 @@
 package models
 
-import "github.com/everestafrica/everest-api/internal/commons/types"
+import (
+	"github.com/everestafrica/everest-api/internal/commons/types"
+	"time"
+)
 
 type CryptoDetail struct {
 	Base
@@ -13,13 +16,15 @@ type CryptoDetail struct {
 
 type CryptoTransaction struct {
 	Base
-	UserId        string                `json:"user_id"`
-	WalletAddress string                `json:"wallet_address"`
-	Hash          string                `json:"hash"`
-	Name          types.CryptoName      `json:"name"`
-	Symbol        types.CryptoSymbol    `json:"symbol"`
-	Fees          string                `json:"fees"`
-	Value         string                `json:"value"`
-	Date          string                `json:"date"`
-	Type          types.TransactionType `json:"type"`
+	UserId        string                    `json:"user_id"`
+	WalletAddress string                    `json:"wallet_address"`
+	Hash          string                    `json:"hash"`
+	Name          types.CryptoName          `json:"name"`
+	Symbol        types.CryptoSymbol        `json:"symbol"`
+	Fees          string                    `json:"fees"`
+	Value         float64                   `json:"value"`
+	Amount        float64                   `json:"amount"`
+	Category      types.TransactionCategory `json:"category"`
+	Type          types.TransactionType     `json:"type"`
+	Date          time.Time                 `json:"date"`
 }

@@ -11,7 +11,8 @@ type ICryptoDetailsRepository interface {
 	Create(crypto *models.CryptoDetail) error
 	Update(crypto *models.CryptoDetail) error
 	Delete(userId string, coin types.CryptoSymbol) error
-	FindByUserId(userId string) (*models.CryptoDetail, error)
+	FindByUserId(userId string) (*[]models.CryptoDetail, error)
+	FindByAddressAndSymbol(address string, symbol types.CryptoSymbol) (*models.CryptoDetail, error)
 }
 
 type cryptoDetailsRepo struct {
@@ -38,9 +39,18 @@ func (r *cryptoDetailsRepo) Delete(userId string, coin types.CryptoSymbol) error
 	return r.db.Where("user_id = ? AND coin = ?", userId, coin).Delete(&crypto).Error
 }
 
-func (r *cryptoDetailsRepo) FindByUserId(userId string) (*models.CryptoDetail, error) {
+func (r *cryptoDetailsRepo) FindByUserId(userId string) (*[]models.CryptoDetail, error) {
+	var crypto []models.CryptoDetail
+	if err := r.db.Where("user_id = ?", userId).Find(&crypto).Error; err != nil {
+		return nil, err
+	}
+
+	return &crypto, nil
+}
+
+func (r *cryptoDetailsRepo) FindByAddressAndSymbol(address string, symbol types.CryptoSymbol) (*models.CryptoDetail, error) {
 	var crypto models.CryptoDetail
-	if err := r.db.Where("user_id = ?", userId).First(&crypto).Error; err != nil {
+	if err := r.db.Where("wallet_address = ? AND symbol = ?", address, symbol).First(&crypto).Error; err != nil {
 		return nil, err
 	}
 

@@ -15,15 +15,17 @@ import (
 	"github.com/everestafrica/everest-api/internal/config"
 )
 
+type ICryptoService interface {
+}
+
 type Transaction struct {
 	WalletAddress string                `json:"wallet_address"`
 	Hash          string                `json:"hash"`
 	Fees          string                `json:"fees"`
-	Value         string                `json:"value"`
-	Date          string                `json:"date"`
+	Value         float64               `json:"value"`
+	Date          time.Time             `json:"date"`
 	Type          types.TransactionType `json:"type"`
 }
-
 type Balance struct {
 	WalletAddress string  `json:"wallet_address"`
 	Value         float64 `json:"value"`
@@ -135,9 +137,9 @@ type SolBal struct {
 	Account      string `json:"account"`
 }
 
-const LamportsPerSol = 0.00000001
-const SatsPerBtc = 0.00000001
-const WeiPerEth = 0.000000000000000001
+const SolPerLamport = 0.000000001
+const BtcPerSat = 0.00000001
+const EthPerWei = 0.000000000000000001
 
 func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 
@@ -162,7 +164,7 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		val, _ := strconv.Atoi(res.Result)
 		bal := Balance{
 			WalletAddress: address,
-			Value:         float64(val) * WeiPerEth,
+			Value:         float64(val) * EthPerWei,
 			Time:          time.Now().String(),
 		}
 		result = bal
@@ -179,7 +181,7 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		val, _ := strconv.Atoi(res.Result)
 		bal := Balance{
 			WalletAddress: address,
-			Value:         float64(val) * WeiPerEth,
+			Value:         float64(val) * EthPerWei,
 			Time:          time.Now().String(),
 		}
 		result = bal
@@ -195,7 +197,7 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		res := v.(SolBal)
 		bal := Balance{
 			WalletAddress: address,
-			Value:         float64(res.Lamports) * LamportsPerSol,
+			Value:         float64(res.Lamports) * SolPerLamport,
 			Time:          time.Now().String(),
 		}
 		result = bal
@@ -211,7 +213,7 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		res := v.(BtcBal)
 		bal := Balance{
 			WalletAddress: address,
-			Value:         float64(res.FinalBalance) * SatsPerBtc,
+			Value:         float64(res.FinalBalance) * BtcPerSat,
 			Time:          time.Now().String(),
 		}
 		result = bal
@@ -245,12 +247,15 @@ func GetTransaction(address string, coin types.CryptoSymbol) (*[]Transaction, er
 			if data.To == address {
 				txnType = types.Credit
 			}
+			t, _ := strconv.Atoi(data.TimeStamp)
+			v, _ := strconv.Atoi(data.Value)
+			txnTime := time.Unix(int64(t), 0)
 			txn := Transaction{
 				WalletAddress: address,
 				Hash:          data.Hash,
 				Fees:          data.GasPrice,
-				Value:         data.Value,
-				Date:          data.TimeStamp,
+				Value:         float64(v),
+				Date:          txnTime,
 				Type:          txnType,
 			}
 			result = append(result, txn)
@@ -270,12 +275,15 @@ func GetTransaction(address string, coin types.CryptoSymbol) (*[]Transaction, er
 			if data.To == address {
 				txnType = types.Credit
 			}
+			t, _ := strconv.Atoi(data.TimeStamp)
+			v, _ := strconv.Atoi(data.Value)
+			txnTime := time.Unix(int64(t), 0)
 			txn := Transaction{
 				WalletAddress: address,
 				Hash:          data.Hash,
 				Fees:          data.GasPrice,
-				Value:         data.Value,
-				Date:          data.TimeStamp,
+				Value:         float64(v),
+				Date:          txnTime,
 				Type:          txnType,
 			}
 			result = append(result, txn)
@@ -299,8 +307,8 @@ func GetTransaction(address string, coin types.CryptoSymbol) (*[]Transaction, er
 				WalletAddress: address,
 				Hash:          data.TxHash,
 				Fees:          string(rune(data.Fee)),
-				Value:         string(rune(data.Lamport)),
-				Date:          string(rune(data.BlockTime)),
+				Value:         float64(data.Lamport) * SolPerLamport,
+				Date:          time.Unix(int64(data.BlockTime), 0),
 				Type:          txnType,
 			}
 			result = append(result, txn)
@@ -324,8 +332,8 @@ func GetTransaction(address string, coin types.CryptoSymbol) (*[]Transaction, er
 				WalletAddress: address,
 				Hash:          data.TxID,
 				Fees:          string(rune(data.Fee)),
-				Value:         string(rune(data.Amount)),
-				Date:          string(rune(data.Timestamp)),
+				Value:         float64(data.Amount) * BtcPerSat,
+				Date:          time.Unix(int64(data.BlockTime), 0),
 				Type:          txnType,
 			}
 			result = append(result, txn)

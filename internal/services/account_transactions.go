@@ -6,7 +6,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/external/mono"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -58,11 +57,11 @@ func (ad accountTransactionService) SetAccountTransactions(userId string) error 
 			transaction := models.AccountTransaction{
 				UserId:        userId,
 				MonoId:        &monoId,
-				TransactionId: uuid.NewString(),
+				TransactionId: v.ID,
 				Institution:   account.Institution,
 				Currency:      v.Currency,
-				Amount:        v.Amount,
-				Balance:       v.Balance,
+				Amount:        float64(v.Amount / 100),
+				Balance:       float64(v.Balance / 100),
 				Date:          v.Date,
 				Narration:     v.Narration,
 				Type:          types.TransactionType(v.Type),
