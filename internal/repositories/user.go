@@ -11,7 +11,6 @@ type IUserRepository interface {
 	FindByUserId(userId string) (*models.User, error)
 	FindByMonoId(monoId string) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
-	FindByPassword(password, userId string) (*models.User, error)
 	Update(user *models.User) error
 	DoesUsernameExist(username string) (bool, error)
 	DoesEmailExist(email string) (bool, error)
@@ -55,17 +54,6 @@ func (r *userRepo) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 
 	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func (r *userRepo) FindByPassword(password, userId string) (*models.User, error) {
-	var user models.User
-
-	if err := r.db.Where("password = ? AND user_id = ?", password, userId).
-		First(&user).Error; err != nil {
 		return nil, err
 	}
 

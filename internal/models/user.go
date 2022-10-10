@@ -21,6 +21,8 @@ type User struct {
 	MonoId      pq.StringArray `gorm:"type:text[]" json:"mono_id"`
 	MonoStatus  bool           `json:"mono_status"`
 	LastRefresh time.Time      `json:"last_refresh"`
+	Reauth      bool           `json:"reauth" gorm:"default:true"`
+	ReauthToken string         `json:"reauth_token"`
 	NetWorth    *int           `json:"net_worth"`
 	Persona     *string        `json:"persona"`
 	Avatar      *string        `json:"avatar"`

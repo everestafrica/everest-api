@@ -2,11 +2,12 @@ package services
 
 import (
 	"errors"
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/external/mono"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
-	"log"
+	"time"
 )
 
 type IAccountDetailsService interface {
@@ -18,6 +19,7 @@ type IAccountDetailsService interface {
 
 type accountDetailsService struct {
 	userRepo           repositories.IUserRepository
+	monoUserRepo       repositories.IMonoUserRepository
 	accountDetailsRepo repositories.IAccountDetailsRepository
 }
 
@@ -25,6 +27,7 @@ type accountDetailsService struct {
 func NewAccountDetailsService() IAccountDetailsService {
 	return &accountDetailsService{
 		userRepo:           repositories.NewUserRepo(),
+		monoUserRepo:       repositories.NewMonoUserRepo(),
 		accountDetailsRepo: repositories.NewAccountDetailsRepo(),
 	}
 }
@@ -38,13 +41,18 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 		return err
 	}
 
-	user, err := ad.userRepo.FindByUserId(userId)
+	monoUser := models.MonoUser{
+		UserId:      userId,
+		MonoId:      monoId.Id,
+		MonoStatus:  "",
+		LastRefresh: time.Now(),
+		Reauth:      false,
+		ReauthToken: nil,
+	}
+	err = ad.monoUserRepo.Create(&monoUser)
 	if err != nil {
 		return err
 	}
-
-	user.MonoId = append(user.MonoId, monoId.Id)
-	ad.userRepo.Update(user)
 
 	details, err := mono.GetAccountDetails(monoId.Id)
 	if err != nil {
@@ -66,11 +74,33 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 		}
 	}
 	if details.Meta.DataStatus == "PROCESSING" {
-		log.Print("processing user details collection")
+		user, findErr := ad.monoUserRepo.FindByMonoId(monoId.Id)
+		if findErr != nil {
+			return findErr
+		}
+		user.MonoStatus = "PROCESSING"
+		findErr = ad.monoUserRepo.Update(user)
+		if findErr != nil {
+			return findErr
+		}
+
+		// Send Email or Push Notification
+		log.Info("processing user details collection")
 		return errors.New("request for user details failed")
 	}
 	if details.Meta.DataStatus == "FAILED" {
-		log.Print("failed to collect user details from institution")
+		user, findErr := ad.monoUserRepo.FindByMonoId(monoId.Id)
+		if findErr != nil {
+			return findErr
+		}
+		user.MonoStatus = "FAILED"
+		findErr = ad.monoUserRepo.Update(user)
+		if findErr != nil {
+			return findErr
+		}
+
+		// Send Email or Push Notification
+		log.Error("failed to collect user details from institution")
 		return errors.New("request for user details failed")
 	}
 	//}

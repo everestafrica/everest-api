@@ -29,7 +29,6 @@ type Transaction struct {
 type Balance struct {
 	WalletAddress string  `json:"wallet_address"`
 	Value         float64 `json:"value"`
-	Time          string  `json:"time"`
 }
 
 type EthTransaction struct {
@@ -165,7 +164,6 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		bal := Balance{
 			WalletAddress: address,
 			Value:         float64(val) * EthPerWei,
-			Time:          time.Now().String(),
 		}
 		result = bal
 	case types.BSC:
@@ -182,7 +180,6 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		bal := Balance{
 			WalletAddress: address,
 			Value:         float64(val) * EthPerWei,
-			Time:          time.Now().String(),
 		}
 		result = bal
 	case types.SOL:
@@ -198,7 +195,6 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		bal := Balance{
 			WalletAddress: address,
 			Value:         float64(res.Lamports) * SolPerLamport,
-			Time:          time.Now().String(),
 		}
 		result = bal
 	case types.BTC:
@@ -214,7 +210,6 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 		bal := Balance{
 			WalletAddress: address,
 			Value:         float64(res.FinalBalance) * BtcPerSat,
-			Time:          time.Now().String(),
 		}
 		result = bal
 	}

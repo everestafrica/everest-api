@@ -60,8 +60,6 @@ func ScrapeNews() ([]*News, error) {
 				Description: excerpt,
 			}
 			response = append(response, news)
-			//fmt.Println(util.PrettyPrint(news))
-
 		})
 
 	})
@@ -78,9 +76,7 @@ func ScrapeNews() ([]*News, error) {
 }
 
 func FetchNews() (*Response, error) {
-	r, _ := http.NewRequest(http.MethodGet, config.GetConf().NewsApiUrl, nil)
-
-	resp, err := client.Do(r)
+	resp, err := http.Get(config.GetConf().NewsApiUrl)
 	if err != nil {
 		//logger := log.WithField("error in Mono GET request", err)
 		return nil, err
@@ -96,7 +92,6 @@ func FetchNews() (*Response, error) {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-	// s, _ := json.MarshalIndent(response, "", "\t")
 	var responses *Response
 	err = json.Unmarshal(body, &responses)
 

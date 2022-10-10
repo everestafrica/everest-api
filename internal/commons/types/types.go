@@ -76,6 +76,10 @@ type UpdateBudgetRequest struct {
 	Month      string       `json:"month" validate:"required"`
 	Year       int          `json:"year" validate:"required"`
 }
+type AddCryptoWalletRequest struct {
+	Address string `json:"address"`
+	Symbol  string `json:"symbol"`
+}
 
 type Pagination struct {
 	Number int

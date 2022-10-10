@@ -10,7 +10,8 @@ import (
 )
 
 type ICryptoService interface {
-	SetWallet(coin types.CryptoSymbol, address, userId string) error
+	AddWallet(coin types.CryptoSymbol, address string, userId string) error
+	UpdateWallet(coin types.CryptoSymbol, address, userId string) error
 	DeleteWallet(coin types.CryptoSymbol, userId string) error
 }
 
@@ -70,7 +71,7 @@ func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address string, userI
 	return nil
 }
 
-func (cs cryptoService) SetWallet(coin types.CryptoSymbol, address string, userId string) error {
+func (cs cryptoService) UpdateWallet(coin types.CryptoSymbol, address string, userId string) error {
 	balance, err := crypto.GetBalance(address, coin)
 	if err != nil {
 		return err

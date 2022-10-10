@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/types"
+	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -29,5 +31,34 @@ func (ctl *cryptoController) RegisterRoutes(app *fiber.App) {
 }
 
 func (ctl *cryptoController) LinkWallet(ctx *fiber.Ctx) error {
-	return nil
+	userId, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	var body types.AddCryptoWalletRequest
+
+	if err := ctx.BodyParser(body); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Problem while parsing request body",
+		})
+	}
+	errors := util.ValidateStruct(body)
+	if errors != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors)
+
+	}
+
+	err = ctl.cryptoDetailsService.AddWallet(types.CryptoSymbol(body.Symbol), body.Address, userId)
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "successfully linked user account",
+	})
 }

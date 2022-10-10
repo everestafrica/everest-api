@@ -74,7 +74,10 @@ func (ad accountTransactionService) SetAccountTransactions(userId string) error 
 		}
 	}
 	u.LastRefresh = time.Now()
-	ad.userRepo.Update(u)
+	err = ad.userRepo.Update(u)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
