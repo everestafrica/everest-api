@@ -28,6 +28,7 @@ func (ctl *cryptoController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
 	crypto := v1.Group("/crypto")
 	crypto.Post("/wallet", handlers.SecureAuth(), ctl.LinkWallet)
+	crypto.Delete("/wallet", handlers.SecureAuth(), ctl.UnLinkWallet)
 }
 
 func (ctl *cryptoController) LinkWallet(ctx *fiber.Ctx) error {
@@ -36,7 +37,7 @@ func (ctl *cryptoController) LinkWallet(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	var body types.AddCryptoWalletRequest
+	var body types.CryptoWalletRequest
 
 	if err := ctx.BodyParser(body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
@@ -59,6 +60,39 @@ func (ctl *cryptoController) LinkWallet(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(types.GenericResponse{
 		Success: true,
-		Message: "successfully linked user account",
+		Message: "successfully linked user wallet",
+	})
+}
+
+func (ctl *cryptoController) UnLinkWallet(ctx *fiber.Ctx) error {
+	userId, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	var body types.CryptoWalletRequest
+
+	if err := ctx.BodyParser(body); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Problem while parsing request body",
+		})
+	}
+	errors := util.ValidateStruct(body)
+	if errors != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors)
+
+	}
+
+	err = ctl.cryptoDetailsService.DeleteWallet(types.CryptoSymbol(body.Symbol), body.Address, userId)
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "successfully unlinked user wallet",
 	})
 }

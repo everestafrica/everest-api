@@ -19,6 +19,7 @@ type IAccountTransactionService interface {
 
 type accountTransactionService struct {
 	userRepo               repositories.IUserRepository
+	monoUserRepo           repositories.IMonoUserRepository
 	accountDetailsRepo     repositories.IAccountDetailsRepository
 	accountTransactionRepo repositories.IAccountTransactionRepository
 }
@@ -27,13 +28,14 @@ type accountTransactionService struct {
 func NewAccountTransactionService() IAccountTransactionService {
 	return &accountTransactionService{
 		userRepo:               repositories.NewUserRepo(),
+		monoUserRepo:           repositories.NewMonoUserRepo(),
 		accountDetailsRepo:     repositories.NewAccountDetailsRepo(),
 		accountTransactionRepo: repositories.NewAccountTransactionRepo(),
 	}
 }
 
 func (ad accountTransactionService) SetAccountTransactions(userId string) error {
-	u, err := ad.userRepo.FindByUserId(userId)
+	u, err := ad.monoUserRepo.FindByUserId(userId)
 	if err != nil {
 		return err
 	}
@@ -43,38 +45,37 @@ func (ad accountTransactionService) SetAccountTransactions(userId string) error 
 		return errors.New("unable to refresh transaction data at the moment")
 	}
 
-	for _, monoId := range u.MonoId {
-		account, err := ad.accountDetailsRepo.FindByAccountId(monoId)
-		if err != nil {
-			return err
-		}
+	account, err := ad.accountDetailsRepo.FindByAccountId(u.MonoId)
+	if err != nil {
+		return err
+	}
 
-		txn, err := mono.GetAccountTransactions(monoId)
+	txn, err := mono.GetAccountTransactions(u.MonoId)
+	if err != nil {
+		return err
+	}
+	for _, v := range txn.Data {
+		transaction := models.AccountTransaction{
+			UserId:        userId,
+			MonoId:        &u.MonoId,
+			TransactionId: v.ID,
+			Institution:   account.Institution,
+			Currency:      v.Currency,
+			Amount:        float64(v.Amount / 100),
+			Balance:       float64(v.Balance / 100),
+			Date:          v.Date,
+			Narration:     v.Narration,
+			Type:          types.TransactionType(v.Type),
+			Category:      types.TransactionCategory(v.Category),
+		}
+		err := ad.accountTransactionRepo.Create(&transaction)
 		if err != nil {
 			return err
-		}
-		for _, v := range txn.Data {
-			transaction := models.AccountTransaction{
-				UserId:        userId,
-				MonoId:        &monoId,
-				TransactionId: v.ID,
-				Institution:   account.Institution,
-				Currency:      v.Currency,
-				Amount:        float64(v.Amount / 100),
-				Balance:       float64(v.Balance / 100),
-				Date:          v.Date,
-				Narration:     v.Narration,
-				Type:          types.TransactionType(v.Type),
-				Category:      types.TransactionCategory(v.Category),
-			}
-			err := ad.accountTransactionRepo.Create(&transaction)
-			if err != nil {
-				return err
-			}
 		}
 	}
+
 	u.LastRefresh = time.Now()
-	err = ad.userRepo.Update(u)
+	err = ad.monoUserRepo.Update(u)
 	if err != nil {
 		return err
 	}

@@ -10,9 +10,9 @@ import (
 )
 
 type ICryptoService interface {
-	AddWallet(coin types.CryptoSymbol, address string, userId string) error
-	UpdateWallet(coin types.CryptoSymbol, address, userId string) error
-	DeleteWallet(coin types.CryptoSymbol, userId string) error
+	AddWallet(symbol types.CryptoSymbol, address string, userId string) error
+	UpdateWallet(symbol types.CryptoSymbol, address, userId string) error
+	DeleteWallet(symbol types.CryptoSymbol, address string, userId string) error
 }
 
 type cryptoService struct {
@@ -30,8 +30,8 @@ func NewCryptoService() ICryptoService {
 	}
 }
 
-func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address string, userId string) error {
-	balance, err := crypto.GetBalance(address, coin)
+func (cs cryptoService) AddWallet(symbol types.CryptoSymbol, address string, userId string) error {
+	balance, err := crypto.GetBalance(address, symbol)
 	if err != nil {
 		return err
 	}
@@ -40,15 +40,15 @@ func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address string, userI
 		UserId:        userId,
 		WalletAddress: address,
 		Balance:       balance.Value,
-		Name:          types.CryptoName(GetCoinName(coin)),
-		Symbol:        coin,
+		Name:          types.CryptoName(GetCoinName(symbol)),
+		Symbol:        symbol,
 	}
 	err = cs.cryptoDetailsRepo.Create(c)
 	if err != nil {
 		return err
 	}
 
-	transactions, err := crypto.GetTransaction(address, coin)
+	transactions, err := crypto.GetTransaction(address, symbol)
 	if err != nil {
 		return err
 	}
@@ -56,8 +56,8 @@ func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address string, userI
 		trx := &models.CryptoTransaction{
 			UserId:        userId,
 			WalletAddress: address,
-			Name:          types.CryptoName(GetCoinName(coin)),
-			Symbol:        coin,
+			Name:          types.CryptoName(GetCoinName(symbol)),
+			Symbol:        symbol,
 			Value:         transaction.Value,
 			Date:          transaction.Date,
 			Type:          transaction.Type,
@@ -71,12 +71,12 @@ func (cs cryptoService) AddWallet(coin types.CryptoSymbol, address string, userI
 	return nil
 }
 
-func (cs cryptoService) UpdateWallet(coin types.CryptoSymbol, address string, userId string) error {
-	balance, err := crypto.GetBalance(address, coin)
+func (cs cryptoService) UpdateWallet(symbol types.CryptoSymbol, address string, userId string) error {
+	balance, err := crypto.GetBalance(address, symbol)
 	if err != nil {
 		return err
 	}
-	c, err := cs.cryptoDetailsRepo.FindByAddressAndSymbol(address, coin)
+	c, err := cs.cryptoDetailsRepo.FindByAddressAndSymbol(address, symbol)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (cs cryptoService) UpdateWallet(coin types.CryptoSymbol, address string, us
 		return err
 	}
 
-	transactions, err := crypto.GetTransaction(address, coin)
+	transactions, err := crypto.GetTransaction(address, symbol)
 	if err != nil {
 		return err
 	}
@@ -101,8 +101,8 @@ func (cs cryptoService) UpdateWallet(coin types.CryptoSymbol, address string, us
 		trx := &models.CryptoTransaction{
 			UserId:        userId,
 			WalletAddress: address,
-			Name:          types.CryptoName(GetCoinName(coin)),
-			Symbol:        coin,
+			Name:          types.CryptoName(GetCoinName(symbol)),
+			Symbol:        symbol,
 			Value:         transaction.Value,
 			Date:          transaction.Date,
 			Type:          transaction.Type,
@@ -116,11 +116,15 @@ func (cs cryptoService) UpdateWallet(coin types.CryptoSymbol, address string, us
 	return nil
 }
 
-func (cs cryptoService) DeleteWallet(coin types.CryptoSymbol, userId string) error {
+func (cs cryptoService) DeleteWallet(symbol types.CryptoSymbol, address string, userId string) error {
+	err := cs.cryptoDetailsRepo.Delete(userId, symbol, address)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func GetCoinName(coin types.CryptoSymbol) string {
+func GetCoinName(symbol types.CryptoSymbol) string {
 	coins := map[types.CryptoSymbol]string{
 		"BTC":  "Bitcoin",
 		"ETH":  "Ethereum",
@@ -129,11 +133,5 @@ func GetCoinName(coin types.CryptoSymbol) string {
 		"SOL":  "Solana",
 		"DOGE": "Dogecoin",
 	}
-	return coins[coin]
-}
-
-// Time between 12 hours ago and now
-
-func CalcTime() {
-
+	return coins[symbol]
 }

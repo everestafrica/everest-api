@@ -76,7 +76,7 @@ type UpdateBudgetRequest struct {
 	Month      string       `json:"month" validate:"required"`
 	Year       int          `json:"year" validate:"required"`
 }
-type AddCryptoWalletRequest struct {
+type CryptoWalletRequest struct {
 	Address string `json:"address"`
 	Symbol  string `json:"symbol"`
 }

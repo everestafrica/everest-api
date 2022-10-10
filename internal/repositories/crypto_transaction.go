@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/database"
 	"github.com/everestafrica/everest-api/internal/models"
 	"gorm.io/gorm"
@@ -9,7 +10,8 @@ import (
 type ICryptoTransactionRepository interface {
 	Create(transaction *models.CryptoTransaction) error
 	Update(transaction *models.CryptoTransaction) error
-	FindByUserId(userId string) (*models.CryptoTransaction, error)
+	Delete(userId string, symbol types.CryptoSymbol, address string) error
+	FindByUserId(userId string) (*[]models.CryptoTransaction, error)
 }
 
 type cryptoTransactionRepo struct {
@@ -31,9 +33,14 @@ func (r *cryptoTransactionRepo) Update(transaction *models.CryptoTransaction) er
 	return r.db.Save(transaction).Error
 }
 
-func (r *cryptoTransactionRepo) FindByUserId(userId string) (*models.CryptoTransaction, error) {
-	var transaction models.CryptoTransaction
-	if err := r.db.Where("user_id = ?", userId).First(&transaction).Error; err != nil {
+func (r *cryptoTransactionRepo) Delete(userId string, symbol types.CryptoSymbol, address string) error {
+	var crypto models.CryptoTransaction
+	return r.db.Where("user_id = ? AND symbol = ? AND wallet_address = ?", userId, symbol, address).Delete(&crypto).Error
+}
+
+func (r *cryptoTransactionRepo) FindByUserId(userId string) (*[]models.CryptoTransaction, error) {
+	var transaction []models.CryptoTransaction
+	if err := r.db.Where("user_id = ?", userId).Find(&transaction).Error; err != nil {
 		return nil, err
 	}
 

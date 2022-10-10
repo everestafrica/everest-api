@@ -15,9 +15,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/config"
 )
 
-type ICryptoService interface {
-}
-
 type Transaction struct {
 	WalletAddress string                `json:"wallet_address"`
 	Hash          string                `json:"hash"`
@@ -140,7 +137,7 @@ const SolPerLamport = 0.000000001
 const BtcPerSat = 0.00000001
 const EthPerWei = 0.000000000000000001
 
-func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
+func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
@@ -149,7 +146,7 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 	var result Balance
 	var response interface{}
 
-	switch coin {
+	switch symbol {
 	case types.ETH:
 		url = fmt.Sprintf("https://api.etherscan.io/api?module=account&action=balance&address=%s&apikey=%s", address, EthApiKey)
 		response = response.(EthBalance)
@@ -218,7 +215,7 @@ func GetBalance(address string, coin types.CryptoSymbol) (*Balance, error) {
 	return &result, nil
 }
 
-func GetTransaction(address string, coin types.CryptoSymbol) (*[]Transaction, error) {
+func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, error) {
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
 
@@ -226,7 +223,7 @@ func GetTransaction(address string, coin types.CryptoSymbol) (*[]Transaction, er
 	var result []Transaction
 	var response interface{}
 
-	switch coin {
+	switch symbol {
 	case types.ETH:
 		url = fmt.Sprintf("https://api.etherscan.io/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=30&sort=asc&apikey=%s", address, EthApiKey)
 		response = response.(EthTransaction)

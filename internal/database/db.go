@@ -42,5 +42,6 @@ func MigrateAll(db *gorm.DB) error {
 		models.CryptoDetail{},
 		models.Subscription{},
 		models.News{},
+		models.MonoUser{},
 	)
 }

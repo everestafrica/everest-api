@@ -10,7 +10,7 @@ import (
 type ICryptoDetailsRepository interface {
 	Create(crypto *models.CryptoDetail) error
 	Update(crypto *models.CryptoDetail) error
-	Delete(userId string, coin types.CryptoSymbol) error
+	Delete(userId string, symbol types.CryptoSymbol, address string) error
 	FindByUserId(userId string) (*[]models.CryptoDetail, error)
 	FindByAddressAndSymbol(address string, symbol types.CryptoSymbol) (*models.CryptoDetail, error)
 }
@@ -34,9 +34,9 @@ func (r *cryptoDetailsRepo) Update(crypto *models.CryptoDetail) error {
 	return r.db.Save(crypto).Error
 }
 
-func (r *cryptoDetailsRepo) Delete(userId string, coin types.CryptoSymbol) error {
+func (r *cryptoDetailsRepo) Delete(userId string, symbol types.CryptoSymbol, address string) error {
 	var crypto models.CryptoDetail
-	return r.db.Where("user_id = ? AND coin = ?", userId, coin).Delete(&crypto).Error
+	return r.db.Where("user_id = ? AND symbol = ?  AND wallet_address = ?", userId, symbol, address).Delete(&crypto).Error
 }
 
 func (r *cryptoDetailsRepo) FindByUserId(userId string) (*[]models.CryptoDetail, error) {
