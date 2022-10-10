@@ -104,5 +104,6 @@ logrus.log
 /tmp
 .air.toml
 
+.DS_Store
 misc.go
 start.sh
