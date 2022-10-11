@@ -96,3 +96,22 @@ func (ctl *cryptoController) UnLinkWallet(ctx *fiber.Ctx) error {
 		Message: "successfully unlinked user wallet",
 	})
 }
+
+func (ctl *cryptoController) GetAllWallets(ctx *fiber.Ctx) error {
+	_, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	//err = ctl.cryptoDetailsService.GetWallet(types.CryptoSymbol(body.Symbol), body.Address, userId)
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "successfully fetched user wallets",
+	})
+}

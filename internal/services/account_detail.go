@@ -122,6 +122,21 @@ func (ad accountDetailsService) GetAllAccountsDetails(userId string) (*[]models.
 	}
 	return accounts, nil
 }
+
+func (ad accountDetailsService) ReauthoriseUser(userId string) (*string, error) {
+	user, err := ad.monoUserRepo.FindByUserId(userId)
+	result, err := mono.ReauthoriseUser(user.MonoId)
+	if err != nil {
+		return nil, err
+	}
+	user.ReauthToken = &result.Token
+	err = ad.monoUserRepo.Update(user)
+	if err != nil {
+		return nil, err
+	}
+	return &result.Token, nil
+}
+
 func (ad accountDetailsService) UnlinkAccount(id string) error {
 	err := mono.Unlink(id)
 	if err != nil {

@@ -11,6 +11,8 @@ import (
 type IAccountController interface {
 	RegisterRoutes(app *fiber.App)
 	LinkAccount(ctx *fiber.Ctx) error
+	UnLinkAccount(ctx *fiber.Ctx) error
+	ReauthoriseUser(ctx *fiber.Ctx) error
 }
 
 type accountController struct {
@@ -29,6 +31,7 @@ func (ctl *accountController) RegisterRoutes(app *fiber.App) {
 	accounts := v1.Group("/accounts")
 	accounts.Post("/connect", handlers.SecureAuth(), ctl.LinkAccount)
 	accounts.Post("/disconnect", handlers.SecureAuth(), ctl.UnLinkAccount)
+	accounts.Get("/reauth", handlers.SecureAuth(), ctl.ReauthoriseUser)
 }
 
 func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
@@ -59,6 +62,10 @@ func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
 		Success: true,
 		Message: "successfully linked user account",
 	})
+}
+
+func (ctl *accountController) ReauthoriseUser(ctx *fiber.Ctx) error {
+	return nil
 }
 
 func (ctl *accountController) UnLinkAccount(ctx *fiber.Ctx) error {

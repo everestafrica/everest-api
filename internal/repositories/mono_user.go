@@ -11,6 +11,7 @@ type IMonoUserRepository interface {
 	FindByUserId(userId string) (*models.MonoUser, error)
 	FindByMonoId(monoId string) (*models.MonoUser, error)
 	Update(user *models.MonoUser) error
+	Delete(userId string) error
 }
 
 type monoUserRepo struct {
@@ -48,4 +49,12 @@ func (r *monoUserRepo) FindByMonoId(userId string) (*models.MonoUser, error) {
 
 func (r *monoUserRepo) Update(user *models.MonoUser) error {
 	return r.db.Save(user).Error
+}
+
+func (r *monoUserRepo) Delete(userId string) error {
+	var user models.MonoUser
+	if err := r.db.Where("user_id = ?", userId).Delete(&user).Error; err != nil {
+		return err
+	}
+	return nil
 }

@@ -12,6 +12,9 @@ type ICryptoTransactionRepository interface {
 	Update(transaction *models.CryptoTransaction) error
 	Delete(userId string, symbol types.CryptoSymbol, address string) error
 	FindByUserId(userId string) (*[]models.CryptoTransaction, error)
+	FindTransaction(transactionId string, userId string) (*models.CryptoTransaction, error)
+	FindAllTransactions(userId string, p types.Pagination) (*[]models.CryptoTransaction, error)
+	FindAllByTypeAndSymbol(txnType string, symbol string, userId string, p types.Pagination) (*[]models.CryptoTransaction, error)
 }
 
 type cryptoTransactionRepo struct {
@@ -45,4 +48,37 @@ func (r *cryptoTransactionRepo) FindByUserId(userId string) (*[]models.CryptoTra
 	}
 
 	return &transaction, nil
+}
+
+func (r *cryptoTransactionRepo) FindTransaction(transactionId string, userId string) (*models.CryptoTransaction, error) {
+	var transaction models.CryptoTransaction
+	if err := r.db.Where("user_id = ? AND transaction_id", userId, transactionId).First(&transaction).Error; err != nil {
+		return nil, err
+	}
+
+	return &transaction, nil
+}
+
+func (r *cryptoTransactionRepo) FindAllTransactions(userId string, p types.Pagination) (*[]models.CryptoTransaction, error) {
+	var transactions []models.CryptoTransaction
+	if err := r.db.Scopes(paginate(p)).Where("user_id = ?", userId).Order("id DESC").Find(&transactions).Error; err != nil {
+		return nil, err
+	}
+
+	return &transactions, nil
+}
+
+func (r *cryptoTransactionRepo) FindAllByTypeAndSymbol(txnType string, symbol string, userId string, p types.Pagination) (*[]models.CryptoTransaction, error) {
+	var transactions []models.CryptoTransaction
+	chain := r.db.Scopes(paginate(p)).Where("user_id = ?", userId).Order("id DESC").Find(&transactions)
+	if txnType != "" {
+		chain = chain.Where("type = ?", txnType)
+	}
+	if symbol != "" {
+		chain = chain.Where("symbol = ?", symbol)
+	}
+	if err := chain.Error; err != nil {
+		return nil, err
+	}
+	return &transactions, nil
 }

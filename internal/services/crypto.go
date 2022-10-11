@@ -30,6 +30,10 @@ func NewCryptoService() ICryptoService {
 	}
 }
 
+func (cs cryptoService) GetWallets(userId string) (*[]models.CryptoDetail, error) {
+	return nil, nil
+}
+
 func (cs cryptoService) AddWallet(symbol types.CryptoSymbol, address string, userId string) error {
 	balance, err := crypto.GetBalance(address, symbol)
 	if err != nil {

@@ -55,7 +55,16 @@ func (ws webhookService) MonoWebhook(payload types.MonoWebhookPayload) error {
 	}
 	if payload.Event == "mono.events.account_unlinked" {
 		response := payload.Data.(types.MonoWebhookUnlink)
-		log.Info("response: ", response)
+		user, err := ws.monoUserRepo.FindByMonoId(response.Account.Id)
+		if err != nil {
+			log.Error("mono id error", err)
+			return errors.New("unable to find user with Mono Id")
+		}
+		err = ws.monoUserRepo.Delete(user.UserId)
+		if err != nil {
+			log.Error("delete mono user error", err)
+			return err
+		}
 		return nil
 	}
 	if payload.Event == "mono.events.reauthorisation_required" {
@@ -71,6 +80,7 @@ func (ws webhookService) MonoWebhook(payload types.MonoWebhookPayload) error {
 			return err
 		}
 
+		// send email or push notification to user
 		result, err := mono.ReauthoriseUser(response.Account.Id)
 		if err != nil {
 			return err
