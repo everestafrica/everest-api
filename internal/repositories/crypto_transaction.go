@@ -14,7 +14,8 @@ type ICryptoTransactionRepository interface {
 	FindByUserId(userId string) (*[]models.CryptoTransaction, error)
 	FindTransaction(transactionId string, userId string) (*models.CryptoTransaction, error)
 	FindAllTransactions(userId string, p types.Pagination) (*[]models.CryptoTransaction, error)
-	FindAllByTypeAndSymbol(txnType string, symbol string, userId string, p types.Pagination) (*[]models.CryptoTransaction, error)
+	FindAllByTypeAndSymbol(txnType types.TransactionType, symbol string, userId string, p types.Pagination) (*[]models.CryptoTransaction, error)
+	FindAllTxnFlow(txnType types.TransactionType, dateRange types.DateRange, userId string) (*[]models.CryptoTransaction, error)
 }
 
 type cryptoTransactionRepo struct {
@@ -68,7 +69,7 @@ func (r *cryptoTransactionRepo) FindAllTransactions(userId string, p types.Pagin
 	return &transactions, nil
 }
 
-func (r *cryptoTransactionRepo) FindAllByTypeAndSymbol(txnType string, symbol string, userId string, p types.Pagination) (*[]models.CryptoTransaction, error) {
+func (r *cryptoTransactionRepo) FindAllByTypeAndSymbol(txnType types.TransactionType, symbol string, userId string, p types.Pagination) (*[]models.CryptoTransaction, error) {
 	var transactions []models.CryptoTransaction
 	chain := r.db.Scopes(paginate(p)).Where("user_id = ?", userId).Order("id DESC").Find(&transactions)
 	if txnType != "" {
@@ -80,5 +81,14 @@ func (r *cryptoTransactionRepo) FindAllByTypeAndSymbol(txnType string, symbol st
 	if err := chain.Error; err != nil {
 		return nil, err
 	}
+	return &transactions, nil
+}
+
+func (r *cryptoTransactionRepo) FindAllTxnFlow(txnType types.TransactionType, dateRange types.DateRange, userId string) (*[]models.CryptoTransaction, error) {
+	var transactions []models.CryptoTransaction
+	if err := r.db.Where("user_id = ? AND type = ? AND date > ? AND date <= ?", userId, dateRange.From, dateRange.To, txnType).Order("id DESC").Find(&transactions).Error; err != nil {
+		return nil, err
+	}
+
 	return &transactions, nil
 }

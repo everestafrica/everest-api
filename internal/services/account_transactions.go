@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/external/mono"
 	"github.com/everestafrica/everest-api/internal/models"
@@ -14,7 +15,7 @@ type IAccountTransactionService interface {
 	GetTransaction(transactionId string, userId string) (*models.AccountTransaction, error)
 	GetAllTransactions(userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
 	GetInstitutionTransactions(institution string, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
-	GetTransactionsByType(txnType string, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
+	GetTransactionsByType(txnType types.TransactionType, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
 }
 
 type accountTransactionService struct {
@@ -106,10 +107,42 @@ func (ad accountTransactionService) GetInstitutionTransactions(institution strin
 	return transactions, nil
 }
 
-func (ad accountTransactionService) GetTransactionsByType(txnType string, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error) {
+func (ad accountTransactionService) GetTransactionsByType(txnType types.TransactionType, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error) {
 	transactions, err := ad.accountTransactionRepo.FindAllByType(txnType, userId, pagination)
 	if err != nil {
 		return nil, err
 	}
 	return transactions, nil
+}
+
+func (ad accountTransactionService) GetInflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error) {
+	transactions, err := ad.accountTransactionRepo.FindAllTxnFlow(types.Credit, dateRange, userId)
+	if err != nil {
+		return nil, err
+	}
+	var inflow float64
+	for _, v := range *transactions {
+		inflow += v.Amount
+	}
+	result := &types.TxnFlowResponse{
+		Total:     inflow,
+		DateRange: fmt.Sprintf("from: %s - to: %s", dateRange.From, dateRange.To),
+	}
+	return result, err
+}
+func (ad accountTransactionService) GetOutflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error) {
+	transactions, err := ad.accountTransactionRepo.FindAllTxnFlow(types.Debit, dateRange, userId)
+	if err != nil {
+		return nil, err
+	}
+	var outflow float64
+	for _, v := range *transactions {
+		outflow += v.Amount
+
+	}
+	result := &types.TxnFlowResponse{
+		Total:     outflow,
+		DateRange: fmt.Sprintf("%s - %s", dateRange.From, dateRange.To),
+	}
+	return result, err
 }

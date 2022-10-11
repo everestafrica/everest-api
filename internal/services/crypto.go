@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/external/crypto"
 	"github.com/everestafrica/everest-api/internal/models"
@@ -126,6 +127,38 @@ func (cs cryptoService) DeleteWallet(symbol types.CryptoSymbol, address string, 
 		return err
 	}
 	return nil
+}
+
+func (cs cryptoService) GetInflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error) {
+	transactions, err := cs.cryptoTrxRepo.FindAllTxnFlow(types.Credit, dateRange, userId)
+	if err != nil {
+		return nil, err
+	}
+	var inflow float64
+	for _, v := range *transactions {
+		inflow += v.Amount
+	}
+	result := &types.TxnFlowResponse{
+		Total:     inflow,
+		DateRange: fmt.Sprintf("from: %s - to: %s", dateRange.From, dateRange.To),
+	}
+	return result, err
+}
+func (cs cryptoService) GetOutflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error) {
+	transactions, err := cs.cryptoTrxRepo.FindAllTxnFlow(types.Debit, dateRange, userId)
+	if err != nil {
+		return nil, err
+	}
+	var outflow float64
+	for _, v := range *transactions {
+		outflow += v.Amount
+
+	}
+	result := &types.TxnFlowResponse{
+		Total:     outflow,
+		DateRange: fmt.Sprintf("%s - %s", dateRange.From, dateRange.To),
+	}
+	return result, err
 }
 
 func GetCoinName(symbol types.CryptoSymbol) string {

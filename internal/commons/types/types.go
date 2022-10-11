@@ -86,6 +86,16 @@ type Pagination struct {
 	Size   int
 }
 
+type TxnFlowResponse struct {
+	Total     float64 `json:"total"`
+	DateRange string  `json:"date_range"`
+}
+
+type DateRange struct {
+	From time.Time
+	To   time.Time
+}
+
 type (
 	CryptoSymbol        string
 	CryptoName          string

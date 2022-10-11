@@ -21,4 +21,8 @@ func NewReportService() ReportService {
 	}
 }
 
+func (rs *reportService) GetAccountDetailsReport(userId string) {
+
+}
+
 // balance, fees, net income and expenses

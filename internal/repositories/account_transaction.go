@@ -13,29 +13,30 @@ type IAccountTransactionRepository interface {
 	FindTransaction(transactionId string, userId string) (*models.AccountTransaction, error)
 	FindAllTransactions(userId string, p types.Pagination) (*[]models.AccountTransaction, error)
 	FindAllByInstitution(institution string, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
-	FindAllByType(txnType string, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
+	FindAllByType(txnType types.TransactionType, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
+	FindAllTxnFlow(txnType types.TransactionType, dateRange types.DateRange, userId string) (*[]models.AccountTransaction, error)
 }
 
-type cryptoTransaction struct {
+type accountTransaction struct {
 	db *gorm.DB
 }
 
 // NewAccountTransactionRepo  will instantiate AccountTransaction Repository
 func NewAccountTransactionRepo() IAccountTransactionRepository {
-	return &cryptoTransaction{
+	return &accountTransaction{
 		db: database.DB(),
 	}
 }
 
-func (r *cryptoTransaction) Create(transaction *models.AccountTransaction) error {
+func (r *accountTransaction) Create(transaction *models.AccountTransaction) error {
 	return r.db.Create(transaction).Error
 }
 
-func (r *cryptoTransaction) Update(transaction *models.AccountTransaction) error {
+func (r *accountTransaction) Update(transaction *models.AccountTransaction) error {
 	return r.db.Save(transaction).Error
 }
 
-func (r *cryptoTransaction) FindTransaction(transactionId string, userId string) (*models.AccountTransaction, error) {
+func (r *accountTransaction) FindTransaction(transactionId string, userId string) (*models.AccountTransaction, error) {
 	var transaction models.AccountTransaction
 	if err := r.db.Where("user_id = ? AND transaction_id", userId, transactionId).First(&transaction).Error; err != nil {
 		return nil, err
@@ -44,7 +45,7 @@ func (r *cryptoTransaction) FindTransaction(transactionId string, userId string)
 	return &transaction, nil
 }
 
-func (r *cryptoTransaction) FindAllTransactions(userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
+func (r *accountTransaction) FindAllTransactions(userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
 	var transactions []models.AccountTransaction
 	if err := r.db.Scopes(paginate(p)).Where("user_id = ?", userId).Order("id DESC").Find(&transactions).Error; err != nil {
 		return nil, err
@@ -53,7 +54,7 @@ func (r *cryptoTransaction) FindAllTransactions(userId string, p types.Paginatio
 	return &transactions, nil
 }
 
-func (r *cryptoTransaction) FindAllByInstitution(institution string, userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
+func (r *accountTransaction) FindAllByInstitution(institution string, userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
 	var transactions []models.AccountTransaction
 	if err := r.db.Scopes(paginate(p)).Where("user_id = ? AND institution = ?", userId, institution).Order("id DESC").Find(&transactions).Error; err != nil {
 		return nil, err
@@ -61,9 +62,18 @@ func (r *cryptoTransaction) FindAllByInstitution(institution string, userId stri
 
 	return &transactions, nil
 }
-func (r *cryptoTransaction) FindAllByType(txnType string, userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
+func (r *accountTransaction) FindAllByType(txnType types.TransactionType, userId string, p types.Pagination) (*[]models.AccountTransaction, error) {
 	var transactions []models.AccountTransaction
 	if err := r.db.Scopes(paginate(p)).Where("user_id = ? AND type = ?", userId, txnType).Order("id DESC").Find(&transactions).Error; err != nil {
+		return nil, err
+	}
+
+	return &transactions, nil
+}
+
+func (r *accountTransaction) FindAllTxnFlow(txnType types.TransactionType, dateRange types.DateRange, userId string) (*[]models.AccountTransaction, error) {
+	var transactions []models.AccountTransaction
+	if err := r.db.Where("user_id = ? AND type = ? AND date > ? AND date <= ?", userId, dateRange.From, dateRange.To, txnType).Order("id DESC").Find(&transactions).Error; err != nil {
 		return nil, err
 	}
 
