@@ -17,6 +17,7 @@ type RegisterRequest struct {
 	PhoneNumber string `json:"phone_number"`
 	Email       string `json:"email" validate:"required"`
 	Password    string `json:"password" validate:"required"`
+	Code        string `json:"code" validate:"required"`
 }
 type RegisterResponse struct {
 	FirstName string `json:"first_name"`

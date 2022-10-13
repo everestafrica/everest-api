@@ -20,6 +20,7 @@ import (
 type IAuthService interface {
 	Register(body types.RegisterRequest) (*types.RegisterResponse, error)
 	SendOTPCode(request *types.SendCodeRequest) error
+	SendEmailOTPCode(request *types.SendCodeRequest) error
 	Login(body types.LoginRequest) (*types.LoginResponse, error)
 	IssueToken(u *models.User) (*types.TokenResponse, error)
 	ParseToken(token string) (*types.Claims, error)
@@ -42,6 +43,11 @@ func NewAuthService() IAuthService {
 }
 
 func (as *authService) Register(body types.RegisterRequest) (*types.RegisterResponse, error) {
+	err := as.otpService.Validate(body.Email, body.Code)
+	if err != nil {
+		return nil, err
+	}
+
 	stringUtil := util.StringUtil{}
 
 	body.FirstName = stringUtil.CapitalizeFirstCharacter(body.FirstName)
@@ -190,6 +196,32 @@ func (as *authService) RefreshToken(token string) (*types.TokenResponse, error) 
 	}, nil
 }
 
+func (as *authService) SendEmailOTPCode(request *types.SendCodeRequest) error {
+
+	code, err := as.otpService.Generate(request.Receiver)
+
+	if err != nil {
+		return errors.New("oops an error occurred please try again")
+	}
+
+	message := fmt.Sprintf("Your Everest code is %s", *code)
+
+	go func() {
+		_, err := channels.SendMail(&channels.Email{
+			Sender:    "Everest",
+			Subject:   "OTP",
+			Body:      message,
+			Recipient: request.Receiver,
+		})
+		if err != nil {
+			log.Error("email sending error", err)
+		}
+	}()
+
+	return nil
+
+}
+
 func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
 
 	code, err := as.otpService.Generate(request.Receiver)
@@ -224,3 +256,5 @@ func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
 	return nil
 
 }
+
+
