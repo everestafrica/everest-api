@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
@@ -11,14 +12,14 @@ import (
 	"github.com/everestafrica/everest-api/internal/repositories"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
-	"log"
+
 	"strconv"
 	"time"
 )
 
 type IAuthService interface {
 	Register(body types.RegisterRequest) (*types.RegisterResponse, error)
-	//SendOTPCode(request *types.SendCodeRequest) error
+	SendOTPCode(request *types.SendCodeRequest) error
 	Login(body types.LoginRequest) (*types.LoginResponse, error)
 	IssueToken(u *models.User) (*types.TokenResponse, error)
 	ParseToken(token string) (*types.Claims, error)
@@ -39,32 +40,6 @@ func NewAuthService() IAuthService {
 		otpService: NewOTPService(),
 	}
 }
-
-//func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
-//
-//	code, err := as.otpService.Generate(request.Receiver)
-//
-//	if err != nil {
-//		return errors.New("oops an error occurred please try again")
-//	}
-//
-//	message := fmt.Sprintf("Your wirepay code is %s", *code)
-//
-//	if !request.IsEmail {
-//		go rehook.SendSMS(message, request.Receiver)
-//	} else {
-//		go sendgrid.SendEmail(sendgrid.Email{
-//			ToName:  "",
-//			ToEmail: request.Receiver,
-//			Subject: "Your Wirepay code",
-//			HTML:    fmt.Sprintf("<html><body>%s</body></html>", message),
-//			Text:    message,
-//		})
-//	}
-//
-//	return nil
-//
-//}
 
 func (as *authService) Register(body types.RegisterRequest) (*types.RegisterResponse, error) {
 	stringUtil := util.StringUtil{}
@@ -226,7 +201,12 @@ func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
 	message := fmt.Sprintf("Your Everest code is %s", *code)
 
 	if !request.IsEmail {
-		//go channels.SendSMS(message, request.Receiver)
+		go func() {
+			_, otpErr := channels.SendOTP(request.Receiver)
+			if otpErr != nil {
+				log.Error("error sending otp code", err)
+			}
+		}()
 	} else {
 		go func() {
 			_, err := channels.SendMail(&channels.Email{
@@ -236,7 +216,7 @@ func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
 				Recipient: request.Receiver,
 			})
 			if err != nil {
-				log.Print(err)
+				log.Error("email sending error", err)
 			}
 		}()
 	}

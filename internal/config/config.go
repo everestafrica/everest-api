@@ -30,8 +30,8 @@ type Config struct {
 	NewsApiKeySec     string `env:"NEWS_API_KEY_SEC"`
 	EmailSecretKey    string `env:"EMAIL_SECRET_KEY"`
 	EmailDomainUrl    string `env:"EMAIL_DOMAIN_URL"`
-	TestSmsApiKey     string `env:"TEST_SMS_API_KEY"`
-	TestSmsApiId      string `env:"TEST_SMS_API_ID"`
+	ProdSmsSecretKey  string `env:"PROD_SMS_SECRET_KEY"`
+	ProdSmsPublicKey  string `env:"PROD_SMS_PUBLIC_KEY"`
 }
 
 var config *Config

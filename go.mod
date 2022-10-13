@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	firebase.google.com/go/v4 v4.8.0
+	github.com/fuadop/sendchamp v0.0.0-20220606110106-d25d8818670a
 	github.com/go-co-op/gocron v1.16.2
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/go-redis/redis v6.15.9+incompatible
@@ -12,9 +13,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
-	github.com/lib/pq v1.10.2
 	github.com/mailgun/mailgun-go/v4 v4.8.1
-	github.com/messagebird/go-rest-api/v9 v9.1.0
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
 	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48

@@ -1,28 +1,74 @@
 package channels
 
 import (
-	"fmt"
+	"errors"
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/config"
-	messagebird "github.com/messagebird/go-rest-api/v9"
-	"github.com/messagebird/go-rest-api/v9/balance"
+	"github.com/fuadop/sendchamp"
 )
 
-func SendSMS() {
-	// Access keys can be managed through our dashboard.
-	accessKey := config.GetConf().TestSmsApiKey
-	// Create a client.
-	client := messagebird.New(accessKey)
-	//sms.Create(client, "",)
-	// Request the balance information, returned as a balance.Balance object.
-	balances, err := balance.Read(client)
-	if err != nil {
-		// Handle error.
-		return
+type SMS struct {
+	To      []string
+	Message string
+}
+
+type Response struct {
+	Success bool
+	Message string
+}
+
+func SendOTP(to string) (*Response, error) {
+	client := sendchamp.NewClient(config.GetConf().ProdSmsPublicKey, sendchamp.ModeTest)
+
+	verifyPayload := sendchamp.SendOTPPayload{
+		Channel:              sendchamp.OTPChannelSMS,
+		Sender:               "Everest",
+		TokenType:            sendchamp.OTPTokenTypeAlphaNumeric,
+		TokenLength:          "6",
+		ExpirationTime:       5,
+		CustomerMobileNumber: to,
+		MetaData:             nil,
 	}
 
-	// Display the results.
-	fmt.Println("Payment: ", balances.Payment)
-	fmt.Println("Type:", balances.Type)
-	fmt.Println("Amount:", balances.Amount)
+	s, err := client.NewVerification().SendOTP(verifyPayload)
+	if err != nil {
+		log.Error("otp err: ", err)
+		return nil, err
+	}
+	var response Response
+	if s.Code == "200" {
+		response.Success = true
+		response.Message = "OTP sent successfully"
+		return &response, nil
+	} else {
+		log.Error("otp err: ", s.Message, s.Code)
+		return nil, errors.New(s.Message)
+	}
+}
 
+func ConfirmOtp(code string, reference string) error {
+	client := sendchamp.NewClient(config.GetConf().ProdSmsPublicKey, sendchamp.ModeTest)
+
+	_, err := client.NewVerification().ConfirmOTP(code, reference)
+	if err != nil {
+		log.Error("otp err: ", err)
+		return err
+	}
+	return nil
+}
+
+func SendSMS(sms SMS) (*Response, error) {
+	client := sendchamp.NewClient(config.GetConf().ProdSmsPublicKey, sendchamp.ModeTest)
+
+	res, err := client.NewSms().Send("Everest", sms.To, sms.Message, sendchamp.RouteInternational)
+
+	if err != nil {
+		log.Error("sms", err)
+		return nil, err
+	}
+
+	return &Response{
+		Success: true,
+		Message: res.Message,
+	}, nil
 }
