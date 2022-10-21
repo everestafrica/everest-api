@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/database"
-	"github.com/everestafrica/everest-api/internal/external/channels"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/go-co-op/gocron"
@@ -82,23 +81,23 @@ func RegisterSchedulers() {
 			for _, sub := range *subs {
 				if sub.NextPayment.Day() == GetTwoDaysLater().Day() {
 					fmt.Println("the sub", sub, user.Email)
-					go channels.SendMail(&channels.Email{
-						Type:      channels.Subscription,
-						Recipient: user.Email,
-						Subject:   "REMINDER: Subscription Due",
-						Body:      "The following subscription(s) payment is due in two days",
-						Data:      sub,
-					})
+					//go channels.SendMail(&channels.Email{
+					//	Type:      channels.Subscription,
+					//	Recipient: user.Email,
+					//	Subject:   "REMINDER: Subscription Due",
+					//	Body:      "The following subscription(s) payment is due in two days",
+					//	Data:      sub,
+					//})
 				}
 				if sub.NextPayment.Day() == GetTomorrow().Day() {
 					fmt.Println("the sub", sub, user.Email)
-					go channels.SendMail(&channels.Email{
-						Type:      channels.Subscription,
-						Recipient: user.Email,
-						Subject:   "REMINDER: Subscription Due",
-						Body:      "The following subscription(s) payment is due tomorrow",
-						Data:      sub,
-					})
+					//go channels.SendMail(&channels.Email{
+					//	Type:      channels.Subscription,
+					//	Recipient: user.Email,
+					//	Subject:   "REMINDER: Subscription Due",
+					//	Body:      "The following subscription(s) payment is due tomorrow",
+					//	Data:      sub,
+					//})
 
 				}
 
