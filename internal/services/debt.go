@@ -8,8 +8,10 @@ import (
 
 type IDebtService interface {
 	AddDebt(request *types.CreateDebtRequest, userId string) error
+	UpdateDebt(request *types.UpdateDebtRequest, userId string, debtId int) error
 	GetAllDebts(userId string) (*[]models.Debt, error)
-	GetDebtByType(userId string, debtType types.DebtType) (*[]models.Debt, error)
+	GetDebt(userId string, debtId int) (*models.Debt, error)
+	GetDebtsByType(userId string, debtType types.DebtType) (*[]models.Debt, error)
 	DeleteDebt(debtId, userId string) error
 }
 
@@ -20,7 +22,6 @@ type debtService struct {
 
 func NewDebtService() IDebtService {
 	return &debtService{
-		userRepo: repositories.NewUserRepo(),
 		debtRepo: repositories.NewDebtRepo(),
 	}
 }
@@ -39,6 +40,30 @@ func (ds debtService) AddDebt(request *types.CreateDebtRequest, userId string) e
 	return nil
 }
 
+func (ds debtService) UpdateDebt(request *types.UpdateDebtRequest, userId string, debtId int) error {
+	debt, err := ds.debtRepo.FindByUserIdAndDebtId(userId, debtId)
+	if err != nil {
+		return err
+	}
+	if &debt.Due != nil {
+		debt.Due = *request.Due
+	}
+	if &debt.Amount != nil {
+		debt.Amount = *request.Amount
+	}
+	if &debt.CounterpartyName != nil {
+		debt.CounterpartyName = *request.CounterpartyName
+	}
+	if &debt.Reason != nil {
+		debt.Reason = *request.Reason
+	}
+	err = ds.debtRepo.Update(debt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (ds debtService) GetAllDebts(userId string) (*[]models.Debt, error) {
 	debts, err := ds.debtRepo.FindAllByUserId(userId)
 	if err != nil {
@@ -47,7 +72,15 @@ func (ds debtService) GetAllDebts(userId string) (*[]models.Debt, error) {
 	return debts, nil
 }
 
-func (ds debtService) GetDebtByType(userId string, debtType types.DebtType) (*[]models.Debt, error) {
+func (ds debtService) GetDebt(userId string, debtId int) (*models.Debt, error) {
+	debt, err := ds.debtRepo.FindByUserIdAndDebtId(userId, debtId)
+	if err != nil {
+		return nil, err
+	}
+	return debt, nil
+}
+
+func (ds debtService) GetDebtsByType(userId string, debtType types.DebtType) (*[]models.Debt, error) {
 	debts, err := ds.debtRepo.FindAllByType(userId, debtType)
 	if err != nil {
 		return nil, err

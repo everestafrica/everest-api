@@ -88,6 +88,12 @@ type CreateDebtRequest struct {
 	CounterpartyName string    `json:"counterparty_name" validate:"required"`
 	Due              time.Time `json:"due" validate:"required"`
 }
+type UpdateDebtRequest struct {
+	Amount           *int64     `json:"amount"`
+	Due              *time.Time `json:"due"`
+	CounterpartyName *string    `json:"counterparty_name"`
+	Reason           *string    `json:"reason"`
+}
 
 type Pagination struct {
 	Number int
