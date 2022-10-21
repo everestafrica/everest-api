@@ -208,7 +208,7 @@ func (as *authService) SendEmailOTPCode(request *types.SendCodeRequest) error {
 	message := fmt.Sprintf("Your Everest code is %s", *code)
 
 	go func() {
-		_, err := channels.SendMail(&channels.Email{
+		err = channels.SendMail(&channels.Email{
 			Type:      channels.Auth,
 			Subject:   "OTP",
 			Body:      message,

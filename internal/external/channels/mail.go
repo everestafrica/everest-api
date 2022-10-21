@@ -29,7 +29,7 @@ type EmailResponse struct {
 	Id      string `json:"id"`
 }
 
-func SendMail(email *Email) (*EmailResponse, error) {
+func SendMail(email *Email) error {
 	yourDomain := config.GetConf().EmailDomainUrl
 	privateAPIKey := config.GetConf().EmailSecretKey
 	testSender := config.GetConf().EmailFrom
@@ -62,17 +62,13 @@ func SendMail(email *Email) (*EmailResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 
-	// Send the message with a 30 second timeout
-	resp, id, err := mg.Send(ctx, message)
+	_, _, err := mg.Send(ctx, message)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &EmailResponse{
-		Message: resp,
-		Id:      id,
-	}, nil
+	return nil
 }
 
 func GetEmailBody(emailType EmailType, data interface{}) string {

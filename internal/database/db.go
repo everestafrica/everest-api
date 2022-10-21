@@ -34,14 +34,15 @@ func DB() *gorm.DB {
 
 func MigrateAll(db *gorm.DB) error {
 	return db.AutoMigrate(
-		models.User{},
-		models.AccountTransaction{},
 		models.AccountDetail{},
+		models.AccountTransaction{},
 		models.Budget{},
-		models.CryptoTransaction{},
 		models.CryptoDetail{},
-		models.Subscription{},
-		models.News{},
+		models.CryptoTransaction{},
+		models.Debt{},
 		models.MonoUser{},
+		models.News{},
+		models.Subscription{},
+		models.User{},
 	)
 }

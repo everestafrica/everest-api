@@ -5,7 +5,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
-	"log"
 )
 
 type IWebhookController interface {
@@ -30,10 +29,9 @@ func (ctl webhookController) RegisterRoutes(app *fiber.App) {
 }
 
 func (ctl webhookController) Mono(ctx *fiber.Ctx) error {
-
 	var body types.MonoWebhookPayload
+
 	if err := ctx.BodyParser(body); err != nil {
-		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing webhook body",
@@ -48,7 +46,7 @@ func (ctl webhookController) Mono(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(types.GenericResponse{
 		Success: true,
-		Message: "webhook received successfully",
+		Message: "Webhook received successfully",
 		Data:    body,
 	})
 }

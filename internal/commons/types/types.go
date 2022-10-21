@@ -82,6 +82,13 @@ type CryptoWalletRequest struct {
 	Symbol  string `json:"symbol"`
 }
 
+type CreateDebtRequest struct {
+	Amount           int64     `json:"amount" validate:"required"`
+	Reason           string    `json:"reason" validate:"required"`
+	CounterpartyName string    `json:"counterparty_name" validate:"required"`
+	Due              time.Time `json:"due" validate:"required"`
+}
+
 type Pagination struct {
 	Number int
 	Size   int
@@ -104,6 +111,8 @@ type (
 	Frequency           string
 	TransactionType     string
 	TransactionCategory string
+	DebtType            string
+	DebtStatus          string
 )
 
 const (
@@ -129,6 +138,13 @@ const (
 const (
 	Credit TransactionType = "credit"
 	Debit  TransactionType = "debit"
+
+	DebtStatusPending DebtStatus = "pending"
+	DebtStatusPaid    DebtStatus = "paid"
+	DebtStatusFailed  DebtStatus = "failed"
+
+	DebtTypeDebtor   DebtType = "debtor"
+	DebtTypeCreditor DebtType = "creditor"
 
 	Grocery             TransactionCategory = "groceries"
 	Entertainment       TransactionCategory = "entertainment"

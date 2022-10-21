@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -58,16 +59,23 @@ func (ctl subscriptionController) GetAllSubscriptions(ctx *fiber.Ctx) error {
 func (ctl subscriptionController) AddSubscription(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Unauthorized User",
+		})
 	}
 
 	var body *types.SubscriptionRequest
 	//body := new(types.SubscriptionRequest)
-	if err := ctx.BodyParser(body); err != nil {
+	if err = ctx.BodyParser(body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing request body",
 		})
+	}
+	errors := util.ValidateStruct(body)
+	if errors != nil {
+		return ctx.JSON(errors)
 	}
 	err = ctl.subscriptionService.AddSubscription(body, userId)
 	if err != nil {
@@ -80,7 +88,10 @@ func (ctl subscriptionController) DeleteSubscription(ctx *fiber.Ctx) error {
 	subId := ctx.Params("id")
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Unauthorized User",
+		})
 	}
 	err = ctl.subscriptionService.DeleteSubscription(subId, userId)
 	if err != nil {
