@@ -11,8 +11,6 @@ import (
 	"net/http"
 )
 
-var client = &http.Client{}
-
 type News struct {
 	Title       string `json:"title"`
 	Img         string `json:"img"`

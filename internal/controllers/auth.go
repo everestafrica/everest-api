@@ -10,6 +10,7 @@ import (
 type IAuthController interface {
 	Register(ctx *fiber.Ctx) error
 	Login(ctx *fiber.Ctx) error
+	SendOTPCode(ctx *fiber.Ctx) error
 	RegisterRoutes(app *fiber.App)
 }
 
@@ -25,10 +26,11 @@ func NewAuthController() IAuthController {
 }
 
 func (ctl *authController) RegisterRoutes(app *fiber.App) {
-	v1 := app.Group("/v1")
-	auth := v1.Group("/auth")
+	auth := app.Group("/v1/auth")
+
 	auth.Post("/register", ctl.Register)
 	auth.Post("/login", ctl.Login)
+	auth.Post("/send-otp", ctl.SendOTPCode)
 }
 
 func (ctl *authController) Register(ctx *fiber.Ctx) error {
@@ -82,5 +84,33 @@ func (ctl authController) Login(ctx *fiber.Ctx) error {
 		Success: true,
 		Message: "User successfully logged in",
 		Data:    res,
+	})
+}
+
+func (ctl authController) ResetPassword(ctx fiber.Ctx) error {
+	return nil
+}
+
+func (ctl authController) SendOTPCode(ctx *fiber.Ctx) error {
+	var body types.SendCodeRequest
+
+	if err := ctx.BodyParser(&body); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	err := ctl.authService.SendOTPCode(&body)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "OTP sent successfully",
 	})
 }

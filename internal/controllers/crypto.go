@@ -27,6 +27,7 @@ func NewCryptoController() ICryptoController {
 func (ctl *cryptoController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
 	crypto := v1.Group("/crypto")
+	crypto.Get("/wallet", handlers.SecureAuth(), ctl.GetAllWallets)
 	crypto.Post("/wallet", handlers.SecureAuth(), ctl.LinkWallet)
 	crypto.Delete("/wallet", handlers.SecureAuth(), ctl.UnLinkWallet)
 }
@@ -98,12 +99,12 @@ func (ctl *cryptoController) UnLinkWallet(ctx *fiber.Ctx) error {
 }
 
 func (ctl *cryptoController) GetAllWallets(ctx *fiber.Ctx) error {
-	_, err := handlers.UserFromContext(ctx)
+	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
-	//err = ctl.cryptoDetailsService.GetWallet(types.CryptoSymbol(body.Symbol), body.Address, userId)
+	wallets, err := ctl.cryptoDetailsService.GetWallets(userId)
 	if err != nil {
 		return err
 	}
@@ -113,5 +114,6 @@ func (ctl *cryptoController) GetAllWallets(ctx *fiber.Ctx) error {
 	return ctx.JSON(types.GenericResponse{
 		Success: true,
 		Message: "successfully fetched user wallets",
+		Data:    wallets,
 	})
 }

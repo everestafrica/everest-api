@@ -22,6 +22,7 @@ type IAuthService interface {
 	SendOTPCode(request *types.SendCodeRequest) error
 	SendEmailOTPCode(request *types.SendCodeRequest) error
 	Login(body types.LoginRequest) (*types.LoginResponse, error)
+	//ResetPassword(body types.ChangePassword)
 	IssueToken(u *models.User) (*types.TokenResponse, error)
 	ParseToken(token string) (*types.Claims, error)
 	RefreshToken(token string) (*types.TokenResponse, error)
@@ -208,7 +209,7 @@ func (as *authService) SendEmailOTPCode(request *types.SendCodeRequest) error {
 
 	go func() {
 		_, err := channels.SendMail(&channels.Email{
-			Sender:    "Everest",
+			Type:      channels.Auth,
 			Subject:   "OTP",
 			Body:      message,
 			Recipient: request.Receiver,
@@ -240,21 +241,17 @@ func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
 			}
 		}()
 	} else {
-		go func() {
-			_, err := channels.SendMail(&channels.Email{
-				Sender:    "Everest",
-				Subject:   "OTP",
-				Body:      message,
-				Recipient: request.Receiver,
-			})
-			if err != nil {
-				log.Error("email sending error", err)
-			}
-		}()
+		go channels.SendMail(&channels.Email{
+			Type:      channels.Auth,
+			Subject:   "OTP",
+			Body:      message,
+			Recipient: request.Receiver,
+		})
+		if err != nil {
+			log.Error("email sending error", err)
+		}
 	}
 
 	return nil
 
 }
-
-

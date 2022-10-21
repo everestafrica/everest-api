@@ -29,6 +29,8 @@ type Config struct {
 	NewsApiKeyPry     string `env:"NEWS_API_KEY_PRY"`
 	NewsApiKeySec     string `env:"NEWS_API_KEY_SEC"`
 	EmailSecretKey    string `env:"EMAIL_SECRET_KEY"`
+	EmailFrom         string `env:"EMAIL_FROM"`
+	EmailTo           string `env:"EMAIL_TO"`
 	EmailDomainUrl    string `env:"EMAIL_DOMAIN_URL"`
 	ProdSmsSecretKey  string `env:"PROD_SMS_SECRET_KEY"`
 	ProdSmsPublicKey  string `env:"PROD_SMS_PUBLIC_KEY"`

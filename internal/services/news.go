@@ -39,7 +39,7 @@ func (ns newsService) SetNews() error {
 			Description: s.Description,
 			Date:        s.Date,
 		}
-		err := ns.newsRepo.Create(&scrapedNews)
+		err = ns.newsRepo.Create(&scrapedNews)
 		if err != nil {
 			return err
 		}
@@ -54,7 +54,7 @@ func (ns newsService) SetNews() error {
 			Description: f.Description,
 			Date:        f.PublishedAt,
 		}
-		err := ns.newsRepo.Create(&fetchedNews)
+		err = ns.newsRepo.Create(&fetchedNews)
 		if err != nil {
 			return err
 		}

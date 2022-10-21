@@ -141,7 +141,7 @@ const (
 	Health              TransactionCategory = "health"
 	SelfCare            TransactionCategory = "self_care"
 	LoanRepayment       TransactionCategory = "loan_repayment"
-	Bills               TransactionCategory = "bills/fees"
+	BillsAndFees        TransactionCategory = "bills/fees"
 	Transfer            TransactionCategory = "transfer"
 	OnlineTransactions  TransactionCategory = "online_transactions"
 	OfflineTransactions TransactionCategory = "offline_transactions"
