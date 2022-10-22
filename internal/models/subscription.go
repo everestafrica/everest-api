@@ -9,7 +9,7 @@ type Subscription struct {
 	Base
 	UserId      string               `json:"user_id"`
 	Product     string               `json:"product"`
-	Price       string               `json:"price"`
+	Price       float64              `json:"price"`
 	Currency    types.CurrencySymbol `json:"currency"`
 	Logo        string               `json:"logo"`
 	Frequency   types.Frequency      `json:"frequency"`

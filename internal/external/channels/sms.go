@@ -57,18 +57,15 @@ func ConfirmOtp(code string, reference string) error {
 	return nil
 }
 
-func SendSMS(sms SMS) (*Response, error) {
+func SendSMS(sms *SMS) error {
 	client := sendchamp.NewClient(config.GetConf().ProdSmsPublicKey, sendchamp.ModeTest)
 
-	res, err := client.NewSms().Send("Everest", sms.To, sms.Message, sendchamp.RouteInternational)
+	_, err := client.NewSms().Send("Everest", sms.To, sms.Message, sendchamp.RouteInternational)
 
 	if err != nil {
 		log.Error("sms", err)
-		return nil, err
+		return err
 	}
 
-	return &Response{
-		Success: true,
-		Message: res.Message,
-	}, nil
+	return nil
 }

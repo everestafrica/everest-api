@@ -54,11 +54,11 @@ type TokenResponse struct {
 
 type SubscriptionRequest struct {
 	Product     string         `json:"product" validate:"required"`
-	Price       string         `json:"price" validate:"required"`
+	Price       float64        `json:"price" validate:"required"`
 	Currency    CurrencySymbol `json:"currency" validate:"required"`
 	Logo        string         `json:"logo"`
 	Frequency   Frequency      `json:"frequency" validate:"required"`
-	NextPayment time.Time      `json:"next_payment" validate:"required"`
+	NextPayment string         `json:"next_payment" validate:"required"`
 }
 
 type CreateBudgetRequest struct {

@@ -21,10 +21,11 @@ var utilToken = util.Token{}
 
 // UserFromContext extracts the user_id from context
 func UserFromContext(ctx *fiber.Ctx) (string, error) {
-	id := ctx.Get(AuthUserContextKey)
-	if id == "" {
+	id := ctx.GetRespHeader(AuthUserContextKey)
+	if &id == nil {
 		return "", ctx.Status(fiber.StatusUnauthorized).JSON("unable to fetch user info from token")
 	}
+
 	return id, nil
 }
 

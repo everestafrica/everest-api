@@ -65,23 +65,26 @@ func (ctl subscriptionController) AddSubscription(ctx *fiber.Ctx) error {
 		})
 	}
 
-	var body *types.SubscriptionRequest
+	var body types.SubscriptionRequest
 	//body := new(types.SubscriptionRequest)
-	if err = ctx.BodyParser(body); err != nil {
+	if err = ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
-			Message: "Problem while parsing request body",
+			Message: err.Error(),
 		})
 	}
 	errors := util.ValidateStruct(body)
 	if errors != nil {
 		return ctx.JSON(errors)
 	}
-	err = ctl.subscriptionService.AddSubscription(body, userId)
+	err = ctl.subscriptionService.AddSubscription(&body, userId)
 	if err != nil {
 		return err
 	}
-	return nil
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "Successfully created subscription",
+	})
 }
 
 func (ctl subscriptionController) DeleteSubscription(ctx *fiber.Ctx) error {

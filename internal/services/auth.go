@@ -19,8 +19,8 @@ import (
 
 type IAuthService interface {
 	Register(body types.RegisterRequest) (*types.RegisterResponse, error)
-	SendOTPCode(request *types.SendCodeRequest) error
-	SendEmailOTPCode(request *types.SendCodeRequest) error
+	SendSmsOTP(request *types.SendCodeRequest) error
+	SendEmailOTP(request *types.SendCodeRequest) error
 	Login(body types.LoginRequest) (*types.LoginResponse, error)
 	//ResetPassword(body types.ChangePassword)
 	IssueToken(u *models.User) (*types.TokenResponse, error)
@@ -49,6 +49,10 @@ func (as *authService) Register(body types.RegisterRequest) (*types.RegisterResp
 		return nil, err
 	}
 
+	//err := channels.ConfirmOtp(body.PhoneNumber, body.Code)
+	//if err != nil {
+	//	return nil, err
+	//}
 	stringUtil := util.StringUtil{}
 
 	body.FirstName = stringUtil.CapitalizeFirstCharacter(body.FirstName)
@@ -197,7 +201,7 @@ func (as *authService) RefreshToken(token string) (*types.TokenResponse, error) 
 	}, nil
 }
 
-func (as *authService) SendEmailOTPCode(request *types.SendCodeRequest) error {
+func (as *authService) SendEmailOTP(request *types.SendCodeRequest) error {
 
 	code, err := as.otpService.Generate(request.Receiver)
 
@@ -205,7 +209,7 @@ func (as *authService) SendEmailOTPCode(request *types.SendCodeRequest) error {
 		return errors.New("oops an error occurred please try again")
 	}
 
-	message := fmt.Sprintf("Your Everest code is %s", *code)
+	message := fmt.Sprintf("Your Everest Verification OTP is %s", *code)
 
 	go func() {
 		err = channels.SendMail(&channels.Email{
@@ -223,7 +227,7 @@ func (as *authService) SendEmailOTPCode(request *types.SendCodeRequest) error {
 
 }
 
-func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
+func (as *authService) SendSmsOTP(request *types.SendCodeRequest) error {
 
 	code, err := as.otpService.Generate(request.Receiver)
 
@@ -231,15 +235,14 @@ func (as *authService) SendOTPCode(request *types.SendCodeRequest) error {
 		return errors.New("oops an error occurred please try again")
 	}
 
-	message := fmt.Sprintf("Your Everest code is %s", *code)
+	message := fmt.Sprintf("Your Everest Verification OTP is %s", *code)
 
 	if !request.IsEmail {
-		go func() {
-			_, otpErr := channels.SendOTP(request.Receiver)
-			if otpErr != nil {
-				log.Error("error sending otp code", err)
-			}
-		}()
+		channels.SendOTP(request.Receiver)
+		//if otpErr != nil {
+		//	log.Error("error sending otp code", err)
+		//}
+
 	} else {
 		go channels.SendMail(&channels.Email{
 			Type:      channels.Auth,

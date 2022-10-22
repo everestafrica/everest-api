@@ -10,7 +10,8 @@ import (
 type IAuthController interface {
 	Register(ctx *fiber.Ctx) error
 	Login(ctx *fiber.Ctx) error
-	SendOTPCode(ctx *fiber.Ctx) error
+	SendOTP(ctx *fiber.Ctx) error
+	SendCode(ctx *fiber.Ctx) error
 	RegisterRoutes(app *fiber.App)
 }
 
@@ -30,7 +31,8 @@ func (ctl *authController) RegisterRoutes(app *fiber.App) {
 
 	auth.Post("/register", ctl.Register)
 	auth.Post("/login", ctl.Login)
-	auth.Post("/send-otp", ctl.SendOTPCode)
+	auth.Post("/send-code", ctl.SendCode)
+	auth.Post("/send-otp", ctl.SendOTP)
 }
 
 func (ctl *authController) Register(ctx *fiber.Ctx) error {
@@ -62,7 +64,7 @@ func (ctl *authController) Register(ctx *fiber.Ctx) error {
 		Data:    res,
 	})
 }
-func (ctl authController) Login(ctx *fiber.Ctx) error {
+func (ctl *authController) Login(ctx *fiber.Ctx) error {
 	var body types.LoginRequest
 
 	if err := ctx.BodyParser(&body); err != nil {
@@ -87,11 +89,11 @@ func (ctl authController) Login(ctx *fiber.Ctx) error {
 	})
 }
 
-func (ctl authController) ResetPassword(ctx fiber.Ctx) error {
+func (ctl *authController) ResetPassword(ctx fiber.Ctx) error {
 	return nil
 }
 
-func (ctl authController) SendOTPCode(ctx *fiber.Ctx) error {
+func (ctl *authController) SendOTP(ctx *fiber.Ctx) error {
 	var body types.SendCodeRequest
 
 	if err := ctx.BodyParser(&body); err != nil {
@@ -101,7 +103,31 @@ func (ctl authController) SendOTPCode(ctx *fiber.Ctx) error {
 		})
 	}
 
-	err := ctl.authService.SendOTPCode(&body)
+	err := ctl.authService.SendEmailOTP(&body)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "OTP sent successfully",
+	})
+}
+
+func (ctl *authController) SendCode(ctx *fiber.Ctx) error {
+	var body types.SendCodeRequest
+
+	if err := ctx.BodyParser(&body); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	err := ctl.authService.SendSmsOTP(&body)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,

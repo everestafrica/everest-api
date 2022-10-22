@@ -14,19 +14,18 @@ type ISubscriptionService interface {
 }
 
 type subscriptionService struct {
-	userRepo         repositories.IUserRepository
 	subscriptionRepo repositories.ISubscriptionRepository
 }
 
 // NewSubscriptionService will instantiate SubscriptionService
 func NewSubscriptionService() ISubscriptionService {
 	return &subscriptionService{
-		userRepo:         repositories.NewUserRepo(),
 		subscriptionRepo: repositories.NewSubscriptionRepo(),
 	}
 }
 
 func (ss subscriptionService) AddSubscription(request *types.SubscriptionRequest, userId string) error {
+	nextPayment, _ := time.Parse("Jan 2, 2006 at 3:04pm (MST)", request.NextPayment)
 	sub := models.Subscription{
 		UserId:      userId,
 		Product:     request.Product,
@@ -34,7 +33,7 @@ func (ss subscriptionService) AddSubscription(request *types.SubscriptionRequest
 		Currency:    request.Currency,
 		Logo:        request.Logo,
 		Frequency:   request.Frequency,
-		NextPayment: time.Time{},
+		NextPayment: nextPayment,
 	}
 	err := ss.subscriptionRepo.Create(&sub)
 	if err != nil {
