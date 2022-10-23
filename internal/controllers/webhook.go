@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
@@ -39,9 +40,10 @@ func (ctl webhookController) Mono(ctx *fiber.Ctx) error {
 	}
 	err := ctl.webhookService.MonoWebhook(body)
 	if err != nil {
+		log.Error("mono webhook error", err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
-			Message: err,
+			Message: err.Error(),
 		})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(types.GenericResponse{

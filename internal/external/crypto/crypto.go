@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mitchellh/mapstructure"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/config"
 )
@@ -144,18 +144,17 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 
 	var url string
 	var result Balance
-	var response interface{}
 
 	switch symbol {
 	case types.ETH:
 		url = fmt.Sprintf("https://api.etherscan.io/api?module=account&action=balance&address=%s&apikey=%s", address, EthApiKey)
-		response = response.(EthBalance)
-		log.Info(url)
+		var response EthBalance
 
 		v, err := Get(url, response)
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("v: ", v)
 		res := v.(EthBalance)
 		val, _ := strconv.Atoi(res.Result)
 		bal := Balance{
@@ -165,8 +164,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 		result = bal
 	case types.BSC:
 		url = fmt.Sprintf("https://api.bscscan.com/api?module=account&action=balance&address=%s&apikey=%s", address, BscApiKey)
-		response = response.(EthBalance)
-		log.Info(url)
+		var response EthBalance
 
 		v, err := Get(url, response)
 		if err != nil {
@@ -181,8 +179,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 		result = bal
 	case types.SOL:
 		url = fmt.Sprintf("https://public-api.solscan.io/account/%s", address)
-		response = response.(SolBal)
-		log.Info(url)
+		var response SolBal
 
 		v, err := Get(url, response)
 		if err != nil {
@@ -195,9 +192,8 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 		}
 		result = bal
 	case types.BTC:
-		url = fmt.Sprintf(" https://api.bitaps.com/btc/v1/blockchain/address/state/%s", address)
-		response = response.(BtcBal)
-		log.Info(url)
+		url = fmt.Sprintf("https://api.bitaps.com/btc/v1/blockchain/address/state/%s", address)
+		var response BtcBal
 
 		v, err := Get(url, response)
 		if err != nil {
@@ -211,7 +207,6 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 		result = bal
 	}
 
-	log.Info("response: ", response)
 	return &result, nil
 }
 
@@ -221,13 +216,11 @@ func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, 
 
 	var url string
 	var result []Transaction
-	var response interface{}
 
 	switch symbol {
 	case types.ETH:
 		url = fmt.Sprintf("https://api.etherscan.io/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=30&sort=asc&apikey=%s", address, EthApiKey)
-		response = response.(EthTransaction)
-		log.Info(url)
+		var response EthTransaction
 
 		v, err := Get(url, response)
 		if err != nil {
@@ -254,8 +247,7 @@ func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, 
 		}
 	case types.BSC:
 		url = fmt.Sprintf("https://api.bscscan.com/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=1&offset=30&sort=asc&apikey=%s", address, BscApiKey)
-		response = response.(EthTransaction)
-		log.Info(url)
+		var response EthTransaction
 
 		v, err := Get(url, response)
 		if err != nil {
@@ -282,8 +274,7 @@ func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, 
 		}
 	case types.SOL:
 		url = fmt.Sprintf("https://public-api.solscan.io/account/transactions?account=%s", address)
-		response = response.([]SolTransaction)
-		log.Info(url)
+		var response []SolTransaction
 
 		v, err := Get(url, response)
 		if err != nil {
@@ -307,8 +298,7 @@ func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, 
 		}
 	case types.BTC:
 		url = fmt.Sprintf("https://api.bitaps.com/btc/v1/blockchain/address/transactions/%s", address)
-		response = response.(BtcTxn)
-		log.Info(url)
+		var response BtcTxn
 
 		v, err := Get(url, response)
 		if err != nil {
@@ -331,12 +321,11 @@ func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, 
 			result = append(result, txn)
 		}
 	}
-
-	log.Info("response: ", response)
 	return &result, nil
 }
 
 func Get(url string, response interface{}) (interface{}, error) {
+	var result interface{}
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -344,7 +333,7 @@ func Get(url string, response interface{}) (interface{}, error) {
 		return nil, err
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
+		err = Body.Close()
 		if err != nil {
 			return
 		}
@@ -354,7 +343,13 @@ func Get(url string, response interface{}) (interface{}, error) {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body, &response)
+	err = json.Unmarshal(body, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	err = mapstructure.Decode(result, &response)
+
 	if err != nil {
 		return nil, err
 	}

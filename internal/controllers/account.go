@@ -56,7 +56,10 @@ func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
 
 	err = ctl.accountDetailsService.SetAccountDetails(body.Code, userId)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 	return ctx.JSON(types.GenericResponse{
 		Success: true,
@@ -73,7 +76,10 @@ func (ctl *accountController) UnLinkAccount(ctx *fiber.Ctx) error {
 	accountId := ctx.Params("id")
 	err := ctl.accountDetailsService.UnlinkAccount(accountId)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 	return ctx.JSON(types.GenericResponse{
 		Success: true,

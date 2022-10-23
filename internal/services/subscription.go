@@ -9,8 +9,9 @@ import (
 
 type ISubscriptionService interface {
 	AddSubscription(request *types.SubscriptionRequest, userId string) error
+	GetSubscription(subId int, userId string) (*models.Subscription, error)
 	GetAllSubscriptions(userId string) (*[]models.Subscription, error)
-	DeleteSubscription(subId, userId string) error
+	DeleteSubscription(subId int, userId string) error
 }
 
 type subscriptionService struct {
@@ -50,7 +51,15 @@ func (ss subscriptionService) GetAllSubscriptions(userId string) (*[]models.Subs
 	return subs, nil
 }
 
-func (ss subscriptionService) DeleteSubscription(subId, userId string) error {
+func (ss subscriptionService) GetSubscription(subId int, userId string) (*models.Subscription, error) {
+	sub, err := ss.subscriptionRepo.FindByUserIdAndSubId(userId, subId)
+	if err != nil {
+		return nil, err
+	}
+	return sub, nil
+}
+
+func (ss subscriptionService) DeleteSubscription(subId int, userId string) error {
 	err := ss.subscriptionRepo.Delete(userId, subId)
 	if err != nil {
 		return err

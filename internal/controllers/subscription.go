@@ -6,6 +6,7 @@ import (
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 type ISubscriptionController interface {
@@ -37,20 +38,46 @@ func (ctl subscriptionController) RegisterRoutes(app *fiber.App) {
 }
 
 func (ctl subscriptionController) GetSubscription(ctx *fiber.Ctx) error {
-	return nil
+	userId, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Unauthorized User",
+		})
+	}
+	subId, _ := strconv.Atoi(ctx.Params("id"))
+	subscriptions, err := ctl.subscriptionService.GetSubscription(subId, userId)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(types.GenericResponse{
+		Success: true,
+		Message: "Subscription retrieved",
+		Data:    subscriptions,
+	})
 }
 
 func (ctl subscriptionController) GetAllSubscriptions(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Unauthorized User",
+		})
 	}
 	subscriptions, err := ctl.subscriptionService.GetAllSubscriptions(userId)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 
-	return ctx.JSON(types.GenericResponse{
+	return ctx.Status(fiber.StatusOK).JSON(types.GenericResponse{
 		Success: true,
 		Message: "Subscriptions retrieved",
 		Data:    subscriptions,
@@ -66,7 +93,7 @@ func (ctl subscriptionController) AddSubscription(ctx *fiber.Ctx) error {
 	}
 
 	var body types.SubscriptionRequest
-	//body := new(types.SubscriptionRequest)
+
 	if err = ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
@@ -88,7 +115,7 @@ func (ctl subscriptionController) AddSubscription(ctx *fiber.Ctx) error {
 }
 
 func (ctl subscriptionController) DeleteSubscription(ctx *fiber.Ctx) error {
-	subId := ctx.Params("id")
+	subId, _ := strconv.Atoi(ctx.Params("id"))
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
@@ -98,7 +125,10 @@ func (ctl subscriptionController) DeleteSubscription(ctx *fiber.Ctx) error {
 	}
 	err = ctl.subscriptionService.DeleteSubscription(subId, userId)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 	return ctx.JSON(types.GenericResponse{
 		Success: true,

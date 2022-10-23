@@ -11,7 +11,7 @@ import (
 )
 
 type ICryptoService interface {
-	GetWallets(userId string) (*[]models.CryptoDetail, error)
+	GetAllWallets(userId string) (*[]models.CryptoDetail, error)
 	AddWallet(symbol types.CryptoSymbol, address string, userId string) error
 	UpdateWallet(symbol types.CryptoSymbol, address, userId string) error
 	DeleteWallet(symbol types.CryptoSymbol, address string, userId string) error
@@ -32,7 +32,7 @@ func NewCryptoService() ICryptoService {
 	}
 }
 
-func (cs cryptoService) GetWallets(userId string) (*[]models.CryptoDetail, error) {
+func (cs cryptoService) GetAllWallets(userId string) (*[]models.CryptoDetail, error) {
 	wallets, err := cs.cryptoDetailsRepo.FindByUserId(userId)
 	if err != nil {
 		return nil, err
