@@ -28,7 +28,7 @@ func main() {
 
 	defer func() {
 		sqlDB, _ := dbConnection.DB()
-		err := sqlDB.Close()
+		err = sqlDB.Close()
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}

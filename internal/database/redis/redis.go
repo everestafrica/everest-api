@@ -26,14 +26,16 @@ var redisClient *Client
 
 // NewClient is a client constructor.
 func NewClient(connectionURL, namespace string, params ...Param) *Client {
+	opt, _ := redis.ParseURL(connectionURL)
 
 	c := redis.NewClient(&redis.Options{
-		Addr:        connectionURL,
-		Password:    "", // no password set
+		Addr:        opt.Addr,
+		Password:    opt.Password, // no password set
 		DB:          0,
 		DialTimeout: 15 * time.Second,
 		MaxRetries:  10, // use default DB
 	})
+	fmt.Println(connectionURL)
 
 	// Test redis connection
 	if _, err := c.Ping().Result(); err != nil {
