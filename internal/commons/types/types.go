@@ -94,6 +94,9 @@ type UpdateDebtRequest struct {
 	CounterpartyName *string    `json:"counterparty_name"`
 	Reason           *string    `json:"reason"`
 }
+type AddStockRequest struct {
+	Symbol string
+}
 
 type Pagination struct {
 	Number int
@@ -115,6 +118,7 @@ type (
 	CryptoName          string
 	CurrencySymbol      string
 	Frequency           string
+	SubType             string
 	TransactionType     string
 	TransactionCategory string
 	DebtType            string
@@ -144,6 +148,10 @@ const (
 const (
 	Credit TransactionType = "credit"
 	Debit  TransactionType = "debit"
+
+	Media    SubType = "media"
+	Software SubType = "software"
+	Services SubType = "services"
 
 	DebtStatusPending DebtStatus = "pending"
 	DebtStatusPaid    DebtStatus = "paid"

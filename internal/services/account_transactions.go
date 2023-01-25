@@ -16,6 +16,8 @@ type IAccountTransactionService interface {
 	GetAllTransactions(userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
 	GetInstitutionTransactions(institution string, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
 	GetTransactionsByType(txnType types.TransactionType, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
+	GetInflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error)
+	GetOutflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error)
 }
 
 type accountTransactionService struct {
@@ -146,3 +148,5 @@ func (ad accountTransactionService) GetOutflow(dateRange types.DateRange, userId
 	}
 	return result, err
 }
+
+//@qq!92H230qk - coinmarket pwd

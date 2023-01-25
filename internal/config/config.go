@@ -22,7 +22,7 @@ type Config struct {
 	LogLevel          string `env:"LOG_LEVEL"`
 	ExpiryTime        string `env:"TOKEN_EXP_TIME"`
 	MonoWebhookSecret string `env:"MONO_WEBHOOK_SECRET"`
-	MonoSecretKey     string `env:"MONO_SECRET_KEY"`
+	MonoSecretKey     string `env:"MONO_LIVE_SECRET_KEY"`
 	BscApiKey         string `env:"BSC_API_KEY"`
 	EthApiKey         string `env:"ETH_API_KEY"`
 	NewsApiUrl        string `env:"NEWS_API_URL"`
@@ -32,8 +32,10 @@ type Config struct {
 	EmailFrom         string `env:"EMAIL_FROM"`
 	EmailTo           string `env:"EMAIL_TO"`
 	EmailDomainUrl    string `env:"EMAIL_DOMAIN_URL"`
+	StockAccessKey    string `env:"STOCK_ACCESS_KEY"`
 	ProdSmsSecretKey  string `env:"PROD_SMS_SECRET_KEY"`
 	ProdSmsPublicKey  string `env:"PROD_SMS_PUBLIC_KEY"`
+	CmcKey            string `env:"CMC_KEY"`
 }
 
 var config *Config

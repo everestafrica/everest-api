@@ -15,6 +15,8 @@ type ICryptoService interface {
 	AddWallet(symbol types.CryptoSymbol, address string, userId string) error
 	UpdateWallet(symbol types.CryptoSymbol, address, userId string) error
 	DeleteWallet(symbol types.CryptoSymbol, address string, userId string) error
+	GetInflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error)
+	GetOutflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error)
 }
 
 type cryptoService struct {

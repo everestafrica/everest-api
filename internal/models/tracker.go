@@ -7,5 +7,6 @@ type Tracker struct {
 	VerifiedEmail       bool   `json:"verified_email"`
 	CreatedBudget       bool   `json:"created_budget"`
 	CreatedSubscription bool   `json:"created_subscription"`
+	CreatedDebt         bool   `json:"created_debt"`
 	AllowRanking        bool   `json:"allow_ranking"`
 }

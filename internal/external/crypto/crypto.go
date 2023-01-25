@@ -154,7 +154,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("v: ", v)
+
 		res := v.(EthBalance)
 		val, _ := strconv.Atoi(res.Result)
 		bal := Balance{

@@ -29,23 +29,23 @@ func NewAccountController() IAccountController {
 func (ctl *accountController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
 	accounts := v1.Group("/accounts")
-	accounts.Post("/connect", handlers.SecureAuth(), ctl.LinkAccount)
+	accounts.Post("/connect", ctl.LinkAccount)
 	accounts.Post("/disconnect", handlers.SecureAuth(), ctl.UnLinkAccount)
 	accounts.Get("/reauth", handlers.SecureAuth(), ctl.ReauthoriseUser)
 }
 
 func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
-	userId, err := handlers.UserFromContext(ctx)
-	if err != nil {
-		return err
-	}
+	//userId, err := handlers.UserFromContext(ctx)
+	//if err != nil {
+	//	return err
+	//}
+	userId := "1"
 
-	var body *types.MonoAccountIdRequest
-	//body := new(types.MonoAccountIdRequest)
-	if err := ctx.BodyParser(body); err != nil {
+	var body types.MonoAccountIdRequest
+	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
-			Message: "Problem while parsing request body",
+			Message: err.Error(),
 		})
 	}
 	errors := util.ValidateStruct(body)
@@ -54,7 +54,7 @@ func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
 
 	}
 
-	err = ctl.accountDetailsService.SetAccountDetails(body.Code, userId)
+	err := ctl.accountDetailsService.SetAccountDetails(body.Code, userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,

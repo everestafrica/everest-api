@@ -13,5 +13,6 @@ type Subscription struct {
 	Currency    types.CurrencySymbol `json:"currency"`
 	Logo        string               `json:"logo"`
 	Frequency   types.Frequency      `json:"frequency"`
+	Type        types.SubType        `json:"type"`
 	NextPayment time.Time            `json:"next_payment"`
 }

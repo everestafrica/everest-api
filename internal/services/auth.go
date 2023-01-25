@@ -22,7 +22,7 @@ type IAuthService interface {
 	SendSmsOTP(request *types.SendCodeRequest) error
 	SendEmailOTP(request *types.SendCodeRequest) error
 	Login(body types.LoginRequest) (*types.LoginResponse, error)
-	//ResetPassword(body types.ChangePassword)
+	// ResetPassword(body types.ChangePassword)
 	IssueToken(u *models.User) (*types.TokenResponse, error)
 	ParseToken(token string) (*types.Claims, error)
 	RefreshToken(token string) (*types.TokenResponse, error)
