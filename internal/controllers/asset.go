@@ -27,7 +27,7 @@ func NewAssetController() IAssetController {
 
 func (ctl assetController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
-	Asset := v1.Group("/Assets")
+	Asset := v1.Group("/assets")
 	Asset.Get("/:id", handlers.SecureAuth(), ctl.GetAsset)
 	Asset.Get("/", handlers.SecureAuth(), ctl.GetAllAssets)
 	Asset.Post("/", handlers.SecureAuth(), ctl.AddAsset)

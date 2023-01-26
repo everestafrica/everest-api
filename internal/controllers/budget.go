@@ -27,17 +27,17 @@ func NewBudgetController() IBudgetController {
 	}
 }
 
-func (bc *budgetController) RegisterRoutes(app *fiber.App) {
-	v1 := app.Group("/v1/budget")
-	
-	v1.Get("/", handlers.SecureAuth(), bc.GetBudget)
-	v1.Post("/", handlers.SecureAuth(), bc.AddBudget)
-	v1.Put("/", handlers.SecureAuth(), bc.UpdateBudget)
-	v1.Delete("/", handlers.SecureAuth(), bc.DeleteBudget)
+func (ctl *budgetController) RegisterRoutes(app *fiber.App) {
+	v1 := app.Group("/v1/budgets")
+
+	v1.Get("/", handlers.SecureAuth(), ctl.GetBudget)
+	v1.Post("/", handlers.SecureAuth(), ctl.AddBudget)
+	v1.Put("/", handlers.SecureAuth(), ctl.UpdateBudget)
+	v1.Delete("/", handlers.SecureAuth(), ctl.DeleteBudget)
 
 }
 
-func (bc *budgetController) GetBudget(ctx *fiber.Ctx) error {
+func (ctl *budgetController) GetBudget(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (bc *budgetController) GetBudget(ctx *fiber.Ctx) error {
 	month := ctx.Query("month")
 	year, _ := strconv.Atoi(ctx.Query("year"))
 
-	budget, err := bc.budgetService.GetBudget(month, year, userId)
+	budget, err := ctl.budgetService.GetBudget(month, year, userId)
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,
@@ -61,14 +61,14 @@ func (bc *budgetController) GetBudget(ctx *fiber.Ctx) error {
 	})
 }
 
-func (bc *budgetController) AddBudget(ctx *fiber.Ctx) error {
+func (ctl *budgetController) AddBudget(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	var body *types.CreateBudgetRequest
-	if err := ctx.BodyParser(body); err != nil {
+	if err = ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing request body",
@@ -80,7 +80,7 @@ func (bc *budgetController) AddBudget(ctx *fiber.Ctx) error {
 		return ctx.JSON(errors)
 	}
 
-	err = bc.budgetService.CreateBudget(body, userId)
+	err = ctl.budgetService.CreateBudget(body, userId)
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,
@@ -90,18 +90,17 @@ func (bc *budgetController) AddBudget(ctx *fiber.Ctx) error {
 	return ctx.JSON(types.GenericResponse{
 		Success: true,
 		Message: "budget successfully added",
-		Data:    body,
 	})
 }
 
-func (bc *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
+func (ctl *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	var body *types.UpdateBudgetRequest
-	if err := ctx.BodyParser(body); err != nil {
+	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing request body",
@@ -112,7 +111,7 @@ func (bc *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
 	if errors != nil {
 		return ctx.JSON(errors)
 	}
-	err = bc.budgetService.UpdateBudget(body, userId)
+	err = ctl.budgetService.UpdateBudget(body, userId)
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,
@@ -126,7 +125,7 @@ func (bc *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
 	})
 }
 
-func (bc *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
+func (ctl *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return err
@@ -135,7 +134,7 @@ func (bc *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
 	month := ctx.Query("month")
 	year, _ := strconv.Atoi(ctx.Query("year"))
 
-	err = bc.budgetService.DeleteBudget(month, year, userId)
+	err = ctl.budgetService.DeleteBudget(month, year, userId)
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,

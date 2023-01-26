@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	util "github.com/everestafrica/everest-api/internal/commons/utils"
+	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,6 +13,7 @@ type IAuthController interface {
 	Login(ctx *fiber.Ctx) error
 	SendOTP(ctx *fiber.Ctx) error
 	SendCode(ctx *fiber.Ctx) error
+	RefreshToken(ctx *fiber.Ctx) error
 	RegisterRoutes(app *fiber.App)
 }
 
@@ -33,6 +35,7 @@ func (ctl *authController) RegisterRoutes(app *fiber.App) {
 	auth.Post("/login", ctl.Login)
 	auth.Post("/send-code", ctl.SendCode)
 	auth.Post("/send-otp", ctl.SendOTP)
+	auth.Post("/refresh-token", handlers.SecureAuth(), ctl.RefreshToken)
 }
 
 func (ctl *authController) Register(ctx *fiber.Ctx) error {
@@ -139,4 +142,15 @@ func (ctl *authController) SendCode(ctx *fiber.Ctx) error {
 		Success: true,
 		Message: "OTP sent successfully",
 	})
+}
+
+func (ctl authController) RefreshToken(ctx *fiber.Ctx) error {
+	_, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Unauthorized User",
+		})
+	}
+	return nil
 }

@@ -93,7 +93,7 @@ func (ctl debtController) AddDebt(ctx *fiber.Ctx) error {
 			Message: "Unauthorized User",
 		})
 	}
-	if err = ctx.BodyParser(body); err != nil {
+	if err = ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing request body",
