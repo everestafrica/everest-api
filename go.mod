@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	firebase.google.com/go/v4 v4.8.0
-	github.com/fuadop/sendchamp v0.0.0-20220606110106-d25d8818670a
+	github.com/fuadop/sendchamp v0.0.0-20221124141747-86bcf3b6e697
 	github.com/go-co-op/gocron v1.16.2
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/go-redis/redis v6.15.9+incompatible

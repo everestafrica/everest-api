@@ -18,7 +18,9 @@ type Response struct {
 }
 
 func SendOTP(to string) (*Response, error) {
-	client := sendchamp.NewClient(config.GetConf().ProdSmsPublicKey, sendchamp.ModeTest)
+	key := &sendchamp.Keys{PublicKey: config.GetConf().ProdSmsSecretKey}
+
+	client := sendchamp.NewClient(key, sendchamp.ModeTest)
 
 	verifyPayload := sendchamp.SendOTPPayload{
 		Channel:              sendchamp.OTPChannelSMS,
@@ -36,18 +38,20 @@ func SendOTP(to string) (*Response, error) {
 		return nil, err
 	}
 	var response Response
-	if s.Code == "200" {
+	if s.Status != 900 {
+		log.Error("otp err: ", s.Message, s.Code)
+		return nil, errors.New(s.Message)
+	} else {
 		response.Success = true
 		response.Message = "OTP sent successfully"
 		return &response, nil
-	} else {
-		log.Error("otp err: ", s.Message, s.Code)
-		return nil, errors.New(s.Message)
 	}
 }
 
 func ConfirmOtp(code string, reference string) error {
-	client := sendchamp.NewClient(config.GetConf().ProdSmsPublicKey, sendchamp.ModeTest)
+	key := &sendchamp.Keys{PublicKey: config.GetConf().ProdSmsPublicKey}
+
+	client := sendchamp.NewClient(key, sendchamp.ModeTest)
 
 	_, err := client.NewVerification().ConfirmOTP(code, reference)
 	if err != nil {
@@ -58,7 +62,8 @@ func ConfirmOtp(code string, reference string) error {
 }
 
 func SendSMS(sms *SMS) error {
-	client := sendchamp.NewClient(config.GetConf().ProdSmsPublicKey, sendchamp.ModeTest)
+	key := &sendchamp.Keys{PublicKey: config.GetConf().ProdSmsPublicKey}
+	client := sendchamp.NewClient(key, sendchamp.ModeTest)
 
 	_, err := client.NewSms().Send("Everest", sms.To, sms.Message, sendchamp.RouteInternational)
 

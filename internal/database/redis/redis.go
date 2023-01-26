@@ -2,7 +2,8 @@ package redis
 
 import (
 	"fmt"
-	"log"
+	"github.com/everestafrica/everest-api/internal/commons/log"
+	"github.com/everestafrica/everest-api/internal/config"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -26,20 +27,35 @@ var redisClient *Client
 
 // NewClient is a client constructor.
 func NewClient(connectionURL, namespace string, params ...Param) *Client {
-	opt, _ := redis.ParseURL(connectionURL)
+	env := config.GetConf().Env
+	var c *redis.Client
 
-	c := redis.NewClient(&redis.Options{
-		Addr:        opt.Addr,
-		Password:    opt.Password, // no password set
-		DB:          0,
-		DialTimeout: 15 * time.Second,
-		MaxRetries:  10, // use default DB
-	})
-	fmt.Println(connectionURL)
+	fmt.Println(env)
 
+	if env == "development" {
+		c = redis.NewClient(&redis.Options{
+			Addr:        connectionURL,
+			Password:    "", // no password set
+			DB:          0,
+			DialTimeout: 15 * time.Second,
+			MaxRetries:  10, // use default DB
+		})
+	} else {
+		opt, err := redis.ParseURL(connectionURL)
+		if err != nil {
+			log.Error(err.Error())
+		}
+		c = redis.NewClient(&redis.Options{
+			Addr:        opt.Addr,
+			Password:    opt.Password,
+			DB:          0,
+			DialTimeout: 15 * time.Second,
+			MaxRetries:  10, // use default DB
+		})
+	}
 	// Test redis connection
-	if _, err := c.Ping().Result(); err != nil {
-		log.Panicf("unable to connect to redis: %s", err)
+	if _, redisErr := c.Ping().Result(); redisErr != nil {
+		log.Error("unable to connect to redis", redisErr)
 	}
 
 	client := &Client{

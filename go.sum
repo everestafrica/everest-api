@@ -127,6 +127,8 @@ github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWo
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/fuadop/sendchamp v0.0.0-20220606110106-d25d8818670a h1:Txtvu4+47SJ9pnrwosUeLG14GcPJzHFKDC3tHN+4/0Y=
 github.com/fuadop/sendchamp v0.0.0-20220606110106-d25d8818670a/go.mod h1:JMt+nH3hNoN2HOPa4f21cD4sUYa1UWft4Wy3VR0kMeo=
+github.com/fuadop/sendchamp v0.0.0-20221124141747-86bcf3b6e697 h1:LrUJ8jBY7gcRQhQLpO7cvzABmYQBIqh2MMHLy/jz2ng=
+github.com/fuadop/sendchamp v0.0.0-20221124141747-86bcf3b6e697/go.mod h1:JMt+nH3hNoN2HOPa4f21cD4sUYa1UWft4Wy3VR0kMeo=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-co-op/gocron v1.16.2 h1:p9ghzsN5PqqPyWXYDO2JlvD1DOUNT8pPSyGYC62XBcY=
 github.com/go-co-op/gocron v1.16.2/go.mod h1:W/N9G7bntRo5fVQlmjncvqSt74jxCxHfjyHlgcB33T8=
