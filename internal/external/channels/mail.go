@@ -33,12 +33,11 @@ func SendMail(email *Email) error {
 	yourDomain := config.GetConf().EmailDomainUrl
 	privateAPIKey := config.GetConf().EmailSecretKey
 	testSender := config.GetConf().EmailFrom
-	testReceiver := config.GetConf().EmailTo
 
 	mg := mailgun.NewMailgun(yourDomain, privateAPIKey)
 
 	// The message object allows you to add attachments and Bcc recipients
-	message := mg.NewMessage(testSender, email.Subject, email.Body, testReceiver)
+	message := mg.NewMessage(testSender, email.Subject, email.Body, email.Recipient)
 	//body := GetEmailBody(email.Type, email.Data)
 	//t, err := template.New("email").Parse(body)
 	//if err != nil {
