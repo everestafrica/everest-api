@@ -35,6 +35,7 @@ type Config struct {
 	ProdSmsSecretKey  string `env:"PROD_SMS_SECRET_KEY"`
 	ProdSmsPublicKey  string `env:"PROD_SMS_PUBLIC_KEY"`
 	CmcKey            string `env:"CMC_KEY"`
+	OpenAIKey         string `env:"OPEN_AI_KEY"`
 }
 
 var config *Config

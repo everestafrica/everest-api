@@ -13,16 +13,20 @@ type IAccountController interface {
 	LinkAccount(ctx *fiber.Ctx) error
 	UnLinkAccount(ctx *fiber.Ctx) error
 	ReauthoriseUser(ctx *fiber.Ctx) error
+	GetAllTransactions(ctx *fiber.Ctx) error
+	GetTransaction(ctx *fiber.Ctx) error
 }
 
 type accountController struct {
-	accountDetailsService services.IAccountDetailsService
+	accountDetailsService     services.IAccountDetailsService
+	accountTransactionService services.IAccountTransactionService
 }
 
 // NewAccountController instantiates Account Controller
 func NewAccountController() IAccountController {
 	return &accountController{
-		accountDetailsService: services.NewAccountDetailsService(),
+		accountDetailsService:     services.NewAccountDetailsService(),
+		accountTransactionService: services.NewAccountTransactionService(),
 	}
 }
 
@@ -32,6 +36,8 @@ func (ctl *accountController) RegisterRoutes(app *fiber.App) {
 	accounts.Post("/connect", ctl.LinkAccount)
 	accounts.Post("/disconnect", handlers.SecureAuth(), ctl.UnLinkAccount)
 	accounts.Get("/reauth", handlers.SecureAuth(), ctl.ReauthoriseUser)
+	accounts.Get("/transactions", handlers.SecureAuth(), ctl.GetAllTransactions)
+	accounts.Get("/transactions/:id", handlers.SecureAuth(), ctl.GetTransaction)
 }
 
 func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
@@ -72,7 +78,6 @@ func (ctl *accountController) ReauthoriseUser(ctx *fiber.Ctx) error {
 }
 
 func (ctl *accountController) UnLinkAccount(ctx *fiber.Ctx) error {
-
 	accountId := ctx.Params("id")
 	err := ctl.accountDetailsService.UnlinkAccount(accountId)
 	if err != nil {
@@ -88,9 +93,52 @@ func (ctl *accountController) UnLinkAccount(ctx *fiber.Ctx) error {
 }
 
 func (ctl *accountController) GetAllTransactions(ctx *fiber.Ctx) error {
+	userId, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	page := ctx.QueryInt("page")
+	size := ctx.QueryInt("size")
+
+	pagination := types.Pagination{
+		Page: page,
+		Size: size,
+	}
+
+	transactions, err := ctl.accountTransactionService.GetAllTransactions(userId, pagination)
+	if err != nil {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "Transactions successfully fetched",
+		Data:    transactions,
+	})
 
 }
 
 func (ctl *accountController) GetTransaction(ctx *fiber.Ctx) error {
+	_, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
+	transactionId := ctx.Params("id")
+
+	transaction, err := ctl.accountTransactionService.GetTransaction(transactionId)
+	if err != nil {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "transaction successfully fetched",
+		Data:    transaction,
+	})
 }

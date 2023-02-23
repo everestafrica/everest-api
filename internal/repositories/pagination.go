@@ -8,7 +8,7 @@ import (
 func paginate(p types.Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 
-		offset := (p.Number - 1) * p.Size
+		offset := (p.Page - 1) * p.Size
 		return db.Offset(offset).Limit(p.Size)
 	}
 }

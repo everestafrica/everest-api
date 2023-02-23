@@ -103,8 +103,8 @@ type UpdateTransactionRequest struct {
 }
 
 type Pagination struct {
-	Number int
-	Size   int
+	Page int
+	Size int
 }
 
 type TxnFlowResponse struct {
