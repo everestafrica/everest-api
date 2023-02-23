@@ -97,6 +97,10 @@ type UpdateDebtRequest struct {
 type AddStockRequest struct {
 	Symbol string
 }
+type UpdateTransactionRequest struct {
+	IsRecurring bool                `json:"is_recurring"`
+	Category    TransactionCategory `json:"category"`
+}
 
 type Pagination struct {
 	Number int

@@ -36,7 +36,7 @@ func (ws webhookService) MonoWebhook(payload types.MonoWebhookPayload) error {
 			}
 			account := models.AccountDetail{
 				UserId:        user.UserId,
-				MonoId:        response.Account.ID,
+				AccountId:     response.Account.ID,
 				Institution:   response.Account.Institution.Name,
 				AccountNumber: response.Account.AccountNumber,
 				Balance:       response.Account.Balance,

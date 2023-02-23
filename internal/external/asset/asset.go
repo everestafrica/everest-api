@@ -116,7 +116,7 @@ func GetCompanyStockValue(symbol string) (*float64, error) {
 		return nil, err
 	}
 	res := v.(stockResponse)
-	return &res.Data[0].Open, nil
+	return &res.Data[0].Close, nil
 }
 
 func GetCompanyName(symbol string) (*string, error) {

@@ -12,7 +12,7 @@ import (
 
 type IAccountTransactionService interface {
 	SetAccountTransactions(userId string) error
-	GetTransaction(transactionId string, userId string) (*models.AccountTransaction, error)
+	GetTransaction(transactionId string) (*models.AccountTransaction, error)
 	GetAllTransactions(userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
 	GetInstitutionTransactions(institution string, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
 	GetTransactionsByType(txnType types.TransactionType, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
@@ -60,7 +60,7 @@ func (ad accountTransactionService) SetAccountTransactions(userId string) error 
 	for _, v := range txn.Data {
 		transaction := models.AccountTransaction{
 			UserId:        userId,
-			MonoId:        &u.MonoId,
+			AccountId:     &u.MonoId,
 			TransactionId: v.ID,
 			Institution:   account.Institution,
 			Currency:      v.Currency,
@@ -71,7 +71,7 @@ func (ad accountTransactionService) SetAccountTransactions(userId string) error 
 			Type:          types.TransactionType(v.Type),
 			Category:      types.TransactionCategory(v.Category),
 		}
-		err := ad.accountTransactionRepo.Create(&transaction)
+		err = ad.accountTransactionRepo.Create(&transaction)
 		if err != nil {
 			return err
 		}
@@ -85,8 +85,8 @@ func (ad accountTransactionService) SetAccountTransactions(userId string) error 
 	return nil
 }
 
-func (ad accountTransactionService) GetTransaction(transactionId string, userId string) (*models.AccountTransaction, error) {
-	transactions, err := ad.accountTransactionRepo.FindTransaction(transactionId, userId)
+func (ad accountTransactionService) GetTransaction(transactionId string) (*models.AccountTransaction, error) {
+	transactions, err := ad.accountTransactionRepo.FindTransaction(transactionId)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +107,20 @@ func (ad accountTransactionService) GetInstitutionTransactions(institution strin
 		return nil, err
 	}
 	return transactions, nil
+}
+
+func (ad accountTransactionService) UpdateTransaction(transactionId string, req *types.UpdateTransactionRequest) error {
+	transaction, err := ad.GetTransaction(transactionId)
+	if err != nil {
+		return err
+	}
+	transaction.Category = req.Category
+	transaction.IsRecurring = req.IsRecurring
+	err = ad.accountTransactionRepo.Update(transaction)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (ad accountTransactionService) GetTransactionsByType(txnType types.TransactionType, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error) {

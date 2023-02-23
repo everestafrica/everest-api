@@ -62,13 +62,13 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 	if details.Meta.DataStatus == "AVAILABLE" {
 		account := models.AccountDetail{
 			UserId:        userId,
-			MonoId:        monoId.Id,
+			AccountId:     monoId.Id,
 			Institution:   details.Account.Institution.Name,
 			AccountNumber: details.Account.AccountNumber,
 			Balance:       details.Account.Balance,
 			Currency:      details.Account.Currency,
 		}
-		err := ad.accountDetailsRepo.Create(&account)
+		err = ad.accountDetailsRepo.Create(&account)
 		if err != nil {
 			return err
 		}

@@ -44,7 +44,22 @@ func (ctl *budgetController) GetBudget(ctx *fiber.Ctx) error {
 	}
 
 	month := ctx.Query("month")
-	year, _ := strconv.Atoi(ctx.Query("year"))
+	stryear := ctx.Query("year")
+	year, _ := strconv.Atoi(stryear)
+
+	if len(month) < 1 {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: "required parameter `month` missing",
+		})
+	}
+
+	if len(stryear) < 1 {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: "required parameter `year` missing",
+		})
+	}
 
 	budget, err := ctl.budgetService.GetBudget(month, year, userId)
 	if err != nil {
@@ -53,10 +68,16 @@ func (ctl *budgetController) GetBudget(ctx *fiber.Ctx) error {
 			Message: "unable to get budget",
 		})
 	}
+	if len(*budget) < 1 {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: "unable to get budget, ensure query parameters are correct and try again",
+		})
+	}
 
 	return ctx.JSON(types.GenericResponse{
 		Success: true,
-		Message: "budget successfully added",
+		Message: "budget successfully retrieved",
 		Data:    budget,
 	})
 }
@@ -84,7 +105,7 @@ func (ctl *budgetController) AddBudget(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,
-			Message: "unable to add budget",
+			Message: err.Error(),
 		})
 	}
 	return ctx.JSON(types.GenericResponse{
@@ -100,7 +121,7 @@ func (ctl *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
 	}
 
 	var body *types.UpdateBudgetRequest
-	if err := ctx.BodyParser(&body); err != nil {
+	if err = ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing request body",
@@ -132,7 +153,22 @@ func (ctl *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
 	}
 
 	month := ctx.Query("month")
-	year, _ := strconv.Atoi(ctx.Query("year"))
+	stryear := ctx.Query("year")
+	year, _ := strconv.Atoi(stryear)
+
+	if len(month) < 1 {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: "required parameter `month` missing",
+		})
+	}
+
+	if len(stryear) < 1 {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: "required parameter `year` missing",
+		})
+	}
 
 	err = ctl.budgetService.DeleteBudget(month, year, userId)
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 type IAccountTransactionRepository interface {
 	Create(transaction *models.AccountTransaction) error
 	Update(transaction *models.AccountTransaction) error
-	FindTransaction(transactionId string, userId string) (*models.AccountTransaction, error)
+	FindTransaction(transactionId string) (*models.AccountTransaction, error)
 	FindAllTransactions(userId string, p types.Pagination) (*[]models.AccountTransaction, error)
 	FindAllByInstitution(institution string, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
 	FindAllByType(txnType types.TransactionType, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
@@ -36,9 +36,9 @@ func (r *accountTransaction) Update(transaction *models.AccountTransaction) erro
 	return r.db.Save(transaction).Error
 }
 
-func (r *accountTransaction) FindTransaction(transactionId string, userId string) (*models.AccountTransaction, error) {
+func (r *accountTransaction) FindTransaction(transactionId string) (*models.AccountTransaction, error) {
 	var transaction models.AccountTransaction
-	if err := r.db.Where("user_id = ? AND transaction_id", userId, transactionId).First(&transaction).Error; err != nil {
+	if err := r.db.Where("transaction_id = ?", transactionId).First(&transaction).Error; err != nil {
 		return nil, err
 	}
 

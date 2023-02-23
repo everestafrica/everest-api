@@ -86,3 +86,11 @@ func (ctl *accountController) UnLinkAccount(ctx *fiber.Ctx) error {
 		Message: "successfully unlinked user account",
 	})
 }
+
+func (ctl *accountController) GetAllTransactions(ctx *fiber.Ctx) error {
+
+}
+
+func (ctl *accountController) GetTransaction(ctx *fiber.Ctx) error {
+
+}
