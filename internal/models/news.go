@@ -9,4 +9,5 @@ type News struct {
 	Link        string `json:"link"`
 	Description string `json:"description"`
 	Date        string `json:"date"`
+	Category    string `json:"category"`
 }

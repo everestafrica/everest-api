@@ -32,6 +32,7 @@ type Config struct {
 	EmailFrom         string `env:"EMAIL_FROM"`
 	EmailDomainUrl    string `env:"EMAIL_DOMAIN_URL"`
 	StockAccessKey    string `env:"STOCK_ACCESS_KEY"`
+	AssetAccessKey    string `env:"ASSET_ACCESS_KEY"`
 	ProdSmsSecretKey  string `env:"PROD_SMS_SECRET_KEY"`
 	ProdSmsPublicKey  string `env:"PROD_SMS_PUBLIC_KEY"`
 	CmcKey            string `env:"CMC_KEY"`

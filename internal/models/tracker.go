@@ -10,3 +10,11 @@ type Tracker struct {
 	CreatedDebt         bool   `json:"created_debt"`
 	AllowRanking        bool   `json:"allow_ranking"`
 }
+
+type Level string
+
+const (
+	LevelOne   Level = "free"
+	LevelTwo   Level = "pro"
+	LevelThree Level = "premium"
+)

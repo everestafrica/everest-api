@@ -1,30 +1,102 @@
 package asset
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/log"
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/external/crypto"
-	"time"
+	"github.com/gocolly/colly"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"strconv"
 )
 
-type stockResponse struct {
-	Pagination struct {
-		Limit  int `json:"limit"`
-		Offset int `json:"offset"`
-		Count  int `json:"count"`
-		Total  int `json:"total"`
-	} `json:"pagination"`
-	Data []struct {
-		Open     float64 `json:"open"`
-		High     float64 `json:"high"`
-		Low      float64 `json:"low"`
-		Last     float64 `json:"last"`
-		Close    float64 `json:"close"`
-		Volume   float64 `json:"volume"`
-		Date     string  `json:"date"`
-		Symbol   string  `json:"symbol"`
-		Exchange string  `json:"exchange"`
-	} `json:"data"`
+type assetResponse struct {
+	QuoteResponse struct {
+		Result []struct {
+			Language                          string  `json:"language"`
+			Region                            string  `json:"region"`
+			QuoteType                         string  `json:"quoteType"`
+			TypeDisp                          string  `json:"typeDisp"`
+			QuoteSourceName                   string  `json:"quoteSourceName"`
+			Triggerable                       bool    `json:"triggerable"`
+			CustomPriceAlertConfidence        string  `json:"customPriceAlertConfidence"`
+			Currency                          string  `json:"currency"`
+			RegularMarketChangePercent        float64 `json:"regularMarketChangePercent"`
+			RegularMarketPrice                float64 `json:"regularMarketPrice"`
+			MessageBoardID                    string  `json:"messageBoardId"`
+			ExchangeTimezoneName              string  `json:"exchangeTimezoneName"`
+			ExchangeTimezoneShortName         string  `json:"exchangeTimezoneShortName"`
+			GmtOffSetMilliseconds             int     `json:"gmtOffSetMilliseconds"`
+			Market                            string  `json:"market"`
+			EsgPopulated                      bool    `json:"esgPopulated"`
+			Exchange                          string  `json:"exchange"`
+			ShortName                         string  `json:"shortName"`
+			LongName                          string  `json:"longName"`
+			MarketState                       string  `json:"marketState"`
+			Tradeable                         bool    `json:"tradeable"`
+			CryptoTradeable                   bool    `json:"cryptoTradeable"`
+			RegularMarketChange               float64 `json:"regularMarketChange"`
+			RegularMarketTime                 int     `json:"regularMarketTime"`
+			RegularMarketDayHigh              float64 `json:"regularMarketDayHigh"`
+			RegularMarketDayRange             string  `json:"regularMarketDayRange"`
+			RegularMarketDayLow               float64 `json:"regularMarketDayLow"`
+			RegularMarketVolume               int     `json:"regularMarketVolume"`
+			RegularMarketPreviousClose        float64 `json:"regularMarketPreviousClose"`
+			Bid                               float64 `json:"bid"`
+			Ask                               float64 `json:"ask"`
+			BidSize                           int     `json:"bidSize"`
+			AskSize                           int     `json:"askSize"`
+			FullExchangeName                  string  `json:"fullExchangeName"`
+			FinancialCurrency                 string  `json:"financialCurrency"`
+			RegularMarketOpen                 float64 `json:"regularMarketOpen"`
+			AverageDailyVolume3Month          int     `json:"averageDailyVolume3Month"`
+			AverageDailyVolume10Day           int     `json:"averageDailyVolume10Day"`
+			FiftyTwoWeekLowChange             float64 `json:"fiftyTwoWeekLowChange"`
+			FiftyTwoWeekLowChangePercent      float64 `json:"fiftyTwoWeekLowChangePercent"`
+			FiftyTwoWeekRange                 string  `json:"fiftyTwoWeekRange"`
+			FiftyTwoWeekHighChange            float64 `json:"fiftyTwoWeekHighChange"`
+			FiftyTwoWeekHighChangePercent     float64 `json:"fiftyTwoWeekHighChangePercent"`
+			FiftyTwoWeekLow                   float64 `json:"fiftyTwoWeekLow"`
+			FiftyTwoWeekHigh                  float64 `json:"fiftyTwoWeekHigh"`
+			EarningsTimestamp                 int     `json:"earningsTimestamp"`
+			EarningsTimestampStart            int     `json:"earningsTimestampStart"`
+			EarningsTimestampEnd              int     `json:"earningsTimestampEnd"`
+			TrailingAnnualDividendRate        float64 `json:"trailingAnnualDividendRate"`
+			TrailingPE                        float64 `json:"trailingPE"`
+			TrailingAnnualDividendYield       float64 `json:"trailingAnnualDividendYield"`
+			EpsTrailingTwelveMonths           float64 `json:"epsTrailingTwelveMonths"`
+			EpsForward                        float64 `json:"epsForward"`
+			EpsCurrentYear                    float64 `json:"epsCurrentYear"`
+			PriceEpsCurrentYear               float64 `json:"priceEpsCurrentYear"`
+			SharesOutstanding                 int64   `json:"sharesOutstanding"`
+			BookValue                         float64 `json:"bookValue"`
+			FiftyDayAverage                   float64 `json:"fiftyDayAverage"`
+			FiftyDayAverageChange             float64 `json:"fiftyDayAverageChange"`
+			FiftyDayAverageChangePercent      float64 `json:"fiftyDayAverageChangePercent"`
+			TwoHundredDayAverage              float64 `json:"twoHundredDayAverage"`
+			TwoHundredDayAverageChange        float64 `json:"twoHundredDayAverageChange"`
+			TwoHundredDayAverageChangePercent float64 `json:"twoHundredDayAverageChangePercent"`
+			MarketCap                         int64   `json:"marketCap"`
+			ForwardPE                         float64 `json:"forwardPE"`
+			PriceToBook                       float64 `json:"priceToBook"`
+			SourceInterval                    int     `json:"sourceInterval"`
+			ExchangeDataDelayedBy             int     `json:"exchangeDataDelayedBy"`
+			IpoExpectedDate                   string  `json:"ipoExpectedDate"`
+			PrevName                          string  `json:"prevName"`
+			NameChangeDate                    string  `json:"nameChangeDate"`
+			AverageAnalystRating              string  `json:"averageAnalystRating"`
+			FirstTradeDateMilliseconds        int64   `json:"firstTradeDateMilliseconds"`
+			PriceHint                         int     `json:"priceHint"`
+			DisplayName                       string  `json:"displayName"`
+			Symbol                            string  `json:"symbol"`
+		} `json:"result"`
+		Error any `json:"error"`
+	} `json:"quoteResponse"`
 }
 
 type companyName struct {
@@ -52,71 +124,65 @@ type companyName struct {
 	} `json:"data"`
 }
 
-type cryptoStat struct {
-	Status struct {
-		Timestamp    time.Time   `json:"timestamp"`
-		ErrorCode    int         `json:"error_code"`
-		ErrorMessage interface{} `json:"error_message"`
-		Elapsed      int         `json:"elapsed"`
-		CreditCount  int         `json:"credit_count"`
-		Notice       interface{} `json:"notice"`
-	} `json:"status"`
-	Data struct {
-		Sol []struct {
-			ID             int       `json:"id"`
-			Name           string    `json:"name"`
-			Symbol         string    `json:"symbol"`
-			Slug           string    `json:"slug"`
-			NumMarketPairs int       `json:"num_market_pairs"`
-			DateAdded      time.Time `json:"date_added"`
-			Tags           []struct {
-				Slug     string `json:"slug"`
-				Name     string `json:"name"`
-				Category string `json:"category"`
-			} `json:"tags"`
-			MaxSupply                     interface{} `json:"max_supply"`
-			CirculatingSupply             float64     `json:"circulating_supply"`
-			TotalSupply                   float64     `json:"total_supply"`
-			IsActive                      int         `json:"is_active"`
-			Platform                      interface{} `json:"platform"`
-			CmcRank                       int         `json:"cmc_rank"`
-			IsFiat                        int         `json:"is_fiat"`
-			SelfReportedCirculatingSupply interface{} `json:"self_reported_circulating_supply"`
-			SelfReportedMarketCap         interface{} `json:"self_reported_market_cap"`
-			TvlRatio                      interface{} `json:"tvl_ratio"`
-			LastUpdated                   time.Time   `json:"last_updated"`
-			Quote                         struct {
-				Usd struct {
-					Price                 float64     `json:"price"`
-					Volume24H             float64     `json:"volume_24h"`
-					VolumeChange24H       float64     `json:"volume_change_24h"`
-					PercentChange1H       float64     `json:"percent_change_1h"`
-					PercentChange24H      float64     `json:"percent_change_24h"`
-					PercentChange7D       float64     `json:"percent_change_7d"`
-					PercentChange30D      float64     `json:"percent_change_30d"`
-					PercentChange60D      float64     `json:"percent_change_60d"`
-					PercentChange90D      float64     `json:"percent_change_90d"`
-					MarketCap             float64     `json:"market_cap"`
-					MarketCapDominance    float64     `json:"market_cap_dominance"`
-					FullyDilutedMarketCap float64     `json:"fully_diluted_market_cap"`
-					Tvl                   interface{} `json:"tvl"`
-					LastUpdated           time.Time   `json:"last_updated"`
-				} `json:"USD"`
-			} `json:"quote"`
-		} `json:"SOL"`
-	} `json:"data"`
+type hundredStock struct {
+	Rank   string
+	Name   string
+	Symbol string
+	Image  string
 }
 
-func GetCompanyStockValue(symbol string) (*float64, error) {
-	var stock stockResponse
-	accessKey := config.GetConf().StockAccessKey
-	url := fmt.Sprintf("http://api.marketstack.com/v1/eod?access_key=%s&symbols=%s", accessKey, symbol)
-	v, err := crypto.Get(url, &stock)
+func GetAssetPrice(symbol string, isCrypto bool) (*float64, error) {
+	if isCrypto {
+		symbol = symbol + "-USD"
+	}
+	var asset assetResponse
+	accessKey := config.GetConf().AssetAccessKey
+	url := fmt.Sprintf("https://yfapi.net/v6/finance/quote?symbols=%s", symbol)
+	r, _ := http.NewRequest(http.MethodGet, url, nil)
+	r.Header.Add("X-API-KEY", accessKey)
+	r.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(r)
+	if err != nil {
+		//logger := log.WithField("error in Mono GET request", err)
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err = Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+	if resp.StatusCode >= http.StatusBadRequest {
+		return nil, errors.New(resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	res := v.(stockResponse)
-	return &res.Data[0].Close, nil
+	err = json.Unmarshal(body, &asset)
+	if err != nil {
+		return nil, err
+	}
+	if len(asset.QuoteResponse.Result) < 1 {
+		return nil, errors.New(fmt.Sprintf("no price found for %s", symbol))
+	}
+
+	return &asset.QuoteResponse.Result[0].RegularMarketPrice, nil
+}
+
+func GetCoinName(symbol types.CryptoSymbol) string {
+	coins := map[types.CryptoSymbol]string{
+		"BTC":  "Bitcoin",
+		"ETH":  "Ethereum",
+		"BSC":  "Binance Coin",
+		"USDT": "Tether",
+		"SOL":  "Solana",
+		"DOGE": "Dogecoin",
+	}
+	return coins[symbol]
 }
 
 func GetCompanyName(symbol string) (*string, error) {
@@ -130,16 +196,35 @@ func GetCompanyName(symbol string) (*string, error) {
 	res := v.(companyName)
 	return &res.Data[0].Name, nil
 }
-func GetCryptoValue(symbol string) (*float64, error) {
-	var stat cryptoStat
-	accessKey := config.GetConf().CmcKey
-	url := fmt.Sprintf("https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?CMC_PRO_API_KEY=%s&symbol=%s", accessKey, symbol)
-	v, err := crypto.Get(url, &stat)
+
+func GetTopHundredStock() ([]*hundredStock, error) {
+	c := colly.NewCollector()
+
+	var data *hundredStock
+	var response []*hundredStock
+
+	c.OnHTML(".marketcap-table > tbody", func(e *colly.HTMLElement) {
+		e.ForEach("tr", func(i int, e *colly.HTMLElement) {
+			image := e.ChildAttr(".name-td > .logo-container > img", "src")
+			name := e.ChildText(".company-name")
+			symbol := e.ChildText(".company-code")
+			num := strconv.Itoa(i + 1)
+
+			data = &hundredStock{
+				Rank:   num,
+				Name:   name,
+				Symbol: symbol,
+				Image:  "https://companiesmarketcap.com" + image,
+			}
+			response = append(response, data)
+		})
+	})
+	c.OnRequest(func(r *colly.Request) {
+		log.Info("Visiting: ", r.URL.String())
+	})
+	err := c.Visit("https://companiesmarketcap.com/")
 	if err != nil {
 		return nil, err
 	}
-	res := v.(cryptoStat)
-	return &res.Data.Sol[0].Quote.Usd.Price, nil
+	return response, nil
 }
-
-// XNAS XNYS

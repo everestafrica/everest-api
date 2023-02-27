@@ -14,6 +14,7 @@ import (
 
 type scheduler struct {
 	news         services.INewsService
+	stock        services.IStockService
 	account      services.IAccountTransactionService
 	crypto       services.ICryptoService
 	subscription services.ISubscriptionService
@@ -27,6 +28,7 @@ type IScheduler interface {
 func RegisterSchedulers() {
 	s := scheduler{
 		news:         services.NewNewsService(),
+		stock:        services.NewStockService(),
 		account:      services.NewAccountTransactionService(),
 		crypto:       services.NewCryptoService(),
 		subscription: services.NewSubscriptionService(),
@@ -47,6 +49,14 @@ func RegisterSchedulers() {
 		err := s.news.SetNews()
 		if err != nil {
 			log.Error("set news error", err)
+			return
+		}
+	})
+
+	sch.Every(1).Hour().Do(func() {
+		err := s.stock.SetStockData()
+		if err != nil {
+			log.Error("set stock error", err)
 			return
 		}
 	})

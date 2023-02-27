@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/external/asset"
 	"github.com/everestafrica/everest-api/internal/models"
@@ -9,7 +8,7 @@ import (
 )
 
 type IAssetService interface {
-	AddAsset(symbol string, assetType string, userId string) error
+	AddAsset(symbol string, isCrypto bool, userId string) error
 	DeleteAsset(symbol string, userId string) error
 	GetAsset(symbol string, userId string) (*models.Asset, error)
 	GetAllAssets(userId string, pagination types.Pagination) (*[]models.Asset, error)
@@ -26,10 +25,10 @@ func NewAssetService() IAssetService {
 		assetRepo: repositories.NewAssetRepo(),
 	}
 }
-func (s assetService) AddAsset(symbol string, assetType string, userId string) error {
+func (s assetService) AddAsset(symbol string, isCrypto bool, userId string) error {
 	var newAsset *models.Asset
-	if assetType == "stock" {
-		value, err := asset.GetCompanyStockValue(symbol)
+	if !isCrypto {
+		value, err := asset.GetAssetPrice(symbol, false)
 		if err != nil {
 			return err
 		}
@@ -41,10 +40,21 @@ func (s assetService) AddAsset(symbol string, assetType string, userId string) e
 			Image:  "",
 			Value:  *value,
 		}
+	} else {
+		value, err := asset.GetAssetPrice(symbol, true)
+		if err != nil {
+			return err
+		}
+		name := asset.GetCoinName(types.CryptoSymbol(symbol))
+		newAsset = &models.Asset{
+			UserId: userId,
+			Symbol: symbol,
+			Name:   name,
+			Image:  "",
+			Value:  *value,
+		}
 	}
-	if assetType == "crypto" {
-		return errors.New("no support for crypto assets yet")
-	}
+
 	err := s.assetRepo.Create(newAsset)
 	if err != nil {
 		return err

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	"github.com/everestafrica/everest-api/internal/external/asset"
 	"github.com/everestafrica/everest-api/internal/external/crypto"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
@@ -52,7 +53,7 @@ func (cs cryptoService) AddWallet(symbol types.CryptoSymbol, address string, use
 		UserId:        userId,
 		WalletAddress: address,
 		Balance:       balance.Value,
-		Name:          types.CryptoName(GetCoinName(symbol)),
+		Name:          types.CryptoName(asset.GetCoinName(symbol)),
 		Symbol:        symbol,
 	}
 	err = cs.cryptoDetailsRepo.Create(c)
@@ -68,13 +69,13 @@ func (cs cryptoService) AddWallet(symbol types.CryptoSymbol, address string, use
 		trx := &models.CryptoTransaction{
 			UserId:        userId,
 			WalletAddress: address,
-			Name:          types.CryptoName(GetCoinName(symbol)),
+			Name:          types.CryptoName(asset.GetCoinName(symbol)),
 			Symbol:        symbol,
 			Value:         transaction.Value,
 			Date:          transaction.Date,
 			Type:          transaction.Type,
 		}
-		err := cs.cryptoTrxRepo.Create(trx)
+		err = cs.cryptoTrxRepo.Create(trx)
 		if err != nil {
 			return err
 		}
@@ -113,7 +114,7 @@ func (cs cryptoService) UpdateWallet(symbol types.CryptoSymbol, address string, 
 		trx := &models.CryptoTransaction{
 			UserId:        userId,
 			WalletAddress: address,
-			Name:          types.CryptoName(GetCoinName(symbol)),
+			Name:          types.CryptoName(asset.GetCoinName(symbol)),
 			Symbol:        symbol,
 			Value:         transaction.Value,
 			Date:          transaction.Date,
@@ -166,16 +167,4 @@ func (cs cryptoService) GetOutflow(dateRange types.DateRange, userId string) (*t
 		DateRange: fmt.Sprintf("%s - %s", dateRange.From, dateRange.To),
 	}
 	return result, err
-}
-
-func GetCoinName(symbol types.CryptoSymbol) string {
-	coins := map[types.CryptoSymbol]string{
-		"BTC":  "Bitcoin",
-		"ETH":  "Ethereum",
-		"BSC":  "Binance Coin",
-		"USDT": "Tether",
-		"SOL":  "Solana",
-		"DOGE": "Dogecoin",
-	}
-	return coins[symbol]
 }
