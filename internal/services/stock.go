@@ -23,20 +23,35 @@ func NewStockService() IStockService {
 }
 
 func (s stockService) SetStockData() error {
-	stocks, err := asset.GetTopHundredStock()
+	stocks, err := asset.ScrapeStockData()
 	if err != nil {
 		return err
 	}
+	stocksInDB, err := s.stockRepo.FindAllStockAssets()
 	for _, stock := range stocks {
 		stk := &models.Stock{
 			Name:   stock.Name,
 			Image:  stock.Image,
 			Symbol: stock.Symbol,
 		}
-		err = s.stockRepo.Create(stk)
-		if err != nil {
-			return err
+		if len(*stocksInDB) < 1 {
+			err = s.stockRepo.Create(stk)
+			if err != nil {
+				return err
+			}
+		} else {
+			for _, v := range *stocksInDB {
+				if v.Name != stock.Name {
+					err = s.stockRepo.Create(stk)
+					if err != nil {
+						return err
+					}
+				} else {
+					return nil
+				}
+			}
 		}
+
 	}
 	log.Println("stored stocks in db!")
 	return nil

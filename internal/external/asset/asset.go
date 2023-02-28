@@ -197,32 +197,60 @@ func GetCompanyName(symbol string) (*string, error) {
 	return &res.Data[0].Name, nil
 }
 
-func GetTopHundredStock() ([]*hundredStock, error) {
+func ScrapeStockData() ([]hundredStock, error) {
+	base := "https://companiesmarketcap.com"
+	countries, err := ScrapeCountriesUrl()
+	if err != nil {
+		return nil, err
+	}
+	var response []hundredStock
+	for _, url := range countries {
+		c := colly.NewCollector()
+
+		var data hundredStock
+
+		c.OnHTML(".marketcap-table > tbody", func(e *colly.HTMLElement) {
+			e.ForEach("tr", func(i int, e *colly.HTMLElement) {
+				image := e.ChildAttr(".name-td > .logo-container > img", "src")
+				name := e.ChildText(".company-name")
+				symbol := e.ChildText(".company-code")
+				num := strconv.Itoa(i + 1)
+
+				data = hundredStock{
+					Rank:   num,
+					Name:   name,
+					Symbol: symbol,
+					Image:  base + image,
+				}
+				response = append(response, data)
+			})
+		})
+		//c.OnRequest(func(r *colly.Request) {
+		//	log.Info("Visiting: ", r.URL.String())
+		//})
+		err = c.Visit(base + url)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return response, nil
+}
+
+func ScrapeCountriesUrl() ([]string, error) {
 	c := colly.NewCollector()
 
-	var data *hundredStock
-	var response []*hundredStock
+	var response []string
 
 	c.OnHTML(".marketcap-table > tbody", func(e *colly.HTMLElement) {
 		e.ForEach("tr", func(i int, e *colly.HTMLElement) {
-			image := e.ChildAttr(".name-td > .logo-container > img", "src")
-			name := e.ChildText(".company-name")
-			symbol := e.ChildText(".company-code")
-			num := strconv.Itoa(i + 1)
-
-			data = &hundredStock{
-				Rank:   num,
-				Name:   name,
-				Symbol: symbol,
-				Image:  "https://companiesmarketcap.com" + image,
-			}
+			data := e.ChildAttr("td a", "href")
 			response = append(response, data)
 		})
 	})
 	c.OnRequest(func(r *colly.Request) {
 		log.Info("Visiting: ", r.URL.String())
 	})
-	err := c.Visit("https://companiesmarketcap.com/")
+	err := c.Visit("https://companiesmarketcap.com/all-countries/")
 	if err != nil {
 		return nil, err
 	}

@@ -90,7 +90,8 @@ func RegisterSchedulers() {
 			//var dueSubscriptions []models.Subscription
 			for _, sub := range *subs {
 				if sub.NextPayment.Day() == GetTwoDaysLater().Day() {
-					fmt.Println("the sub", sub, user.Email)
+					fmt.Println("the sub: ", sub.NextPayment, user.Email)
+					fmt.Println(GetTwoDaysLater().Day())
 					//go channels.SendMail(&channels.Email{
 					//	Type:      channels.Subscription,
 					//	Recipient: user.Email,
@@ -100,7 +101,8 @@ func RegisterSchedulers() {
 					//})
 				}
 				if sub.NextPayment.Day() == GetTomorrow().Day() {
-					fmt.Println("the sub", sub, user.Email)
+					fmt.Println("the sub: "+
+						"", sub.NextPayment, user.Email)
 					//go channels.SendMail(&channels.Email{
 					//	Type:      channels.Subscription,
 					//	Recipient: user.Email,

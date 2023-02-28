@@ -29,6 +29,8 @@ func (ns newsService) SetNews() error {
 	if err != nil {
 		return err
 	}
+
+	newsInDB, err := ns.newsRepo.FindAllNews()
 	for _, s := range scraped {
 		scrapedNews := models.News{
 			Source:      "nairametrics",
@@ -39,11 +41,26 @@ func (ns newsService) SetNews() error {
 			Description: s.Description,
 			Date:        s.Date,
 		}
-		err = ns.newsRepo.Create(&scrapedNews)
-		if err != nil {
-			return err
+		if len(*newsInDB) < 1 {
+			err = ns.newsRepo.Create(&scrapedNews)
+			if err != nil {
+				return err
+			}
+		} else {
+			for _, n := range *newsInDB {
+				if n.Link != s.Link {
+					err = ns.newsRepo.Create(&scrapedNews)
+					if err != nil {
+						return err
+					}
+				} else {
+					return nil
+				}
+			}
 		}
+
 	}
+
 	for _, f := range fetched.Data {
 		fetchedNews := models.News{
 			Source:      "newsapi",
@@ -54,11 +71,25 @@ func (ns newsService) SetNews() error {
 			Description: f.Description,
 			Date:        f.PublishedAt,
 		}
-		err = ns.newsRepo.Create(&fetchedNews)
-		if err != nil {
-			return err
+		if len(*newsInDB) < 1 {
+			err = ns.newsRepo.Create(&fetchedNews)
+			if err != nil {
+				return err
+			}
+		} else {
+			for _, n := range *newsInDB {
+				if n.Link != f.Url {
+					err = ns.newsRepo.Create(&fetchedNews)
+					if err != nil {
+						return err
+					}
+				} else {
+					return nil
+				}
+			}
 		}
 	}
+
 	log.Print("stored in db!")
 	return nil
 }

@@ -167,6 +167,7 @@ const (
 	Grocery             TransactionCategory = "groceries"
 	Entertainment       TransactionCategory = "entertainment"
 	Travel              TransactionCategory = "travel"
+	Delivery            TransactionCategory = "delivery"
 	Transport           TransactionCategory = "transportation"
 	Salary              TransactionCategory = "salary"
 	Investment          TransactionCategory = "investment"

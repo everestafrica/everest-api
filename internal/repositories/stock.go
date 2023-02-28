@@ -8,6 +8,7 @@ import (
 )
 
 type IStockRepository interface {
+	FindAllStockAssets() (*[]models.Stock, error)
 	Create(Stock *models.Stock) error
 	Delete() error
 }
@@ -23,8 +24,16 @@ func NewStockRepo() IStockRepository {
 	}
 }
 
-func (r *stockRepo) Create(Stock *models.Stock) error {
-	return r.db.Create(Stock).Error
+func (r *stockRepo) FindAllStockAssets() (*[]models.Stock, error) {
+	var stocks *[]models.Stock
+	if err := r.db.Find(&stocks).Error; err != nil {
+		return nil, err
+	}
+	return stocks, nil
+}
+
+func (r *stockRepo) Create(stock *models.Stock) error {
+	return r.db.Create(stock).Error
 }
 
 func (r *stockRepo) Delete() error {

@@ -8,6 +8,7 @@ import (
 )
 
 type INewsRepository interface {
+	FindAllNews() (*[]models.News, error)
 	Create(news *models.News) error
 	Delete() error
 }
@@ -21,6 +22,14 @@ func NewNewsRepo() INewsRepository {
 	return &newsRepo{
 		db: database.DB(),
 	}
+}
+
+func (r *newsRepo) FindAllNews() (*[]models.News, error) {
+	var news *[]models.News
+	if err := r.db.Find(&news).Error; err != nil {
+		return nil, err
+	}
+	return news, nil
 }
 
 func (r *newsRepo) Create(news *models.News) error {
