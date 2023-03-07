@@ -19,6 +19,7 @@ type IAccountTransactionService interface {
 	GetTransactionsByType(txnType types.TransactionType, userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
 	GetInflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error)
 	GetOutflow(dateRange types.DateRange, userId string) (*types.TxnFlowResponse, error)
+	DeleteManualTransaction(transactionId string) error
 }
 
 type accountTransactionService struct {
@@ -39,6 +40,33 @@ func NewAccountTransactionService() IAccountTransactionService {
 }
 
 func (ad accountTransactionService) CreateManualTransaction(userId string, transaction *types.CreateTransactionRequest) error {
+	txn := models.AccountTransaction{
+		UserId:        userId,
+		AccountId:     nil,
+		TransactionId: transaction.TransactionId,
+		Institution:   "Everest",
+		Currency:      transaction.Currency,
+		Amount:        transaction.Amount,
+		Balance:       nil,
+		Narration:     transaction.Narration,
+		Merchant:      transaction.Merchant,
+		IsRecurring:   transaction.IsRecurring,
+		Type:          transaction.Type,
+		Category:      transaction.Category,
+		Date:          transaction.Date,
+	}
+	err := ad.accountTransactionRepo.Create(&txn)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ad accountTransactionService) DeleteManualTransaction(transactionId string) error {
+	err := ad.accountTransactionRepo.Delete(transactionId)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -63,14 +91,15 @@ func (ad accountTransactionService) SetAccountTransactions(userId string) error 
 		return err
 	}
 	for _, v := range txn.Data {
+		bal := float64(v.Balance / 100)
 		transaction := models.AccountTransaction{
 			UserId:        userId,
 			AccountId:     &u.MonoId,
 			TransactionId: v.ID,
 			Institution:   account.Institution,
-			Currency:      v.Currency,
+			Currency:      types.CurrencySymbol(v.Currency),
 			Amount:        float64(v.Amount / 100),
-			Balance:       float64(v.Balance / 100),
+			Balance:       &bal,
 			Date:          v.Date,
 			Narration:     v.Narration,
 			Type:          types.TransactionType(v.Type),

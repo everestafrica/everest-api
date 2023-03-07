@@ -56,7 +56,7 @@ type SubscriptionRequest struct {
 	Product     string         `json:"product" validate:"required"`
 	Price       float64        `json:"price" validate:"required"`
 	Currency    CurrencySymbol `json:"currency" validate:"required"`
-	Icon        string         `json:"Icon"`
+	Icon        string         `json:"icon"`
 	Frequency   Frequency      `json:"frequency" validate:"required"`
 	NextPayment string         `json:"next_payment" validate:"required"`
 }
@@ -112,6 +112,10 @@ type CreateTransactionRequest struct {
 	IsRecurring   bool                `json:"is_recurring"`
 	Category      TransactionCategory `json:"category"`
 	Date          time.Time           `json:"date"`
+}
+type CreateCustomCategory struct {
+	Name  string `json:"name"`
+	Emoji string `json:"emoji"`
 }
 
 type Pagination struct {

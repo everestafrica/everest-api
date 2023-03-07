@@ -12,6 +12,8 @@ type IBudgetService interface {
 	CreateBudget(request *types.CreateBudgetRequest, userId string) error
 	UpdateBudget(request *types.UpdateBudgetRequest, userId string) error
 	DeleteBudget(month string, year int, userId string) error
+	CreateCustomCategory(category *types.CreateCustomCategory, userId string) error
+	DeleteCustomCategory(categoryId string) error
 }
 
 type budgetService struct {
@@ -84,6 +86,27 @@ func (bs budgetService) UpdateBudget(request *types.UpdateBudgetRequest, userId 
 
 func (bs budgetService) DeleteBudget(month string, year int, userId string) error {
 	err := bs.budgetRepo.Delete(userId, month, year)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (bs budgetService) CreateCustomCategory(category *types.CreateCustomCategory, userId string) error {
+	c := models.CustomCategory{
+		UserId: userId,
+		Name:   category.Name,
+		Emoji:  category.Emoji,
+	}
+	err := bs.budgetRepo.CreateCustomCategory(&c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (bs budgetService) DeleteCustomCategory(categoryId string) error {
+	err := bs.budgetRepo.DeleteCustomCategory(categoryId)
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,7 @@ import (
 type IAccountTransactionRepository interface {
 	Create(transaction *models.AccountTransaction) error
 	Update(transaction *models.AccountTransaction) error
+	Delete(transactionId string) error
 	FindTransaction(transactionId string) (*models.AccountTransaction, error)
 	FindAllTransactions(userId string, p types.Pagination) (*[]models.AccountTransaction, error)
 	FindAllByInstitution(institution string, userId string, p types.Pagination) (*[]models.AccountTransaction, error)
@@ -34,6 +35,11 @@ func (r *accountTransaction) Create(transaction *models.AccountTransaction) erro
 
 func (r *accountTransaction) Update(transaction *models.AccountTransaction) error {
 	return r.db.Save(transaction).Error
+}
+
+func (r *accountTransaction) Delete(transactionId string) error {
+	var transaction models.AccountTransaction
+	return r.db.Where("transaction_id = ? AND institution = ?", transactionId, "Everest").Delete(&transaction).Error
 }
 
 func (r *accountTransaction) FindTransaction(transactionId string) (*models.AccountTransaction, error) {

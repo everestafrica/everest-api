@@ -13,6 +13,8 @@ type IBudgetRepository interface {
 	FindAllByBudgetId(userId string, budgetId string) (*[]models.Budget, error)
 	FindByPeriod(userId string, month string, year int) (*[]models.Budget, error)
 	Delete(userId string, month string, year int) error
+	CreateCustomCategory(category *models.CustomCategory) error
+	DeleteCustomCategory(id string) error
 }
 
 type budgetRepo struct {
@@ -62,6 +64,18 @@ func (r *budgetRepo) FindByPeriod(userId, month string, year int) (*[]models.Bud
 func (r *budgetRepo) Delete(userId, month string, year int) error {
 	var budget models.Budget
 	if err := r.db.Where("user_id = ? AND month =  ? AND year = ?", userId, month, year).Delete(&budget).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *budgetRepo) CreateCustomCategory(category *models.CustomCategory) error {
+	return r.db.Create(&category).Error
+}
+
+func (r *budgetRepo) DeleteCustomCategory(id string) error {
+	var category models.CustomCategory
+	if err := r.db.Where("id = ? ", id).Delete(&category).Error; err != nil {
 		return err
 	}
 	return nil

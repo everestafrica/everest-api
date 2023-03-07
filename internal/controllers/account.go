@@ -15,6 +15,8 @@ type IAccountController interface {
 	ReauthoriseUser(ctx *fiber.Ctx) error
 	GetAllTransactions(ctx *fiber.Ctx) error
 	GetTransaction(ctx *fiber.Ctx) error
+	CreateManualTransaction(ctx *fiber.Ctx) error
+	DeleteManualTransaction(ctx *fiber.Ctx) error
 }
 
 type accountController struct {
@@ -36,8 +38,12 @@ func (ctl *accountController) RegisterRoutes(app *fiber.App) {
 	accounts.Post("/connect", ctl.LinkAccount)
 	accounts.Post("/disconnect", handlers.SecureAuth(), ctl.UnLinkAccount)
 	accounts.Get("/reauth", handlers.SecureAuth(), ctl.ReauthoriseUser)
+
+	// transactions
 	accounts.Get("/transactions", handlers.SecureAuth(), ctl.GetAllTransactions)
 	accounts.Get("/transactions/:id", handlers.SecureAuth(), ctl.GetTransaction)
+	accounts.Post("/transactions", handlers.SecureAuth(), ctl.CreateManualTransaction)
+	accounts.Delete("/transactions/:id", handlers.SecureAuth(), ctl.DeleteManualTransaction)
 }
 
 func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
@@ -140,5 +146,55 @@ func (ctl *accountController) GetTransaction(ctx *fiber.Ctx) error {
 		Success: true,
 		Message: "transaction successfully fetched",
 		Data:    transaction,
+	})
+}
+
+func (ctl *accountController) CreateManualTransaction(ctx *fiber.Ctx) error {
+	userId, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	var body *types.CreateTransactionRequest
+	if err = ctx.BodyParser(&body); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Problem while parsing request body",
+			Data:    err.Error(),
+		})
+	}
+	errors := util.ValidateStruct(body)
+	if errors != nil {
+		return ctx.JSON(errors)
+	}
+	err = ctl.accountTransactionService.CreateManualTransaction(userId, body)
+	if err != nil {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: "Problem while creating transaction",
+			Data:    err.Error(),
+		})
+	}
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "successfully created manual transaction",
+	})
+}
+
+func (ctl accountController) DeleteManualTransaction(ctx *fiber.Ctx) error {
+	_, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	transactionId := ctx.Params("id")
+	err = ctl.accountTransactionService.DeleteManualTransaction(transactionId)
+	if err != nil {
+		return ctx.JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "transaction successfully deleted",
 	})
 }

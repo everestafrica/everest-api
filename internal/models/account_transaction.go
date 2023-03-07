@@ -11,9 +11,9 @@ type AccountTransaction struct {
 	AccountId     *string                   `json:"account_id"`
 	TransactionId string                    `json:"transaction_id"`
 	Institution   string                    `json:"institution"`
-	Currency      string                    `json:"currency"`
+	Currency      types.CurrencySymbol      `json:"currency"`
 	Amount        float64                   `json:"amount"`
-	Balance       float64                   `json:"balance"`
+	Balance       *float64                  `json:"balance"`
 	Narration     string                    `json:"narration"`
 	Merchant      string                    `json:"merchant"`
 	IsRecurring   bool                      `json:"is_recurring"`

@@ -46,6 +46,8 @@ func MigrateAll(db *gorm.DB) error {
 		models.Stock{},
 		models.Tracker{},
 		models.Subscription{},
+		models.PriceAlert{},
+		models.CustomCategory{},
 		models.User{},
 	)
 }
