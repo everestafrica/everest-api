@@ -15,6 +15,7 @@ type AccountTransaction struct {
 	Amount        float64                   `json:"amount"`
 	Balance       float64                   `json:"balance"`
 	Narration     string                    `json:"narration"`
+	Merchant      string                    `json:"merchant"`
 	IsRecurring   bool                      `json:"is_recurring"`
 	Type          types.TransactionType     `json:"type"`
 	Category      types.TransactionCategory `json:"category"`

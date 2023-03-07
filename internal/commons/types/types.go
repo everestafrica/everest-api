@@ -56,7 +56,7 @@ type SubscriptionRequest struct {
 	Product     string         `json:"product" validate:"required"`
 	Price       float64        `json:"price" validate:"required"`
 	Currency    CurrencySymbol `json:"currency" validate:"required"`
-	Logo        string         `json:"logo"`
+	Icon        string         `json:"Icon"`
 	Frequency   Frequency      `json:"frequency" validate:"required"`
 	NextPayment string         `json:"next_payment" validate:"required"`
 }
@@ -102,6 +102,18 @@ type UpdateTransactionRequest struct {
 	Category    TransactionCategory `json:"category"`
 }
 
+type CreateTransactionRequest struct {
+	Amount        float64             `json:"amount"`
+	Narration     string              `json:"narration"`
+	Merchant      string              `json:"merchant"`
+	Type          TransactionType     `json:"type"`
+	Currency      CurrencySymbol      `json:"currency"`
+	TransactionId string              `json:"transaction_id"`
+	IsRecurring   bool                `json:"is_recurring"`
+	Category      TransactionCategory `json:"category"`
+	Date          time.Time           `json:"date"`
+}
+
 type Pagination struct {
 	Page int
 	Size int
@@ -122,7 +134,7 @@ type (
 	CryptoName          string
 	CurrencySymbol      string
 	Frequency           string
-	SubType             string
+	SubscriptionType    string
 	TransactionType     string
 	TransactionCategory string
 	DebtType            string
@@ -153,9 +165,9 @@ const (
 	Credit TransactionType = "credit"
 	Debit  TransactionType = "debit"
 
-	Media    SubType = "media"
-	Software SubType = "software"
-	Services SubType = "services"
+	Media    SubscriptionType = "media"
+	Software SubscriptionType = "software"
+	Services SubscriptionType = "services"
 
 	DebtStatusPending DebtStatus = "pending"
 	DebtStatusPaid    DebtStatus = "paid"
@@ -164,27 +176,31 @@ const (
 	DebtTypeDebtor   DebtType = "debtor"
 	DebtTypeCreditor DebtType = "creditor"
 
-	Grocery             TransactionCategory = "groceries"
-	Entertainment       TransactionCategory = "entertainment"
-	Travel              TransactionCategory = "travel"
-	Delivery            TransactionCategory = "delivery"
-	Transport           TransactionCategory = "transportation"
-	Salary              TransactionCategory = "salary"
-	Investment          TransactionCategory = "investment"
-	PhoneAndInternet    TransactionCategory = "phone_and_internet"
-	Food                TransactionCategory = "food"
-	Health              TransactionCategory = "health"
-	SelfCare            TransactionCategory = "self_care"
-	LoanRepayment       TransactionCategory = "loan_repayment"
-	BillsAndFees        TransactionCategory = "bills/fees"
-	Transfer            TransactionCategory = "transfer"
-	OnlineTransactions  TransactionCategory = "online_transactions"
-	OfflineTransactions TransactionCategory = "offline_transactions"
-	BankCharges         TransactionCategory = "bank_charges"
-	AtmWithdrawal       TransactionCategory = "atm_withdrawal"
-	Miscellaneous       TransactionCategory = "miscellaneous"
-	Others              TransactionCategory = "others"
+	Groceries          TransactionCategory = "Groceries"
+	Shopping           TransactionCategory = "Shopping"
+	Utilities          TransactionCategory = "Utilities and Bills"
+	Housing            TransactionCategory = "Housing"
+	Entertainment      TransactionCategory = "Entertainment"
+	Travel             TransactionCategory = "Travel"
+	Delivery           TransactionCategory = "Delivery"
+	Transportation     TransactionCategory = "Transportation"
+	Income             TransactionCategory = "Income"
+	Investment         TransactionCategory = "Investment"
+	PhoneAndInternet   TransactionCategory = "Phone & Internet"
+	Food               TransactionCategory = "Food"
+	Healthcare         TransactionCategory = "Healthcare"
+	LoanRepayment      TransactionCategory = "Loan Repayment"
+	LoanOut            TransactionCategory = "Loan Out"
+	Transfer           TransactionCategory = "Transfer"
+	OnlineTransaction  TransactionCategory = "Online Transaction"
+	OfflineTransaction TransactionCategory = "Offline Transaction"
+	BankCharges        TransactionCategory = "Bank Charges"
+	AtmWithdrawal      TransactionCategory = "ATM Withdrawal"
+	Miscellaneous      TransactionCategory = "Miscellaneous"
+	GiftsAndDonations  TransactionCategory = "Gifts & Donations"
+	Education          TransactionCategory = "Education"
+
+	Others TransactionCategory = "others"
 )
 
 // Track debtors, snap receipt, family tracker
-// GiftsAndDonations TransactionCategory = "gifts_and_donations" 	Education TransactionCategory = "education"

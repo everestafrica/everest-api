@@ -11,6 +11,7 @@ import (
 )
 
 type IAccountTransactionService interface {
+	CreateManualTransaction(userId string, transaction *types.CreateTransactionRequest) error
 	SetAccountTransactions(userId string) error
 	GetTransaction(transactionId string) (*models.AccountTransaction, error)
 	GetAllTransactions(userId string, pagination types.Pagination) (*[]models.AccountTransaction, error)
@@ -35,6 +36,10 @@ func NewAccountTransactionService() IAccountTransactionService {
 		accountDetailsRepo:     repositories.NewAccountDetailsRepo(),
 		accountTransactionRepo: repositories.NewAccountTransactionRepo(),
 	}
+}
+
+func (ad accountTransactionService) CreateManualTransaction(userId string, transaction *types.CreateTransactionRequest) error {
+	return nil
 }
 
 func (ad accountTransactionService) SetAccountTransactions(userId string) error {

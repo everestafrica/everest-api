@@ -32,7 +32,7 @@ func (ss subscriptionService) AddSubscription(request *types.SubscriptionRequest
 		Product:     request.Product,
 		Price:       request.Price,
 		Currency:    request.Currency,
-		Logo:        request.Logo,
+		Icon:        request.Icon,
 		Frequency:   request.Frequency,
 		NextPayment: nextPayment,
 	}

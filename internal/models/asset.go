@@ -18,3 +18,10 @@ type Stock struct {
 	Image  string `json:"image"  gorm:"unique,not null"`
 	Symbol string `json:"symbol" gorm:"unique,not null"`
 }
+
+type PriceAlert struct {
+	Base
+	UserId string  `json:"user_id"`
+	Asset  string  `json:"asset"`
+	Target float64 `json:"target"`
+}
