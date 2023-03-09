@@ -32,6 +32,8 @@ func DB() *gorm.DB {
 	return gormDB
 }
 
+//I hope this helps!
+
 func MigrateAll(db *gorm.DB) error {
 	return db.AutoMigrate(
 		models.AccountDetail{},

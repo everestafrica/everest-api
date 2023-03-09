@@ -14,8 +14,6 @@ type IBudgetController interface {
 	AddBudget(ctx *fiber.Ctx) error
 	UpdateBudget(ctx *fiber.Ctx) error
 	DeleteBudget(ctx *fiber.Ctx) error
-	CreateCustomCategory(ctx *fiber.Ctx) error
-	DeleteCustomCategory(ctx *fiber.Ctx) error
 	RegisterRoutes(app *fiber.App)
 }
 
@@ -38,9 +36,6 @@ func (ctl *budgetController) RegisterRoutes(app *fiber.App) {
 	budget.Post("/", handlers.SecureAuth(), ctl.AddBudget)
 	budget.Put("/", handlers.SecureAuth(), ctl.UpdateBudget)
 	budget.Delete("/", handlers.SecureAuth(), ctl.DeleteBudget)
-
-	v1.Post("/custom-category", handlers.SecureAuth(), ctl.CreateCustomCategory)
-	v1.Delete("/custom-category/:id", handlers.SecureAuth(), ctl.DeleteCustomCategory)
 
 }
 
@@ -75,7 +70,7 @@ func (ctl *budgetController) GetBudget(ctx *fiber.Ctx) error {
 			Message: "unable to get budget",
 		})
 	}
-	if len(*budget) < 1 {
+	if budget == nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,
 			Message: "unable to get budget, ensure query parameters are correct and try again",
@@ -187,57 +182,5 @@ func (ctl *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
 	return ctx.JSON(types.GenericResponse{
 		Success: true,
 		Message: "budget successfully deleted",
-	})
-}
-
-func (ctl *budgetController) CreateCustomCategory(ctx *fiber.Ctx) error {
-	userId, err := handlers.UserFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	var body *types.CreateCustomCategory
-	if err = ctx.BodyParser(&body); err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
-			Success: false,
-			Message: "Problem while parsing request body",
-		})
-	}
-
-	errors := util.ValidateStruct(body)
-	if errors != nil {
-		return ctx.JSON(errors)
-	}
-
-	err = ctl.budgetService.CreateCustomCategory(body, userId)
-	if err != nil {
-		return ctx.JSON(types.GenericResponse{
-			Success: false,
-			Message: err.Error(),
-		})
-	}
-	return ctx.JSON(types.GenericResponse{
-		Success: true,
-		Message: "custom category successfully added",
-	})
-}
-
-func (ctl *budgetController) DeleteCustomCategory(ctx *fiber.Ctx) error {
-	_, err := handlers.UserFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	categoryId := ctx.Params("id")
-	err = ctl.budgetService.DeleteCustomCategory(categoryId)
-	if err != nil {
-		return ctx.JSON(types.GenericResponse{
-			Success: false,
-			Message: "unable to delete custom category",
-		})
-	}
-	return ctx.JSON(types.GenericResponse{
-		Success: true,
-		Message: "custom category successfully deleted",
 	})
 }

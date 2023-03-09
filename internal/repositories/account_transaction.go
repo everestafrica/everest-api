@@ -79,7 +79,7 @@ func (r *accountTransaction) FindAllByType(txnType types.TransactionType, userId
 
 func (r *accountTransaction) FindAllTxnFlow(txnType types.TransactionType, dateRange types.DateRange, userId string) (*[]models.AccountTransaction, error) {
 	var transactions []models.AccountTransaction
-	if err := r.db.Where("user_id = ? AND type = ? AND date > ? AND date <= ?", userId, dateRange.From, dateRange.To, txnType).Order("id DESC").Find(&transactions).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND type = ? AND date > ? AND date <= ?", userId, txnType, dateRange.From, dateRange.To).Order("id DESC").Find(&transactions).Error; err != nil {
 		return nil, err
 	}
 

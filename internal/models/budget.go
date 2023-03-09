@@ -12,10 +12,3 @@ type Budget struct {
 	Month    string                    `json:"-"`
 	Year     int                       `json:"-"`
 }
-
-type CustomCategory struct {
-	Base
-	UserId string `json:"-"`
-	Name   string `json:"name"`
-	Emoji  string `json:"emoji"`
-}
