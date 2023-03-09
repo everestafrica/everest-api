@@ -37,6 +37,7 @@ type Config struct {
 	ProdSmsPublicKey  string `env:"PROD_SMS_PUBLIC_KEY"`
 	CmcKey            string `env:"CMC_KEY"`
 	OpenAIKey         string `env:"OPEN_AI_KEY"`
+	SolanaApiKey      string `env:"SOLANA_API_KEY"`
 }
 
 var config *Config

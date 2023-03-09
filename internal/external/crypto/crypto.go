@@ -181,7 +181,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 		url = fmt.Sprintf("https://public-api.solscan.io/account/%s", address)
 		var response SolBal
 
-		v, err := Get(url, response)
+		v, err := SolGet(url, response)
 		if err != nil {
 			return nil, err
 		}
@@ -276,7 +276,7 @@ func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, 
 		url = fmt.Sprintf("https://public-api.solscan.io/account/transactions?account=%s", address)
 		var response []SolTransaction
 
-		v, err := Get(url, response)
+		v, err := SolGet(url, response)
 		if err != nil {
 			return nil, err
 		}
@@ -350,6 +350,47 @@ func Get(url string, response interface{}) (interface{}, error) {
 	}
 	err = mapstructure.Decode(result, &response)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func SolGet(url string, response interface{}) (interface{}, error) {
+	var result interface{}
+	accessToken := config.GetConf().SolanaApiKey
+	r, _ := http.NewRequest(http.MethodGet, url, nil)
+	r.Header.Add("token", accessToken)
+	r.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(r)
+	if err != nil {
+		//logger := log.WithField("error in Mono GET request", err)
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err = Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+	if resp.StatusCode >= http.StatusBadRequest {
+		return nil, errors.New(resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	err = mapstructure.Decode(result, &response)
 	if err != nil {
 		return nil, err
 	}
