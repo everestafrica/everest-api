@@ -62,7 +62,11 @@ func (ctl *accountController) LinkAccount(ctx *fiber.Ctx) error {
 	}
 	errors := util.ValidateStruct(body)
 	if errors != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(errors)
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
+			Success: false,
+			Message: "Error while validating",
+			Data:    errors,
+		})
 
 	}
 

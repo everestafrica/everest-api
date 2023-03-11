@@ -5,133 +5,131 @@ import (
 	"time"
 )
 
-type GenericResponse struct {
-	Success bool        `json:"success"`
-	Message interface{} `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-type RegisterRequest struct {
-	FirstName   string `json:"first_name" validate:"required"`
-	LastName    string `json:"last_name" validate:"required"`
-	PhoneNumber string `json:"phone_number"`
-	Email       string `json:"email" validate:"required"`
-	Password    string `json:"password" validate:"required"`
-	Code        string `json:"code" validate:"required"`
-}
-type RegisterResponse struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-}
-
-type LoginRequest struct {
-	Email    string `json:"email" validate:"required"`
-	Password string `json:"password" validate:"required"`
-}
-type LoginResponse struct {
-	Token     *TokenResponse `json:"token"`
-	FirstName string         `json:"first_name"`
-	LastName  string         `json:"last_name"`
-	Email     string         `json:"email"`
-}
-type SendCodeRequest struct {
-	IsEmail  bool   `json:"is_email" form:"is_email"`
-	Receiver string `json:"receiver" form:"receiver" binding:"required"`
-}
-
-// Claims represent the structure of the JWT token
-type Claims struct {
-	Email string `json:"email"`
-	ID    string `json:"id"`
-	jwt.StandardClaims
-}
-
-type TokenResponse struct {
-	AccessToken string `json:"access_token"`
-	ExpiresAt   int64  `json:"expires_at"`
-	Issuer      string `json:"issuer"`
-}
-
-type SubscriptionRequest struct {
-	Product     string         `json:"product" validate:"required"`
-	Price       float64        `json:"price" validate:"required"`
-	Currency    CurrencySymbol `json:"currency" validate:"required"`
-	Icon        string         `json:"icon"`
-	Frequency   Frequency      `json:"frequency" validate:"required"`
-	NextPayment string         `json:"next_payment" validate:"required"`
-}
-
-type CreateBudgetRequest struct {
-	TotalAmount int          `json:"total_amount" validate:"required"`
-	Categories  []Categories `json:"categories"  validate:"required"`
-	Month       string       `json:"month" validate:"required"`
-	Year        int          `json:"year" validate:"required"`
-}
-type Categories struct {
-	Name   TransactionCategory `json:"name"`
-	Amount int                 `json:"amount"`
-}
-
-type UpdateBudgetRequest struct {
-	Categories []Categories `json:"categories"  validate:"required"`
-	Month      string       `json:"month" validate:"required"`
-	Year       int          `json:"year" validate:"required"`
-}
-type CryptoWalletRequest struct {
-	Address string `json:"address"`
-	Symbol  string `json:"symbol"`
-}
-
-type CreateDebtRequest struct {
-	Amount           int64     `json:"amount" validate:"required"`
-	Reason           string    `json:"reason" validate:"required"`
-	CounterpartyName string    `json:"counterparty_name" validate:"required"`
-	Due              time.Time `json:"due" validate:"required"`
-}
-type UpdateDebtRequest struct {
-	Amount           *int64     `json:"amount"`
-	Due              *time.Time `json:"due"`
-	CounterpartyName *string    `json:"counterparty_name"`
-	Reason           *string    `json:"reason"`
-}
-type AddStockRequest struct {
-	Symbol string
-}
-type UpdateTransactionRequest struct {
-	IsRecurring bool                `json:"is_recurring"`
-	Category    TransactionCategory `json:"category"`
-}
-
-type CreateTransactionRequest struct {
-	Amount        float64             `json:"amount"`
-	Narration     string              `json:"narration"`
-	Merchant      string              `json:"merchant"`
-	Type          TransactionType     `json:"type"`
-	Currency      CurrencySymbol      `json:"currency"`
-	TransactionId string              `json:"transaction_id"`
-	IsRecurring   bool                `json:"is_recurring"`
-	Category      TransactionCategory `json:"category"`
-	Date          time.Time           `json:"date"`
-}
-type CreateCustomCategory struct {
-	Name  string `json:"name"`
-	Emoji string `json:"emoji"`
-}
-
-type Pagination struct {
-	Page int
-	Size int
-}
-
-type TxnFlowResponse struct {
-	Total     float64 `json:"total"`
-	DateRange string  `json:"date_range"`
-}
-
-type DateRange struct {
-	From time.Time
-	To   time.Time
-}
+type (
+	GenericResponse struct {
+		Success bool        `json:"success"`
+		Message interface{} `json:"message"`
+		Data    interface{} `json:"data,omitempty"`
+	}
+	RegisterRequest struct {
+		FirstName   string `json:"first_name" validate:"required"`
+		LastName    string `json:"last_name" validate:"required"`
+		PhoneNumber string `json:"phone_number"`
+		Email       string `json:"email" validate:"required"`
+		Password    string `json:"password" validate:"required"`
+		Code        string `json:"code" validate:"required"`
+	}
+	RegisterResponse struct {
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+	}
+	LoginRequest struct {
+		Email    string `json:"email" validate:"required"`
+		Password string `json:"password" validate:"required"`
+	}
+	LoginResponse struct {
+		Token     *TokenResponse `json:"token"`
+		FirstName string         `json:"first_name"`
+		LastName  string         `json:"last_name"`
+		Email     string         `json:"email"`
+	}
+	SendCodeRequest struct {
+		IsEmail  bool   `json:"is_email" form:"is_email"`
+		Receiver string `json:"receiver" form:"receiver" binding:"required"`
+	}
+	// Claims represent the structure of the JWT token
+	Claims struct {
+		Email string `json:"email"`
+		ID    string `json:"id"`
+		jwt.StandardClaims
+	}
+	TokenResponse struct {
+		AccessToken string `json:"access_token"`
+		ExpiresAt   int64  `json:"expires_at"`
+		Issuer      string `json:"issuer"`
+	}
+	SubscriptionRequest struct {
+		Product     string         `json:"product" validate:"required"`
+		Price       float64        `json:"price" validate:"required"`
+		Currency    CurrencySymbol `json:"currency" validate:"required"`
+		Icon        string         `json:"icon"`
+		Frequency   Frequency      `json:"frequency" validate:"required"`
+		NextPayment string         `json:"next_payment" validate:"required"`
+	}
+	CreateBudgetRequest struct {
+		TotalAmount int          `json:"total_amount" validate:"required"`
+		Categories  []Categories `json:"categories"  validate:"required"`
+		Month       string       `json:"month" validate:"required"`
+		Year        int          `json:"year" validate:"required"`
+	}
+	Categories struct {
+		Name   TransactionCategory `json:"name"`
+		Amount int                 `json:"amount"`
+	}
+	UpdateBudgetRequest struct {
+		Categories []Categories `json:"categories"  validate:"required"`
+		Month      string       `json:"month" validate:"required"`
+		Year       int          `json:"year" validate:"required"`
+	}
+	CryptoWalletRequest struct {
+		Address string `json:"address"`
+		Symbol  string `json:"symbol"`
+	}
+	CreateDebtRequest struct {
+		Amount           int64     `json:"amount" validate:"required"`
+		Reason           string    `json:"reason" validate:"required"`
+		CounterpartyName string    `json:"counterparty_name" validate:"required"`
+		Due              time.Time `json:"due" validate:"required"`
+	}
+	UpdateDebtRequest struct {
+		Amount           *int64     `json:"amount"`
+		Due              *time.Time `json:"due"`
+		CounterpartyName *string    `json:"counterparty_name"`
+		Reason           *string    `json:"reason"`
+	}
+	AddStockRequest struct {
+		Symbol string
+	}
+	UpdateTransactionRequest struct {
+		IsRecurring bool                `json:"is_recurring"`
+		Category    TransactionCategory `json:"category"`
+	}
+	CreateTransactionRequest struct {
+		Amount        float64             `json:"amount"`
+		Narration     string              `json:"narration"`
+		Merchant      string              `json:"merchant"`
+		Type          TransactionType     `json:"type"`
+		Currency      CurrencySymbol      `json:"currency"`
+		TransactionId string              `json:"transaction_id"`
+		IsRecurring   bool                `json:"is_recurring"`
+		Category      TransactionCategory `json:"category"`
+		Date          time.Time           `json:"date"`
+	}
+	CreateCustomCategory struct {
+		Name  string `json:"name"`
+		Emoji string `json:"emoji"`
+	}
+	CreatePriceAlert struct {
+		Asset    string  `json:"asset"`
+		Target   float64 `json:"target"`
+		IsCrypto bool    `json:"is_crypto"`
+	}
+	AddNewsInterest struct {
+		Category string `json:"category"`
+	}
+	Pagination struct {
+		Page int
+		Size int
+	}
+	TxnFlowResponse struct {
+		Total     float64 `json:"total"`
+		DateRange string  `json:"date_range"`
+	}
+	DateRange struct {
+		From time.Time
+		To   time.Time
+	}
+)
 
 type (
 	CryptoSymbol        string
@@ -143,6 +141,7 @@ type (
 	TransactionCategory string
 	DebtType            string
 	DebtStatus          string
+	NewsInterest        string
 )
 
 const (
@@ -179,6 +178,15 @@ const (
 
 	DebtTypeDebtor   DebtType = "debtor"
 	DebtTypeCreditor DebtType = "creditor"
+
+	Banking        NewsInterest = "banking"
+	Investing      NewsInterest = "investing"
+	Saving         NewsInterest = "saving"
+	CryptoCurrency NewsInterest = "cryptocurrency"
+	Stocks         NewsInterest = "stocks"
+	Insurance      NewsInterest = "insurance"
+	Business       NewsInterest = "business"
+	Fintech        NewsInterest = "fintech"
 
 	Groceries          TransactionCategory = "Groceries"
 	Shopping           TransactionCategory = "Shopping"

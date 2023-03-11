@@ -8,7 +8,7 @@ import (
 
 func GetAccountId(request *types.MonoAccountIdRequest) (*types.MonoAccountIdResponse, error) {
 	var resp *types.MonoAccountIdResponse
-	v, err := Post("/v1/accounts/auth", request, resp)
+	v, err := Post("/v1/account/auth", request, resp)
 	if err != nil {
 		return nil, err
 	}

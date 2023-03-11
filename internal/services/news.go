@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/external/news"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
@@ -10,17 +11,52 @@ import (
 type INewsService interface {
 	SetNews() error
 	DeleteNews() error
+	GetUserNews(userId string) (*[]models.News, error)
 }
 
 type newsService struct {
-	newsRepo repositories.INewsRepository
+	newsRepo     repositories.INewsRepository
+	settingsRepo repositories.ISettingsRepository
 }
 
 // NewNewsService will instantiate NewsService
 func NewNewsService() INewsService {
 	return &newsService{
-		newsRepo: repositories.NewNewsRepo(),
+		newsRepo:     repositories.NewNewsRepo(),
+		settingsRepo: repositories.NewSettingsRepo(),
 	}
+}
+
+func (ns newsService) GetUserNews(userId string) (*[]models.News, error) {
+	userInterests, err := ns.settingsRepo.FindAllNewsInterests(userId)
+	if err != nil {
+		return nil, err
+	}
+	newsFromDB, err := ns.newsRepo.FindAllNews()
+	if err != nil {
+		return nil, err
+	}
+	interestsMap := make(map[types.NewsInterest]bool)
+	for _, c := range *userInterests {
+		interestsMap[c.Interest] = true
+	}
+
+	var filteredNews []models.News
+	newsMap := make(map[string][]models.News)
+
+	for _, n := range *newsFromDB {
+		if interestsMap[types.NewsInterest(n.Category)] {
+			newsMap[n.Category] = append(newsMap[n.Category], n)
+		}
+	}
+
+	for _, c := range *userInterests {
+		if allNews, ok := newsMap[string(c.Interest)]; ok {
+			filteredNews = append(filteredNews, allNews...)
+		}
+	}
+
+	return &filteredNews, nil
 }
 
 func (ns newsService) SetNews() error {

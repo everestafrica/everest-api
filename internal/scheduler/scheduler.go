@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"context"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
@@ -11,8 +10,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/go-co-op/gocron"
 	"gorm.io/gorm"
-	"sync"
-
 	"time"
 )
 
@@ -202,34 +199,7 @@ func RegisterSchedulers() {
 		}
 	})
 
-	// Define the maximum number of workers to run concurrently
-	maxWorkers := 10
-
-	// Create a channel to send and receive work requests
-	workQueue := make(chan func(context.Context), maxWorkers)
-
-	// Create a wait group to wait for all workers to finish
-	var wg sync.WaitGroup
-
-	// Create a context to cancel the workers if necessary
-	ctx, cancel := context.WithCancel(context.Background())
-
-	// Start the workers
-	for i := 0; i < maxWorkers; i++ {
-		wg.Add(1)
-		go worker(ctx, &wg, workQueue)
-	}
-
 	sch.StartAsync()
-
-	// Wait for the scheduler to stop
-	defer sch.Stop()
-
-	// Wait for all workers to finish
-	wg.Wait()
-
-	// Cancel the context to stop any running workers
-	cancel()
 }
 
 func GetTwoDaysLater() time.Time {
@@ -237,27 +207,4 @@ func GetTwoDaysLater() time.Time {
 }
 func GetTomorrow() time.Time {
 	return time.Now().AddDate(0, 0, 1)
-}
-
-// worker is a function that processes work requests from a channel
-func worker(ctx context.Context, wg *sync.WaitGroup, workQueue chan func(context.Context)) {
-	defer wg.Done()
-
-	for {
-		select {
-		case <-ctx.Done():
-			// The context has been cancelled, so exit the worker
-			return
-		case jobFunction, ok := <-workQueue:
-			if !ok {
-				// The work queue has been closed, so exit the worker
-				return
-			}
-
-			// Perform the work for the cron job
-			fmt.Printf("Starting cron job\n")
-			jobFunction(ctx)
-			fmt.Printf("Finished cron job\n")
-		}
-	}
 }

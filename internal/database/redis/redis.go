@@ -30,8 +30,6 @@ func NewClient(connectionURL, namespace string, params ...Param) *Client {
 	env := config.GetConf().Env
 	var c *redis.Client
 
-	fmt.Println(env)
-
 	if env == "development" {
 		c = redis.NewClient(&redis.Options{
 			Addr:        connectionURL,

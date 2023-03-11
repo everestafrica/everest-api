@@ -31,7 +31,7 @@ func Post(url string, body, response interface{}) (interface{}, error) {
 		return nil, err
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
+		err = Body.Close()
 		if err != nil {
 			return
 		}
@@ -62,7 +62,7 @@ func Get(url string, query string, response interface{}) (interface{}, error) {
 		return nil, err
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
+		err = Body.Close()
 		if err != nil {
 			return
 		}
@@ -72,7 +72,6 @@ func Get(url string, query string, response interface{}) (interface{}, error) {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-	// s, _ := json.MarshalIndent(response, "", "\t")
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
