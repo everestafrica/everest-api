@@ -31,7 +31,7 @@ type (
 		Token     *TokenResponse `json:"token"`
 		FirstName string         `json:"first_name"`
 		LastName  string         `json:"last_name"`
-		Email     string         `json:"email"`
+		Email     string         `json:"-"`
 	}
 	SendCodeRequest struct {
 		IsEmail  bool   `json:"is_email" form:"is_email"`

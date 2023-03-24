@@ -8,6 +8,7 @@ import (
 	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/external/channels"
+	"github.com/everestafrica/everest-api/internal/external/channels/mail"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
 	"github.com/golang-jwt/jwt"
@@ -212,8 +213,8 @@ func (as *authService) SendEmailOTP(request *types.SendCodeRequest) error {
 	message := fmt.Sprintf("Your Everest Verification OTP is %s", *code)
 
 	go func() {
-		err = channels.SendMail(&channels.Email{
-			Type:      channels.Auth,
+		err = mail.SendMail(&mail.Email{
+			Type:      mail.Auth,
 			Subject:   "OTP",
 			Body:      message,
 			Recipient: request.Receiver,
@@ -244,8 +245,8 @@ func (as *authService) SendSmsOTP(request *types.SendCodeRequest) error {
 		//}
 
 	} else {
-		go channels.SendMail(&channels.Email{
-			Type:      channels.Auth,
+		go mail.SendMail(&mail.Email{
+			Type:      mail.Auth,
 			Subject:   "OTP",
 			Body:      message,
 			Recipient: request.Receiver,

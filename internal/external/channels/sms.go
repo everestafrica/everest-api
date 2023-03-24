@@ -55,7 +55,7 @@ func ConfirmOtp(code string, reference string) error {
 
 	_, err := client.NewVerification().ConfirmOTP(code, reference)
 	if err != nil {
-		log.Error("otp err: ", err)
+		log.Error("otp err ", err)
 		return err
 	}
 	return nil
@@ -68,7 +68,7 @@ func SendSMS(sms *SMS) error {
 	_, err := client.NewSms().Send("Everest", sms.To, sms.Message, sendchamp.RouteInternational)
 
 	if err != nil {
-		log.Error("sms", err)
+		log.Error("sms ", err)
 		return err
 	}
 
