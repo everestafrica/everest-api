@@ -80,3 +80,17 @@ type MonoWebhookAccountSync struct {
 	Account string `json:"account"`
 	Updated bool   `json:"updated"`
 }
+
+type MonoAccountType string
+type MonoInstitutionType string
+
+const (
+	SAVINGS_ACCOUNT            MonoAccountType = "SAVINGS ACCOUNT"
+	SAVINGS_INVESTMENT_ACCOUNT MonoAccountType = "SAVINGS_INVESTMENT_ACCOUNT"
+	Tier_One_Savings_Account   MonoAccountType = "Tier 1 Savings Account"
+)
+
+const (
+	PERSONAL_BANKING MonoInstitutionType = "PERSONAL_BANKING"
+	BUSINESS_BANKING MonoInstitutionType = "BUSINESS_BANKING"
+)

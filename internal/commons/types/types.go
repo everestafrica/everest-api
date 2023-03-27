@@ -34,8 +34,8 @@ type (
 		Email     string         `json:"-"`
 	}
 	SendCodeRequest struct {
-		IsEmail  bool   `json:"is_email" form:"is_email"`
-		Receiver string `json:"receiver" form:"receiver" binding:"required"`
+		IsEmail  bool   `json:"is_email"`
+		Receiver string `json:"receiver" validate:"required"`
 	}
 	// Claims represent the structure of the JWT token
 	Claims struct {
@@ -216,3 +216,5 @@ const (
 )
 
 // Track debtors, snap receipt, family tracker
+
+//["Groceries",  "Shopping",  "Utilities and Bills",  "Housing",  "Entertainment",  "Travel",  "Delivery",  "Transportation",  "Income",  "Investment",  "Phone & Internet",  "Food",  "Healthcare",  "Loan Repayment",  "Loan Out",  "Transfer",  "Online Transaction",  "Offline Transaction",  "Bank Charges",  "ATM Withdrawal",  "Miscellaneous",  "Gifts & Donations",  "Education"]

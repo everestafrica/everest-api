@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/everestafrica/everest-api/internal/config"
 	"io"
 
@@ -23,7 +22,7 @@ func Post(url string, body, response interface{}) (interface{}, error) {
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, baseEndpoint+url, bytes.NewReader(requestJSON))
-	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", config.GetConf().MonoSecretKey))
+	r.Header.Add("mono-sec-key", config.GetConf().MonoTestSecretKey)
 	r.Header.Add("Content-Type", "application/json")
 
 	resp, err := client.Do(r)
@@ -53,7 +52,7 @@ func Post(url string, body, response interface{}) (interface{}, error) {
 
 func Get(url string, query string, response interface{}) (interface{}, error) {
 	r, _ := http.NewRequest(http.MethodGet, baseEndpoint+url+query, nil)
-	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", config.GetConf().MonoSecretKey))
+	r.Header.Add("mono-sec-key", config.GetConf().MonoTestSecretKey)
 	r.Header.Add("Content-Type", "application/json")
 
 	resp, err := client.Do(r)
