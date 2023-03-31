@@ -88,7 +88,7 @@ const (
 	SavingsAccount    InstitutionType = "SAVINGS_ACCOUNT"
 	InvestmentAccount InstitutionType = "INVESTMENT_ACCOUNT"
 	WalletAccount     InstitutionType = "WALLET_ACCOUNT"
-	DepositAccount    InstitutionType = "DEPOSIT_ACCOUNT"
+	CashAccount       InstitutionType = "CASH_ACCOUNT"
 )
 
 const (

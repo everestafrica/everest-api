@@ -164,7 +164,7 @@ func (ad accountDetailsService) GetInstitutionType(institutionName string) types
 	case contains(investments, institutionName):
 		return types.InvestmentAccount
 	default:
-		return types.DepositAccount
+		return types.CashAccount
 	}
 }
 
