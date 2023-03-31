@@ -42,7 +42,7 @@ func NewAccountTransactionService() IAccountTransactionService {
 func (ad accountTransactionService) CreateManualTransaction(userId string, transaction *types.CreateTransactionRequest) error {
 	txn := models.AccountTransaction{
 		UserId:        userId,
-		AccountId:     nil,
+		AccountId:     &userId, // or nil -- I'm not really sure
 		TransactionId: transaction.TransactionId,
 		Institution:   "Everest",
 		Currency:      transaction.Currency,

@@ -19,7 +19,6 @@ type News struct {
 	Date        string `json:"date"`
 	Description string `json:"excerpt"`
 }
-
 type Response struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -67,6 +66,41 @@ func ScrapeNews() ([]*News, error) {
 		log.Println("Visiting", r.URL.String())
 	})
 	err := c.Visit("https://nairametrics.com/category/financial-literacy-for-nigerians/personal-finance/")
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func ScrapeCryptoNews() ([]*News, error) {
+	c := colly.NewCollector()
+	var news *News
+	var response []*News
+
+	c.OnHTML(".main", func(e *colly.HTMLElement) {
+		e.ForEach(".card", func(i int, e *colly.HTMLElement) {
+			link := e.ChildAttr("a", "href")
+			img := e.ChildAttr("a > figure > img", "src")
+			title := e.ChildText(".h-full > h3 > a ")
+			date := e.ChildText(".text-gray > .date")
+			news = &News{
+				Img:         img,
+				Title:       title,
+				Author:      "",
+				Link:        link,
+				Date:        date,
+				Description: "",
+			}
+			response = append(response, news)
+		})
+
+	})
+
+	// Before making a request
+	c.OnRequest(func(r *colly.Request) {
+		log.Println("Visiting", r.URL.String())
+	})
+	err := c.Visit("https://beincrypto.com/markets/")
 	if err != nil {
 		return nil, err
 	}

@@ -60,13 +60,15 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 	}
 
 	if details.Meta.DataStatus == "AVAILABLE" {
+		institutionType := ad.GetInstitutionType(details.Account.Institution.Type)
 		account := models.AccountDetail{
-			UserId:        userId,
-			AccountId:     monoId.Id,
-			Institution:   details.Account.Institution.Name,
-			AccountNumber: details.Account.AccountNumber,
-			Balance:       details.Account.Balance,
-			Currency:      details.Account.Currency,
+			UserId:          userId,
+			AccountId:       monoId.Id,
+			Institution:     details.Account.Institution.Name,
+			InstitutionType: institutionType,
+			AccountNumber:   details.Account.AccountNumber,
+			Balance:         details.Account.Balance,
+			Currency:        details.Account.Currency,
 		}
 		err = ad.accountDetailsRepo.Create(&account)
 		if err != nil {
@@ -147,4 +149,30 @@ func (ad accountDetailsService) UnlinkAccount(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (ad accountDetailsService) GetInstitutionType(institutionName string) types.MonoInstitutionType {
+	savings := []string{"Piggyvest", "Cowrywise"}
+	wallets := []string{"Barter", "Wallets Africa"}
+	investments := []string{"Risevest", "Trove", "Chaka"}
+
+	switch {
+	case contains(savings, institutionName):
+		return types.SavingsAccount
+	case contains(wallets, institutionName):
+		return types.WalletAccount
+	case contains(investments, institutionName):
+		return types.InvestmentAccount
+	default:
+		return types.DepositAccount
+	}
+}
+
+func contains(slice []string, str string) bool {
+	for _, s := range slice {
+		if s == str {
+			return true
+		}
+	}
+	return false
 }
