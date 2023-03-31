@@ -151,7 +151,7 @@ func (ad accountDetailsService) UnlinkAccount(id string) error {
 	return nil
 }
 
-func (ad accountDetailsService) GetInstitutionType(institutionName string) types.MonoInstitutionType {
+func (ad accountDetailsService) GetInstitutionType(institutionName string) types.InstitutionType {
 	savings := []string{"Piggyvest", "Cowrywise"}
 	wallets := []string{"Barter", "Wallets Africa"}
 	investments := []string{"Risevest", "Trove", "Chaka"}

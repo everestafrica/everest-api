@@ -72,41 +72,6 @@ func ScrapeNews() ([]*News, error) {
 	return response, nil
 }
 
-func ScrapeCryptoNews() ([]*News, error) {
-	c := colly.NewCollector()
-	var news *News
-	var response []*News
-
-	c.OnHTML(".main", func(e *colly.HTMLElement) {
-		e.ForEach(".card", func(i int, e *colly.HTMLElement) {
-			link := e.ChildAttr("a", "href")
-			img := e.ChildAttr("a > figure > img", "src")
-			title := e.ChildText(".h-full > h3 > a ")
-			date := e.ChildText(".text-gray > .date")
-			news = &News{
-				Img:         img,
-				Title:       title,
-				Author:      "",
-				Link:        link,
-				Date:        date,
-				Description: "",
-			}
-			response = append(response, news)
-		})
-
-	})
-
-	// Before making a request
-	c.OnRequest(func(r *colly.Request) {
-		log.Println("Visiting", r.URL.String())
-	})
-	err := c.Visit("https://beincrypto.com/markets/")
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
 func FetchNews() (*Response, error) {
 	resp, err := http.Get(config.GetConf().NewsApiUrl)
 	if err != nil {
