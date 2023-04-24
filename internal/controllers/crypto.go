@@ -11,6 +11,9 @@ import (
 type ICryptoController interface {
 	RegisterRoutes(app *fiber.App)
 	LinkWallet(ctx *fiber.Ctx) error
+	UnLinkWallet(ctx *fiber.Ctx) error
+	GetAllWallets(ctx *fiber.Ctx) error
+	GetWallet(ctx *fiber.Ctx) error
 }
 
 type cryptoController struct {
@@ -28,6 +31,7 @@ func (ctl *cryptoController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
 	crypto := v1.Group("/crypto")
 	crypto.Get("/wallets", handlers.SecureAuth(), ctl.GetAllWallets)
+	crypto.Get("/wallets/:id", handlers.SecureAuth(), ctl.GetWallet)
 	crypto.Post("/wallets", handlers.SecureAuth(), ctl.LinkWallet)
 	crypto.Delete("/wallets", handlers.SecureAuth(), ctl.UnLinkWallet)
 }
@@ -118,5 +122,31 @@ func (ctl *cryptoController) GetAllWallets(ctx *fiber.Ctx) error {
 		Success: true,
 		Message: "successfully fetched user wallets",
 		Data:    wallets,
+	})
+}
+
+func (ctl *cryptoController) GetWallet(ctx *fiber.Ctx) error {
+	_, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	id, err := ctx.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+
+	wallet, err := ctl.cryptoDetailsService.GetWallet(id)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "successfully fetched wallet",
+		Data:    wallet,
 	})
 }

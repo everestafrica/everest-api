@@ -12,6 +12,7 @@ type ICryptoDetailsRepository interface {
 	Update(crypto *models.CryptoDetail) error
 	Delete(userId string, symbol types.CryptoSymbol, address string) error
 	FindByUserId(userId string) (*[]models.CryptoDetail, error)
+	FindById(id int) (*models.CryptoDetail, error)
 	FindByAddressAndSymbol(address string, symbol types.CryptoSymbol) (*models.CryptoDetail, error)
 }
 
@@ -51,6 +52,14 @@ func (r *cryptoDetailsRepo) FindByUserId(userId string) (*[]models.CryptoDetail,
 func (r *cryptoDetailsRepo) FindByAddressAndSymbol(address string, symbol types.CryptoSymbol) (*models.CryptoDetail, error) {
 	var crypto models.CryptoDetail
 	if err := r.db.Where("wallet_address = ? AND symbol = ?", address, symbol).First(&crypto).Error; err != nil {
+		return nil, err
+	}
+
+	return &crypto, nil
+}
+func (r *cryptoDetailsRepo) FindById(id int) (*models.CryptoDetail, error) {
+	var crypto models.CryptoDetail
+	if err := r.db.Where("id = ?", id).First(&crypto).Error; err != nil {
 		return nil, err
 	}
 
