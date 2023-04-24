@@ -21,7 +21,7 @@ import (
 type IAuthService interface {
 	Register(body types.RegisterRequest) (*types.RegisterResponse, error)
 	SendSmsOTP(request *types.SendCodeRequest) error
-	SendEmailOTP(request *types.SendCodeRequest) error
+	SendEmailOTP(request *types.SendCodeRequest) (*string, error)
 	Login(body types.LoginRequest) (*types.LoginResponse, error)
 	// ResetPassword(body types.ChangePassword)
 	IssueToken(u *models.User) (*types.TokenResponse, error)
@@ -202,29 +202,29 @@ func (as *authService) RefreshToken(token string) (*types.TokenResponse, error) 
 	}, nil
 }
 
-func (as *authService) SendEmailOTP(request *types.SendCodeRequest) error {
+func (as *authService) SendEmailOTP(request *types.SendCodeRequest) (*string, error) {
 
 	code, err := as.otpService.Generate(request.Receiver)
 
 	if err != nil {
-		return errors.New("oops an error occurred please try again")
+		return nil, errors.New("oops an error occurred please try again")
 	}
 
 	message := fmt.Sprintf("Your Everest Verification OTP is %s", *code)
 
-	go func() {
-		err = mail.SendMail(&mail.Email{
-			Type:      mail.Auth,
-			Subject:   "OTP",
-			Body:      message,
-			Recipient: request.Receiver,
-		})
-		if err != nil {
-			log.Error("email sending error", err)
-		}
-	}()
+	//go func() {
+	err = mail.SendMail(&mail.Email{
+		Type:      mail.Auth,
+		Subject:   "OTP",
+		Body:      message,
+		Recipient: request.Receiver,
+	})
+	if err != nil {
+		log.Error("email sending error", err)
+	}
+	//}()
 
-	return nil
+	return code, nil
 
 }
 

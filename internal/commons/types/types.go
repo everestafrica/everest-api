@@ -218,3 +218,4 @@ const (
 // Track debtors, snap receipt, family tracker
 
 //["Groceries",  "Shopping",  "Utilities and Bills",  "Housing",  "Entertainment",  "Travel",  "Delivery",  "Transportation",  "Income",  "Investment",  "Phone & Internet",  "Food",  "Healthcare",  "Loan Repayment",  "Loan Out",  "Transfer",  "Online Transaction",  "Offline Transaction",  "Bank Charges",  "ATM Withdrawal",  "Miscellaneous",  "Gifts & Donations",  "Education"]
+// trending  - places, items

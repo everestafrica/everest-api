@@ -121,6 +121,9 @@ func RegisterSchedulers() {
 				if sub.NextPayment.Day() == GetTomorrow().Day() {
 					fmt.Println("the sub: "+
 						"", sub.NextPayment, user.Email)
+					if err = s.db.Delete(&sub).Error; err != nil {
+						log.Error("delete sub err: ", err)
+					}
 					//go channels.SendMail(&channels.Email{
 					//	Type:      channels.Subscription,
 					//	Recipient: user.Email,
