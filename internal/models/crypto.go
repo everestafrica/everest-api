@@ -7,7 +7,7 @@ import (
 
 type CryptoDetail struct {
 	Base
-	UserId        string             `json:"user_id"`
+	UserId        string             `json:"-"`
 	WalletAddress string             `json:"wallet_address"`
 	Balance       float64            `json:"balance"`
 	Name          types.CryptoName   `json:"name"`
@@ -16,7 +16,7 @@ type CryptoDetail struct {
 
 type CryptoTransaction struct {
 	Base
-	UserId        string                    `json:"user_id"`
+	UserId        string                    `json:"-"`
 	WalletAddress string                    `json:"wallet_address"`
 	Hash          string                    `json:"hash"`
 	Name          types.CryptoName          `json:"name"`
