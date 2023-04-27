@@ -2,11 +2,13 @@ package models
 
 import "github.com/everestafrica/everest-api/internal/commons/types"
 
-type CustomCategory struct {
+type Category struct {
 	Base
-	UserId string `json:"-"`
-	Name   string `json:"name"`
-	Emoji  string `json:"emoji"`
+	UserId  string `json:"-"`
+	Name    string `json:"name"`
+	Icon    string `json:"icon"`
+	Unicode string `json:"unicode"`
+	Custom  bool   `json:"custom"`
 }
 
 type PriceAlert struct {

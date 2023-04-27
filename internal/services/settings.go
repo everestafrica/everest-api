@@ -8,7 +8,7 @@ import (
 
 type ISettingsService interface {
 	CreateCustomCategory(category *types.CreateCustomCategory, userId string) error
-	DeleteCustomCategory(categoryId string) error
+	DeleteCustomCategory(userId string, categoryId string) error
 
 	CreatePriceAlert(alert *types.CreatePriceAlert, userId string) error
 	DeletePriceAlert(alertId string) error
@@ -30,10 +30,10 @@ func NewSettingsService() ISettingsService {
 }
 
 func (s settingsService) CreateCustomCategory(category *types.CreateCustomCategory, userId string) error {
-	c := models.CustomCategory{
+	c := models.Category{
 		UserId: userId,
 		Name:   category.Name,
-		Emoji:  category.Emoji,
+		Icon:   category.Icon,
 	}
 	err := s.settingsRepo.CreateCustomCategory(&c)
 	if err != nil {
@@ -42,8 +42,8 @@ func (s settingsService) CreateCustomCategory(category *types.CreateCustomCatego
 	return nil
 }
 
-func (s settingsService) DeleteCustomCategory(categoryId string) error {
-	err := s.settingsRepo.DeleteCustomCategory(categoryId)
+func (s settingsService) DeleteCustomCategory(userId string, categoryId string) error {
+	err := s.settingsRepo.DeleteCustomCategory(userId, categoryId)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (s settingsService) CreatePriceAlert(alert *types.CreatePriceAlert, userId 
 }
 
 func (s settingsService) DeletePriceAlert(alertId string) error {
-	err := s.settingsRepo.DeleteCustomCategory(alertId)
+	err := s.settingsRepo.DeletePriceAlert(alertId)
 	if err != nil {
 		return err
 	}

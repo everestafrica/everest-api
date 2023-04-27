@@ -7,9 +7,9 @@ import (
 )
 
 type ISettingsRepository interface {
-	CreateCustomCategory(category *models.CustomCategory) error
-	DeleteCustomCategory(id string) error
-	FindAllCustomCategories(userId string) (*[]models.CustomCategory, error)
+	CreateCustomCategory(category *models.Category) error
+	DeleteCustomCategory(userId string, categoryId string) error
+	FindAllCustomCategories(userId string) (*[]models.Category, error)
 	CreatePriceAlert(alert *models.PriceAlert) error
 	DeletePriceAlert(id string) error
 	FindAllPriceAlerts(userId string) (*[]models.PriceAlert, error)
@@ -29,21 +29,21 @@ func NewSettingsRepo() ISettingsRepository {
 	}
 }
 
-func (r *settingsRepo) CreateCustomCategory(category *models.CustomCategory) error {
+func (r *settingsRepo) CreateCustomCategory(category *models.Category) error {
 	return r.db.Create(&category).Error
 }
 
-func (r *settingsRepo) FindAllCustomCategories(userId string) (*[]models.CustomCategory, error) {
-	var categories []models.CustomCategory
+func (r *settingsRepo) FindAllCustomCategories(userId string) (*[]models.Category, error) {
+	var categories []models.Category
 	if err := r.db.Where("user_id = ? ", userId).Find(&categories).Error; err != nil {
 		return nil, err
 	}
 	return &categories, nil
 }
 
-func (r *settingsRepo) DeleteCustomCategory(id string) error {
-	var category models.CustomCategory
-	if err := r.db.Where("id = ? ", id).Delete(&category).Error; err != nil {
+func (r *settingsRepo) DeleteCustomCategory(userId string, categoryId string) error {
+	var category models.Category
+	if err := r.db.Where("user_id = ? AND id = ? ", userId, categoryId).Delete(&category).Error; err != nil {
 		return err
 	}
 	return nil

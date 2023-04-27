@@ -26,6 +26,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("migration error: %v", err)
 	}
+	
+	go database.Seed(dbConnection)
 
 	defer func() {
 		sqlDB, _ := dbConnection.DB()

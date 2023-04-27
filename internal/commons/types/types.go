@@ -106,8 +106,8 @@ type (
 		Date          time.Time           `json:"date"`
 	}
 	CreateCustomCategory struct {
-		Name  string `json:"name"`
-		Emoji string `json:"emoji"`
+		Name string `json:"name"`
+		Icon string `json:"icon"`
 	}
 	CreatePriceAlert struct {
 		Asset    string  `json:"asset"`

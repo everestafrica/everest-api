@@ -79,13 +79,13 @@ func (ctl *settingsController) CreateCustomCategory(ctx *fiber.Ctx) error {
 }
 
 func (ctl *settingsController) DeleteCustomCategory(ctx *fiber.Ctx) error {
-	_, err := handlers.UserFromContext(ctx)
+	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	categoryId := ctx.Params("id")
-	err = ctl.settingsService.DeleteCustomCategory(categoryId)
+	err = ctl.settingsService.DeleteCustomCategory(userId, categoryId)
 	if err != nil {
 		return ctx.JSON(types.GenericResponse{
 			Success: false,
