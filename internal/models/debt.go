@@ -7,7 +7,8 @@ import (
 
 type Debt struct {
 	Base
-	UserId           string           `json:"user_id" gorm:"index;not null"`
+	UserId           string           `json:"user_id" gorm:"not null"`
+	DebtId           string           `json:"debt_id" gorm:"not null"`
 	Amount           int64            `json:"amount" gorm:"not null"`
 	CounterpartyName string           `json:"counterparty_name" gorm:"not null"`
 	DebtType         types.DebtType   `json:"type" gorm:"not null"`

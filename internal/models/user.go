@@ -8,11 +8,11 @@ import (
 
 type User struct {
 	Base
-	UserId      string  `json:"user_id" gorm:"unique;not null;type:varchar(100)"`
-	FirstName   string  `json:"first_name"`
-	LastName    string  `json:"last_name"`
-	Email       string  `json:"email" gorm:"unique"`
-	Username    string  `json:"username" gorm:"unique"`
+	UserId    string `json:"user_id" gorm:"unique;not null;type:varchar(100)"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email" gorm:"unique"`
+	//Username    string  `json:"username" gorm:"unique"`
 	PhoneNumber string  `json:"phone_number"`
 	DOB         *string `json:"dob"`
 	Country     *string `json:"country"`

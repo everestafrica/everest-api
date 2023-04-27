@@ -13,7 +13,7 @@ type IDebtRepository interface {
 	Delete(userId, debtId string) error
 	FindAllByUserId(userId string) (*[]models.Debt, error)
 	FindAllByType(userId string, debtType types.DebtType) (*[]models.Debt, error)
-	FindByUserIdAndDebtId(userId string, DebtId int) (*models.Debt, error)
+	FindByUserIdAndDebtId(userId string, debtId string) (*models.Debt, error)
 }
 
 type debtRepo struct {
@@ -36,7 +36,7 @@ func (r *debtRepo) Update(debt *models.Debt) error {
 }
 func (r *debtRepo) Delete(userId, debtId string) error {
 	var debt models.Debt
-	if err := r.db.Where("user_id = ? AND id = ?", userId, debtId).Delete(&debt).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND debt_id = ?", userId, debtId).Delete(&debt).Error; err != nil {
 		return err
 	}
 	return nil
@@ -59,9 +59,9 @@ func (r *debtRepo) FindAllByType(userId string, debtType types.DebtType) (*[]mod
 	return &debt, nil
 }
 
-func (r *debtRepo) FindByUserIdAndDebtId(userId string, debtId int) (*models.Debt, error) {
+func (r *debtRepo) FindByUserIdAndDebtId(userId string, debtId string) (*models.Debt, error) {
 	var debt models.Debt
-	if err := r.db.Where("user_id = ? AND id = ?", userId, debtId).First(&debt).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND debt_id = ?", userId, debtId).First(&debt).Error; err != nil {
 		return nil, err
 	}
 

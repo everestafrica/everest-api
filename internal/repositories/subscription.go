@@ -9,9 +9,9 @@ import (
 type ISubscriptionRepository interface {
 	Create(sub *models.Subscription) error
 	Update(sub *models.Subscription) error
-	Delete(userId string, subscriptionId int) error
+	Delete(userId string, subscriptionId string) error
 	FindAllByUserId(userId string) (*[]models.Subscription, error)
-	FindByUserIdAndSubId(userId string, subscriptionId int) (*models.Subscription, error)
+	FindByUserIdAndSubId(userId string, subscriptionId string) (*models.Subscription, error)
 }
 
 type subscriptionRepo struct {
@@ -32,9 +32,9 @@ func (r *subscriptionRepo) Create(sub *models.Subscription) error {
 func (r *subscriptionRepo) Update(sub *models.Subscription) error {
 	return r.db.Save(sub).Error
 }
-func (r *subscriptionRepo) Delete(userId string, subscriptionId int) error {
+func (r *subscriptionRepo) Delete(userId string, subscriptionId string) error {
 	var sub models.Subscription
-	if err := r.db.Where("user_id = ? AND id =  ?", userId, subscriptionId).Delete(&sub).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND subscription_id = ?", userId, subscriptionId).Delete(&sub).Error; err != nil {
 		return err
 	}
 	return nil
@@ -48,9 +48,9 @@ func (r *subscriptionRepo) FindAllByUserId(userId string) (*[]models.Subscriptio
 	return &sub, nil
 }
 
-func (r *subscriptionRepo) FindByUserIdAndSubId(userId string, subscriptionId int) (*models.Subscription, error) {
+func (r *subscriptionRepo) FindByUserIdAndSubId(userId string, subscriptionId string) (*models.Subscription, error) {
 	var sub models.Subscription
-	if err := r.db.Where("user_id = ? AND id = ?", userId, subscriptionId).First(&sub).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND subscription_id = ?", userId, subscriptionId).First(&sub).Error; err != nil {
 		return nil, err
 	}
 

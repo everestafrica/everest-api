@@ -14,6 +14,8 @@ type ICryptoController interface {
 	UnLinkWallet(ctx *fiber.Ctx) error
 	GetAllWallets(ctx *fiber.Ctx) error
 	GetWallet(ctx *fiber.Ctx) error
+	GetTransaction(ctx *fiber.Ctx) error
+	GetAllTransactions(ctx *fiber.Ctx) error
 }
 
 type cryptoController struct {
@@ -34,6 +36,9 @@ func (ctl *cryptoController) RegisterRoutes(app *fiber.App) {
 	crypto.Get("/wallets/:id", handlers.SecureAuth(), ctl.GetWallet)
 	crypto.Post("/wallets", handlers.SecureAuth(), ctl.LinkWallet)
 	crypto.Delete("/wallets", handlers.SecureAuth(), ctl.UnLinkWallet)
+	crypto.Get("/wallets/transactions", handlers.SecureAuth(), ctl.GetAllTransactions)
+	crypto.Get("/wallets/transactions/:hash", handlers.SecureAuth(), ctl.GetTransaction)
+
 }
 
 func (ctl *cryptoController) LinkWallet(ctx *fiber.Ctx) error {
@@ -131,7 +136,7 @@ func (ctl *cryptoController) GetWallet(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	id, err := ctx.ParamsInt("id")
+	id := ctx.Params("id")
 	if err != nil {
 		return err
 	}
@@ -148,5 +153,56 @@ func (ctl *cryptoController) GetWallet(ctx *fiber.Ctx) error {
 		Success: true,
 		Message: "successfully fetched wallet",
 		Data:    wallet,
+	})
+}
+
+func (ctl *cryptoController) GetTransaction(ctx *fiber.Ctx) error {
+	_, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	hash := ctx.Params("hash")
+	if err != nil {
+		return err
+	}
+
+	transaction, err := ctl.cryptoDetailsService.GetTransaction(hash)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "successfully fetched transaction",
+		Data:    transaction,
+	})
+}
+
+func (ctl *cryptoController) GetAllTransactions(ctx *fiber.Ctx) error {
+	userId, err := handlers.UserFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err != nil {
+		return err
+	}
+
+	transactions, err := ctl.cryptoDetailsService.GetAllTransactions(userId)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.JSON(types.GenericResponse{
+		Success: true,
+		Message: "successfully fetched transactions",
+		Data:    transactions,
 	})
 }

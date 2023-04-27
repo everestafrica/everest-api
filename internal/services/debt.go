@@ -2,17 +2,18 @@ package services
 
 import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
 )
 
 type IDebtService interface {
 	AddDebt(request *types.CreateDebtRequest, userId string) error
-	UpdateDebt(request *types.UpdateDebtRequest, userId string, debtId int) error
+	UpdateDebt(request *types.UpdateDebtRequest, userId string, debtId string) error
 	GetAllDebts(userId string) (*[]models.Debt, error)
-	GetDebt(userId string, debtId int) (*models.Debt, error)
+	GetDebt(userId string, debtId string) (*models.Debt, error)
 	GetDebtsByType(userId string, debtType types.DebtType) (*[]models.Debt, error)
-	DeleteDebt(debtId, userId string) error
+	DeleteDebt(userId string, debtId string) error
 }
 
 type debtService struct {
@@ -32,6 +33,7 @@ func (ds debtService) AddDebt(request *types.CreateDebtRequest, userId string) e
 		Reason:           request.Reason,
 		CounterpartyName: request.CounterpartyName,
 		Amount:           request.Amount,
+		DebtId:           utils.GetUUID(),
 	}
 	err := ds.debtRepo.Create(&debt)
 	if err != nil {
@@ -40,7 +42,7 @@ func (ds debtService) AddDebt(request *types.CreateDebtRequest, userId string) e
 	return nil
 }
 
-func (ds debtService) UpdateDebt(request *types.UpdateDebtRequest, userId string, debtId int) error {
+func (ds debtService) UpdateDebt(request *types.UpdateDebtRequest, userId string, debtId string) error {
 	debt, err := ds.debtRepo.FindByUserIdAndDebtId(userId, debtId)
 	if err != nil {
 		return err
@@ -72,7 +74,7 @@ func (ds debtService) GetAllDebts(userId string) (*[]models.Debt, error) {
 	return debts, nil
 }
 
-func (ds debtService) GetDebt(userId string, debtId int) (*models.Debt, error) {
+func (ds debtService) GetDebt(userId string, debtId string) (*models.Debt, error) {
 	debt, err := ds.debtRepo.FindByUserIdAndDebtId(userId, debtId)
 	if err != nil {
 		return nil, err
@@ -88,7 +90,7 @@ func (ds debtService) GetDebtsByType(userId string, debtType types.DebtType) (*[
 	return debts, nil
 }
 
-func (ds debtService) DeleteDebt(debtId, userId string) error {
+func (ds debtService) DeleteDebt(userId string, debtId string) error {
 	err := ds.debtRepo.Delete(userId, debtId)
 	if err != nil {
 		return err

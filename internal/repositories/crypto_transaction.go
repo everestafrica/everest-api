@@ -12,7 +12,7 @@ type ICryptoTransactionRepository interface {
 	Update(transaction *models.CryptoTransaction) error
 	Delete(userId string, symbol types.CryptoSymbol, address string) error
 	FindByUserId(userId string) (*[]models.CryptoTransaction, error)
-	FindTransaction(transactionId string, userId string) (*models.CryptoTransaction, error)
+	FindTransaction(hash string) (*models.CryptoTransaction, error)
 	FindAllTransactions(userId string, p types.Pagination) (*[]models.CryptoTransaction, error)
 	FindAllByTypeAndSymbol(txnType types.TransactionType, symbol string, userId string, p types.Pagination) (*[]models.CryptoTransaction, error)
 	FindAllTxnFlow(txnType types.TransactionType, dateRange types.DateRange, userId string) (*[]models.CryptoTransaction, error)
@@ -51,9 +51,9 @@ func (r *cryptoTransactionRepo) FindByUserId(userId string) (*[]models.CryptoTra
 	return &transaction, nil
 }
 
-func (r *cryptoTransactionRepo) FindTransaction(transactionId string, userId string) (*models.CryptoTransaction, error) {
+func (r *cryptoTransactionRepo) FindTransaction(hash string) (*models.CryptoTransaction, error) {
 	var transaction models.CryptoTransaction
-	if err := r.db.Where("user_id = ? AND transaction_id", userId, transactionId).First(&transaction).Error; err != nil {
+	if err := r.db.Where("hash = ?", hash).First(&transaction).Error; err != nil {
 		return nil, err
 	}
 

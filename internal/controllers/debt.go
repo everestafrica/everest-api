@@ -6,7 +6,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type IDebtController interface {
@@ -38,7 +37,7 @@ func (ctl debtController) RegisterRoutes(app *fiber.App) {
 }
 
 func (ctl debtController) GetDebt(ctx *fiber.Ctx) error {
-	debtId, _ := strconv.Atoi(ctx.Params("id"))
+	debtId := ctx.Params("id")
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
@@ -120,7 +119,7 @@ func (ctl debtController) AddDebt(ctx *fiber.Ctx) error {
 
 func (ctl debtController) UpdateDebt(ctx *fiber.Ctx) error {
 	var body *types.UpdateDebtRequest
-	debtId, _ := strconv.Atoi(ctx.Params("id"))
+	debtId := ctx.Params("id")
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{

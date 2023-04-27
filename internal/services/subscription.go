@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
 	"time"
@@ -9,9 +10,9 @@ import (
 
 type ISubscriptionService interface {
 	AddSubscription(request *types.SubscriptionRequest, userId string) error
-	GetSubscription(subId int, userId string) (*models.Subscription, error)
+	GetSubscription(subId string, userId string) (*models.Subscription, error)
 	GetAllSubscriptions(userId string) (*[]models.Subscription, error)
-	DeleteSubscription(subId int, userId string) error
+	DeleteSubscription(subId string, userId string) error
 }
 
 type subscriptionService struct {
@@ -28,13 +29,14 @@ func NewSubscriptionService() ISubscriptionService {
 func (ss subscriptionService) AddSubscription(request *types.SubscriptionRequest, userId string) error {
 	nextPayment, _ := time.Parse("Jan 2, 2006 at 3:04pm (MST)", request.NextPayment)
 	sub := models.Subscription{
-		UserId:      userId,
-		Product:     request.Product,
-		Price:       request.Price,
-		Currency:    request.Currency,
-		Icon:        request.Icon,
-		Frequency:   request.Frequency,
-		NextPayment: nextPayment,
+		UserId:         userId,
+		Product:        request.Product,
+		Price:          request.Price,
+		Currency:       request.Currency,
+		Icon:           request.Icon,
+		Frequency:      request.Frequency,
+		NextPayment:    nextPayment,
+		SubscriptionId: utils.GetUUID(),
 	}
 	err := ss.subscriptionRepo.Create(&sub)
 	if err != nil {
@@ -51,7 +53,7 @@ func (ss subscriptionService) GetAllSubscriptions(userId string) (*[]models.Subs
 	return subs, nil
 }
 
-func (ss subscriptionService) GetSubscription(subId int, userId string) (*models.Subscription, error) {
+func (ss subscriptionService) GetSubscription(subId string, userId string) (*models.Subscription, error) {
 	sub, err := ss.subscriptionRepo.FindByUserIdAndSubId(userId, subId)
 	if err != nil {
 		return nil, err
@@ -59,7 +61,7 @@ func (ss subscriptionService) GetSubscription(subId int, userId string) (*models
 	return sub, nil
 }
 
-func (ss subscriptionService) DeleteSubscription(subId int, userId string) error {
+func (ss subscriptionService) DeleteSubscription(subId string, userId string) error {
 	err := ss.subscriptionRepo.Delete(userId, subId)
 	if err != nil {
 		return err

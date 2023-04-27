@@ -26,40 +26,45 @@ func NewAssetService() IAssetService {
 	}
 }
 func (s assetService) AddAsset(symbol string, isCrypto bool, userId string) error {
-	var newAsset *models.Asset
+
 	if !isCrypto {
 		value, err := asset.GetAssetPrice(symbol, false)
 		if err != nil {
 			return err
 		}
 		name, err := asset.GetCompanyName(symbol)
-		newAsset = &models.Asset{
+		newAsset := &models.Asset{
 			UserId: userId,
 			Symbol: symbol,
 			Name:   *name,
 			Image:  "",
 			Value:  *value,
 		}
+		err = s.assetRepo.Create(newAsset)
+		if err != nil {
+			return err
+		}
+		return nil
 	} else {
 		value, err := asset.GetAssetPrice(symbol, true)
 		if err != nil {
 			return err
 		}
 		name := asset.GetCoinName(types.CryptoSymbol(symbol))
-		newAsset = &models.Asset{
+		newAsset := &models.Asset{
 			UserId: userId,
 			Symbol: symbol,
 			Name:   name,
 			Image:  "",
 			Value:  *value,
 		}
+		err = s.assetRepo.Create(newAsset)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
-	err := s.assetRepo.Create(newAsset)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (s assetService) DeleteAsset(symbol string, userId string) error {

@@ -50,6 +50,7 @@ func MigrateAll(db *gorm.DB) error {
 		models.Subscription{},
 		models.PriceAlert{},
 		models.CustomCategory{},
+		models.CoinRate{},
 		models.User{},
 	)
 }

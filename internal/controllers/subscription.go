@@ -6,7 +6,6 @@ import (
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type ISubscriptionController interface {
@@ -45,7 +44,7 @@ func (ctl subscriptionController) GetSubscription(ctx *fiber.Ctx) error {
 			Message: "Unauthorized User",
 		})
 	}
-	subId, _ := strconv.Atoi(ctx.Params("id"))
+	subId := ctx.Params("id")
 	subscriptions, err := ctl.subscriptionService.GetSubscription(subId, userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
@@ -115,7 +114,7 @@ func (ctl subscriptionController) AddSubscription(ctx *fiber.Ctx) error {
 }
 
 func (ctl subscriptionController) DeleteSubscription(ctx *fiber.Ctx) error {
-	subId, _ := strconv.Atoi(ctx.Params("id"))
+	subId := ctx.Params("id")
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{

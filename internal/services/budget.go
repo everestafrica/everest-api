@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
 )
@@ -50,6 +51,7 @@ func (bs budgetService) CreateBudget(request *types.CreateBudgetRequest, userId 
 			Amount:   v.Amount,
 			Month:    request.Month,
 			Year:     request.Year,
+			BudgetId: utils.GetUUID(),
 		}
 		err = bs.budgetRepo.Create(&budget)
 		if err != nil {

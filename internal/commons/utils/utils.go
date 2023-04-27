@@ -1,7 +1,8 @@
-package util
+package utils
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"net/mail"
@@ -61,4 +62,8 @@ func (v Validation) ValidatePhoneNumber(phone string) bool {
 
 func (v Validation) ValidatePassword(password string) bool {
 	return len(password) >= 8
+}
+
+func GetUUID() string {
+	return uuid.NewString()
 }

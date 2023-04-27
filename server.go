@@ -53,6 +53,7 @@ func (s *server) Start() error {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("You're home, yaay!!")
 	})
+
 	app.Static("/", "./public")
 
 	routes.RegisterRoutes(app)
