@@ -95,15 +95,14 @@ type (
 		Category    TransactionCategory `json:"category"`
 	}
 	CreateTransactionRequest struct {
-		Amount        float64             `json:"amount"`
-		Narration     string              `json:"narration"`
-		Merchant      string              `json:"merchant"`
-		Type          TransactionType     `json:"type"`
-		Currency      CurrencySymbol      `json:"currency"`
-		TransactionId string              `json:"transaction_id"`
-		IsRecurring   bool                `json:"is_recurring"`
-		Category      TransactionCategory `json:"category"`
-		Date          time.Time           `json:"date"`
+		Amount      float64             `json:"amount" validate:"required"`
+		Narration   string              `json:"narration" validate:"required"`
+		Merchant    string              `json:"merchant"`
+		Type        TransactionType     `json:"type" validate:"required"`
+		Currency    CurrencySymbol      `json:"currency" validate:"required"`
+		IsRecurring bool                `json:"is_recurring" validate:"required"`
+		Category    TransactionCategory `json:"category" validate:"required"`
+		Date        time.Time           `json:"date" validate:"required"`
 	}
 	CreateCustomCategory struct {
 		Name string `json:"name"`
