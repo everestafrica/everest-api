@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
-	util "github.com/everestafrica/everest-api/internal/commons/util"
+	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
@@ -17,7 +17,7 @@ const (
 	AuthUserContextKey string = "auth"
 )
 
-var utilToken = util.Token{}
+var utilToken = utils.Token{}
 
 // UserFromContext extracts the user_id from context
 func UserFromContext(ctx *fiber.Ctx) (string, error) {

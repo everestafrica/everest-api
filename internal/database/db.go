@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/everestafrica/everest-api/internal/model"
+	"github.com/everestafrica/everest-api/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -36,21 +36,21 @@ func DB() *gorm.DB {
 
 func MigrateAll(db *gorm.DB) error {
 	return db.AutoMigrate(
-		model.AccountDetail{},
-		model.AccountTransaction{},
-		model.Budget{},
-		model.CryptoDetail{},
-		model.CryptoTransaction{},
-		model.Debt{},
-		model.MonoUser{},
-		model.News{},
-		model.Asset{},
-		model.Stock{},
-		model.Tracker{},
-		model.Subscription{},
-		model.PriceAlert{},
-		model.Category{},
-		model.CoinRate{},
-		model.User{},
+		models.AccountDetail{},
+		models.AccountTransaction{},
+		models.Budget{},
+		models.CryptoDetail{},
+		models.CryptoTransaction{},
+		models.Debt{},
+		models.MonoUser{},
+		models.News{},
+		models.Asset{},
+		models.Stock{},
+		models.Tracker{},
+		models.Subscription{},
+		models.PriceAlert{},
+		models.Category{},
+		models.CoinRate{},
+		models.User{},
 	)
 }

@@ -2,7 +2,7 @@ package database
 
 import (
 	"github.com/everestafrica/everest-api/internal/commons/log"
-	"github.com/everestafrica/everest-api/internal/model"
+	"github.com/everestafrica/everest-api/internal/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -20,19 +20,9 @@ func Seed(db *gorm.DB) {
 }
 
 func runCategoriesSeeder(db *gorm.DB) error {
-	categories := []model.Category{
-		{
-			Name:    "Shopping",
-			Custom:  false,
-			Icon:    "🛍️",
-			Unicode: "U+1F6CD",
-		},
-		{
-			Name:    "Utilities and Bills",
-			Custom:  false,
-			Icon:    "🧾",
-			Unicode: "U+1F9FE",
-		},
+	categories := []models.Category{
+		{Name: "Shopping", Custom: false, Icon: "🛍️", Unicode: "U+1F6CD"},
+		{Name: "Utilities and Bills", Custom: false, Icon: "", Unicode: ""},
 		{Name: "Housing", Custom: false, Icon: "", Unicode: ""},
 		{Name: "Entertainment", Custom: false, Icon: "", Unicode: ""},
 		{Name: "Travel", Custom: false, Icon: "", Unicode: ""},

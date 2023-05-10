@@ -3,10 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/everestafrica/everest-api/internal/commons/constant"
+	"github.com/everestafrica/everest-api/internal/commons/constants"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/handlers"
-	"github.com/everestafrica/everest-api/internal/route"
+	"github.com/everestafrica/everest-api/internal/routes"
 	"github.com/everestafrica/everest-api/internal/scheduler"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -35,7 +35,7 @@ func (s *server) Start() error {
 	app := fiber.New()
 
 	app.Use(requestid.New(requestid.Config{
-		Header: constant.RequestIdentifier,
+		Header: constants.RequestIdentifier,
 		Generator: func() string {
 			return uuid.NewString()
 		},
@@ -56,7 +56,7 @@ func (s *server) Start() error {
 
 	app.Static("/", "./public")
 
-	route.RegisterRoutes(app)
+	routes.RegisterRoutes(app)
 
 	setupSystemRouteHandler(app)
 

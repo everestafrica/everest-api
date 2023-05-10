@@ -6,21 +6,21 @@ import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/database"
 	"github.com/everestafrica/everest-api/internal/external/asset"
-	"github.com/everestafrica/everest-api/internal/model"
-	"github.com/everestafrica/everest-api/internal/service"
+	"github.com/everestafrica/everest-api/internal/models"
+	"github.com/everestafrica/everest-api/internal/services"
 	"github.com/go-co-op/gocron"
 	"gorm.io/gorm"
 	"time"
 )
 
 type scheduler struct {
-	news            service.INewsService
-	stock           service.IStockService
-	alert           service.ISettingsService
-	acctTransaction service.IAccountTransactionService
-	budget          service.IBudgetService
-	crypto          service.ICryptoService
-	subscription    service.ISubscriptionService
+	news            services.INewsService
+	stock           services.IStockService
+	alert           services.ISettingsService
+	acctTransaction services.IAccountTransactionService
+	budget          services.IBudgetService
+	crypto          services.ICryptoService
+	subscription    services.ISubscriptionService
 	db              *gorm.DB
 }
 
@@ -30,13 +30,13 @@ type IScheduler interface {
 
 func RegisterSchedulers() {
 	s := scheduler{
-		news:            service.NewNewsService(),
-		stock:           service.NewStockService(),
-		alert:           service.NewSettingsService(),
-		acctTransaction: service.NewAccountTransactionService(),
-		budget:          service.NewBudgetService(),
-		crypto:          service.NewCryptoService(),
-		subscription:    service.NewSubscriptionService(),
+		news:            services.NewNewsService(),
+		stock:           services.NewStockService(),
+		alert:           services.NewSettingsService(),
+		acctTransaction: services.NewAccountTransactionService(),
+		budget:          services.NewBudgetService(),
+		crypto:          services.NewCryptoService(),
+		subscription:    services.NewSubscriptionService(),
 		db:              database.DB(),
 	}
 
@@ -67,7 +67,7 @@ func RegisterSchedulers() {
 	})
 
 	sch.Every(12).Hour().Do(func() {
-		var c []model.CryptoDetail
+		var c []models.CryptoDetail
 		if err := s.db.Find(&c).Error; err != nil {
 			log.Error("fetch crypto details error", err)
 			return
@@ -82,7 +82,7 @@ func RegisterSchedulers() {
 	})
 
 	sch.Every(12).Hour().Do(func() {
-		var users []model.User
+		var users []models.User
 		if err := s.db.Find(&users).Error; err != nil {
 			log.Error("fetch users error", err)
 			return
@@ -94,7 +94,7 @@ func RegisterSchedulers() {
 	})
 
 	sch.Every(1).Minute().Do(func() {
-		var users []model.User
+		var users []models.User
 		if err := s.db.Find(&users).Error; err != nil {
 			log.Error("fetch users error in subscriptions cron", err)
 			return
@@ -140,7 +140,7 @@ func RegisterSchedulers() {
 	})
 
 	sch.Every(1).Minute().Do(func() {
-		var users []model.User
+		var users []models.User
 		if err := s.db.Find(&users).Error; err != nil {
 			log.Error("fetch users error in alerts cron", err)
 			return
@@ -172,7 +172,7 @@ func RegisterSchedulers() {
 	})
 
 	sch.Every(10).Minute().Do(func() {
-		var users []model.User
+		var users []models.User
 		if err := s.db.Find(&users).Error; err != nil {
 			log.Error("fetch users error", err)
 			return
