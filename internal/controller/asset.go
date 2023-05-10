@@ -18,7 +18,7 @@ type assetController struct {
 	assetService service.IAssetService
 }
 
-// NewAssetController instantiates Asset Controller
+// NewAssetController instantiates assetController
 func NewAssetController() IAssetController {
 	return &assetController{
 		assetService: service.NewAssetService(),
@@ -27,11 +27,11 @@ func NewAssetController() IAssetController {
 
 func (ctl assetController) RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/v1")
-	Asset := v1.Group("/assets")
-	Asset.Get("/:id", handlers.SecureAuth(), ctl.GetAsset)
-	Asset.Get("/", handlers.SecureAuth(), ctl.GetAllAssets)
-	Asset.Post("/", handlers.SecureAuth(), ctl.AddAsset)
-	Asset.Delete("/:id", handlers.SecureAuth(), ctl.DeleteAsset)
+	asset := v1.Group("/assets")
+	asset.Get("/:id", handlers.SecureAuth(), ctl.GetAsset)
+	asset.Get("/", handlers.SecureAuth(), ctl.GetAllAssets)
+	asset.Post("/", handlers.SecureAuth(), ctl.AddAsset)
+	asset.Delete("/:id", handlers.SecureAuth(), ctl.DeleteAsset)
 }
 
 func (ctl assetController) AddAsset(ctx *fiber.Ctx) error {

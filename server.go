@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/everestafrica/everest-api/internal/commons/constants"
+	"github.com/everestafrica/everest-api/internal/commons/constant"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/route"
@@ -35,7 +35,7 @@ func (s *server) Start() error {
 	app := fiber.New()
 
 	app.Use(requestid.New(requestid.Config{
-		Header: constants.RequestIdentifier,
+		Header: constant.RequestIdentifier,
 		Generator: func() string {
 			return uuid.NewString()
 		},
