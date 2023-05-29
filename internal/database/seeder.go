@@ -49,3 +49,13 @@ func runCategoriesSeeder(db *gorm.DB) error {
 
 	return nil
 }
+
+func runCryptoWalletsSeeder(db *gorm.DB) error {
+	wallets := []models.Crypto{
+		{},
+	}
+	if err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&wallets).Error; err != nil {
+		return err
+	}
+	return nil
+}

@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/everestafrica/everest-api/internal/commons/types"
+	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/external/asset"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
@@ -25,20 +26,20 @@ func NewAssetService() IAssetService {
 		assetRepo: repositories.NewAssetRepo(),
 	}
 }
-func (s assetService) AddAsset(symbol string, isCrypto bool, userId string) error {
+func (s assetService) AddAsset(symbol string, isCoin bool, userId string) error {
 
-	if !isCrypto {
+	if !isCoin {
 		value, err := asset.GetAssetPrice(symbol, false)
 		if err != nil {
 			return err
 		}
 		name, err := asset.GetCompanyName(symbol)
 		newAsset := &models.Asset{
-			UserId: userId,
-			Symbol: symbol,
-			Name:   *name,
-			Image:  "",
-			Value:  *value,
+			UserId:       userId,
+			Symbol:       symbol,
+			Name:         *name,
+			Image:        "",
+			CurrentValue: *value,
 		}
 		err = s.assetRepo.Create(newAsset)
 		if err != nil {
@@ -50,13 +51,13 @@ func (s assetService) AddAsset(symbol string, isCrypto bool, userId string) erro
 		if err != nil {
 			return err
 		}
-		name := asset.GetCoinName(types.CryptoSymbol(symbol))
+		name := utils.GetCoinName(types.CoinSymbol(symbol))
 		newAsset := &models.Asset{
-			UserId: userId,
-			Symbol: symbol,
-			Name:   name,
-			Image:  "",
-			Value:  *value,
+			UserId:       userId,
+			Symbol:       symbol,
+			Name:         name,
+			Image:        "",
+			CurrentValue: *value,
 		}
 		err = s.assetRepo.Create(newAsset)
 		if err != nil {

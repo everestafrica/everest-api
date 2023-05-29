@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/constants"
+	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/handlers"
 	"github.com/everestafrica/everest-api/internal/routes"
@@ -12,7 +13,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"github.com/google/uuid"
 	"golang.org/x/net/context"
 	"log"
 	"net/http"
@@ -37,7 +37,7 @@ func (s *server) Start() error {
 	app.Use(requestid.New(requestid.Config{
 		Header: constants.RequestIdentifier,
 		Generator: func() string {
-			return uuid.NewString()
+			return utils.GetUUID()
 		},
 	}))
 	app.Use(logger.New(logger.Config{

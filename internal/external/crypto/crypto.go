@@ -137,7 +137,7 @@ const SolPerLamport = 0.000000001
 const BtcPerSat = 0.00000001
 const EthPerWei = 0.000000000000000001
 
-func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
+func GetBalance(address string, symbol types.CoinSymbol) (*Balance, error) {
 
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
@@ -210,7 +210,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 	return &result, nil
 }
 
-func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, error) {
+func GetTransaction(address string, symbol types.CoinSymbol) (*[]Transaction, error) {
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
 

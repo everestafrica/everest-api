@@ -42,7 +42,10 @@ func (ctl *budgetController) RegisterRoutes(app *fiber.App) {
 func (ctl *budgetController) GetBudget(ctx *fiber.Ctx) error {
 	userId, err := handlers.UserFromContext(ctx)
 	if err != nil {
-		return err
+		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 
 	month := ctx.Query("month")
@@ -50,14 +53,14 @@ func (ctl *budgetController) GetBudget(ctx *fiber.Ctx) error {
 	year, _ := strconv.Atoi(stryear)
 
 	if len(month) < 1 {
-		return ctx.JSON(types.GenericResponse{
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
 			Message: "required parameter `month` missing",
 		})
 	}
 
 	if len(stryear) < 1 {
-		return ctx.JSON(types.GenericResponse{
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
 			Message: "required parameter `year` missing",
 		})
@@ -77,7 +80,7 @@ func (ctl *budgetController) GetBudget(ctx *fiber.Ctx) error {
 		})
 	}
 
-	return ctx.JSON(types.GenericResponse{
+	return ctx.Status(fiber.StatusOK).JSON(types.GenericResponse{
 		Success: true,
 		Message: "budget successfully retrieved",
 		Data:    budget,
@@ -95,12 +98,13 @@ func (ctl *budgetController) AddBudget(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing request body",
+			Data:    err.Error(),
 		})
 	}
 
 	errors := util.ValidateStruct(body)
 	if errors != nil {
-		return ctx.JSON(errors)
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 
 	err = ctl.budgetService.CreateBudget(body, userId)
@@ -124,25 +128,26 @@ func (ctl *budgetController) UpdateBudget(ctx *fiber.Ctx) error {
 
 	var body *types.UpdateBudgetRequest
 	if err = ctx.BodyParser(&body); err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
 			Message: "Problem while parsing request body",
+			Data:    err.Error(),
 		})
 	}
 
 	errors := util.ValidateStruct(body)
 	if errors != nil {
-		return ctx.JSON(errors)
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 	err = ctl.budgetService.UpdateBudget(body, userId)
 	if err != nil {
-		return ctx.JSON(types.GenericResponse{
+		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: "unable to update budget",
 		})
 	}
 
-	return ctx.JSON(types.GenericResponse{
+	return ctx.Status(fiber.StatusCreated).JSON(types.GenericResponse{
 		Success: true,
 		Message: "budget successfully updated",
 	})
@@ -159,14 +164,14 @@ func (ctl *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
 	year, _ := strconv.Atoi(stryear)
 
 	if len(month) < 1 {
-		return ctx.JSON(types.GenericResponse{
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
 			Message: "required parameter `month` missing",
 		})
 	}
 
 	if len(stryear) < 1 {
-		return ctx.JSON(types.GenericResponse{
+		return ctx.Status(fiber.StatusBadRequest).JSON(types.GenericResponse{
 			Success: false,
 			Message: "required parameter `year` missing",
 		})
@@ -179,7 +184,7 @@ func (ctl *budgetController) DeleteBudget(ctx *fiber.Ctx) error {
 			Message: "unable to delete budget",
 		})
 	}
-	return ctx.JSON(types.GenericResponse{
+	return ctx.Status(fiber.StatusOK).JSON(types.GenericResponse{
 		Success: true,
 		Message: "budget successfully deleted",
 	})

@@ -14,18 +14,19 @@ type ICryptoController interface {
 	UnLinkWallet(ctx *fiber.Ctx) error
 	GetAllWallets(ctx *fiber.Ctx) error
 	GetWallet(ctx *fiber.Ctx) error
+	GetWalletTransactions(ctx *fiber.Ctx) error
 	GetTransaction(ctx *fiber.Ctx) error
 	GetAllTransactions(ctx *fiber.Ctx) error
 }
 
 type cryptoController struct {
-	cryptoDetailsService services.ICryptoService
+	cryptoDetailsService services.ICoinService
 }
 
 // NewCryptoController instantiates Crypto Controller
 func NewCryptoController() ICryptoController {
 	return &cryptoController{
-		cryptoDetailsService: services.NewCryptoService(),
+		cryptoDetailsService: services.NewCoinService(),
 	}
 }
 
@@ -36,8 +37,8 @@ func (ctl *cryptoController) RegisterRoutes(app *fiber.App) {
 	crypto.Get("/wallets/:id", handlers.SecureAuth(), ctl.GetWallet)
 	crypto.Post("/wallets", handlers.SecureAuth(), ctl.LinkWallet)
 	crypto.Delete("/wallets", handlers.SecureAuth(), ctl.UnLinkWallet)
-	crypto.Get("/wallets/transactions", handlers.SecureAuth(), ctl.GetAllTransactions)
-	crypto.Get("/wallets/transactions/:hash", handlers.SecureAuth(), ctl.GetTransaction)
+	crypto.Get("/transactions", handlers.SecureAuth(), ctl.GetAllTransactions)
+	crypto.Get("/transactions/:hash", handlers.SecureAuth(), ctl.GetTransaction)
 
 }
 
@@ -61,7 +62,7 @@ func (ctl *cryptoController) LinkWallet(ctx *fiber.Ctx) error {
 
 	}
 
-	err = ctl.cryptoDetailsService.AddWallet(types.CryptoSymbol(body.Symbol), body.Address, userId)
+	err = ctl.cryptoDetailsService.AddCoin(types.CoinSymbol(body.Symbol), body.Address, userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
@@ -95,7 +96,7 @@ func (ctl *cryptoController) UnLinkWallet(ctx *fiber.Ctx) error {
 
 	}
 
-	err = ctl.cryptoDetailsService.DeleteWallet(types.CryptoSymbol(body.Symbol), body.Address, userId)
+	err = ctl.cryptoDetailsService.DeleteCoin(types.CoinSymbol(body.Symbol), body.Address, userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
@@ -115,7 +116,7 @@ func (ctl *cryptoController) GetAllWallets(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	wallets, err := ctl.cryptoDetailsService.GetAllWallets(userId)
+	wallets, err := ctl.cryptoDetailsService.GetAllCoins(userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
@@ -141,7 +142,7 @@ func (ctl *cryptoController) GetWallet(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	wallet, err := ctl.cryptoDetailsService.GetWallet(id)
+	wallet, err := ctl.cryptoDetailsService.GetCoin(id)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
@@ -154,6 +155,10 @@ func (ctl *cryptoController) GetWallet(ctx *fiber.Ctx) error {
 		Message: "successfully fetched wallet",
 		Data:    wallet,
 	})
+}
+
+func (ctl *cryptoController) GetWalletTransactions(ctx *fiber.Ctx) error {
+	return nil
 }
 
 func (ctl *cryptoController) GetTransaction(ctx *fiber.Ctx) error {

@@ -36,11 +36,11 @@ func DB() *gorm.DB {
 
 func MigrateAll(db *gorm.DB) error {
 	return db.AutoMigrate(
-		models.AccountDetail{},
-		models.AccountTransaction{},
+		models.CashAccount{},
+		models.CashTransaction{},
 		models.Budget{},
-		models.CryptoDetail{},
-		models.CryptoTransaction{},
+		models.CoinWallet{},
+		models.CoinTransaction{},
 		models.Debt{},
 		models.MonoUser{},
 		models.News{},
@@ -50,7 +50,6 @@ func MigrateAll(db *gorm.DB) error {
 		models.Subscription{},
 		models.PriceAlert{},
 		models.Category{},
-		models.CoinRate{},
 		models.User{},
 	)
 }

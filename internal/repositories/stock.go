@@ -9,7 +9,7 @@ import (
 
 type IStockRepository interface {
 	FindAllStockAssets() (*[]models.Stock, error)
-	Create(Stock *models.Stock) error
+	Create(stock *models.Stock) error
 	Delete() error
 }
 

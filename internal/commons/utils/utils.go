@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/google/uuid"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -66,4 +67,16 @@ func (v Validation) ValidatePassword(password string) bool {
 
 func GetUUID() string {
 	return uuid.NewString()
+}
+
+func GetCoinName(symbol types.CoinSymbol) string {
+	coins := map[types.CoinSymbol]string{
+		"BTC":  "Bitcoin",
+		"ETH":  "Ethereum",
+		"BSC":  "Binance Coin",
+		"USDT": "Tether",
+		"SOL":  "Solana",
+		"DOGE": "Dogecoin",
+	}
+	return coins[symbol]
 }

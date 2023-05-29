@@ -1,10 +1,11 @@
 package services
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/external/asset"
 	"github.com/everestafrica/everest-api/internal/models"
 	"github.com/everestafrica/everest-api/internal/repositories"
-	"log"
+	"strings"
 )
 
 type IStockService interface {
@@ -28,11 +29,19 @@ func (s stockService) SetStockData() error {
 		return err
 	}
 	stocksInDB, err := s.stockRepo.FindAllStockAssets()
+	p, err := asset.GetAssetPrice("MSFT", false)
+	if err != nil {
+		return err
+	}
+	log.Info("p: ", p)
 	for _, stock := range stocks {
+		price, _ := asset.GetAssetPrice(strings.ToLower(stock.Symbol), false)
+		log.Info("price: ", price)
 		stk := &models.Stock{
 			Name:   stock.Name,
 			Image:  stock.Image,
 			Symbol: stock.Symbol,
+			//Price:  strconv.Itoa(int(*price)),
 		}
 		if len(*stocksInDB) < 1 {
 			err = s.stockRepo.Create(stk)
@@ -53,7 +62,7 @@ func (s stockService) SetStockData() error {
 		}
 
 	}
-	log.Println("stored stocks in db!")
+	log.Info("stored stocks in db!")
 	return nil
 }
 
@@ -62,6 +71,6 @@ func (s stockService) DeleteStockData() error {
 	if err != nil {
 		return err
 	}
-	log.Println("deleted stocks from db!")
+	log.Info("deleted stocks from db!")
 	return nil
 }

@@ -112,9 +112,9 @@ func (as *authService) IssueToken(u *models.User) (*types.TokenResponse, error) 
 
 	claims := types.Claims{
 		Email: u.Email,
-		ID:    u.UserId,
+		ID:    u.Id,
 		StandardClaims: jwt.StandardClaims{
-			Subject:   u.UserId,
+			Subject:   u.Id,
 			IssuedAt:  nowTime.Unix(),
 			ExpiresAt: expireTime.Unix(),
 			Issuer:    "Everest",
