@@ -145,7 +145,7 @@ func (ctl *authController) SendOTP(ctx *fiber.Ctx) error {
 //	})
 //}
 
-func (ctl authController) RefreshToken(ctx *fiber.Ctx) error {
+func (ctl *authController) RefreshToken(ctx *fiber.Ctx) error {
 	_, err := handlers.UserFromContext(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(types.GenericResponse{

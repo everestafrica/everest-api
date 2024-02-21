@@ -132,8 +132,8 @@ type (
 )
 
 type (
-	CryptoSymbol        string
-	CryptoName          string
+	CoinSymbol          string
+	CoinName            string
 	CurrencySymbol      string
 	Frequency           string
 	SubscriptionType    string
@@ -153,12 +153,12 @@ const (
 	GHC CurrencySymbol = "GHC"
 	ZAR CurrencySymbol = "ZAR"
 
-	BTC  CryptoSymbol = "BTC"
-	ETH  CryptoSymbol = "ETH"
-	BSC  CryptoSymbol = "BSC"
-	USDT CryptoSymbol = "USDT"
-	SOL  CryptoSymbol = "SOL"
-	DOGE CryptoSymbol = "DOGE"
+	BTC  CoinSymbol = "BTC"
+	ETH  CoinSymbol = "ETH"
+	BSC  CoinSymbol = "BSC"
+	USDT CoinSymbol = "USDT"
+	SOL  CoinSymbol = "SOL"
+	DOGE CoinSymbol = "DOGE"
 
 	MONTHLY  Frequency = "MONTHLY"
 	ANNUALLY Frequency = "ANNUALLY"

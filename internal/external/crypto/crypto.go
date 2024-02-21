@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/mitchellh/mapstructure"
 	"io"
 	"io/ioutil"
@@ -137,7 +138,7 @@ const SolPerLamport = 0.000000001
 const BtcPerSat = 0.00000001
 const EthPerWei = 0.000000000000000001
 
-func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
+func GetBalance(address string, symbol types.CoinSymbol) (*Balance, error) {
 
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
@@ -152,6 +153,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 
 		v, err := Get(url, response)
 		if err != nil {
+			log.Info("ETH error", err)
 			return nil, err
 		}
 
@@ -168,6 +170,8 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 
 		v, err := Get(url, response)
 		if err != nil {
+			log.Info("BNB error", err)
+
 			return nil, err
 		}
 		res := v.(EthBalance)
@@ -183,6 +187,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 
 		v, err := SolGet(url, response)
 		if err != nil {
+			log.Info("SOL error", err)
 			return nil, err
 		}
 		res := v.(SolBal)
@@ -191,12 +196,14 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 			Value:         float64(res.Lamports) * SolPerLamport,
 		}
 		result = bal
+
 	case types.BTC:
 		url = fmt.Sprintf("https://api.bitaps.com/btc/v1/blockchain/address/state/%s", address)
 		var response BtcBal
 
 		v, err := Get(url, response)
 		if err != nil {
+			log.Info("BTC error", err)
 			return nil, err
 		}
 		res := v.(BtcBal)
@@ -210,7 +217,7 @@ func GetBalance(address string, symbol types.CryptoSymbol) (*Balance, error) {
 	return &result, nil
 }
 
-func GetTransaction(address string, symbol types.CryptoSymbol) (*[]Transaction, error) {
+func GetTransaction(address string, symbol types.CoinSymbol) (*[]Transaction, error) {
 	BscApiKey := config.GetConf().BscApiKey
 	EthApiKey := config.GetConf().EthApiKey
 

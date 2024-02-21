@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/everestafrica/everest-api/internal/commons/log"
-	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/config"
 	"github.com/everestafrica/everest-api/internal/external/crypto"
 	"github.com/gocolly/colly"
@@ -129,6 +128,7 @@ type hundredStock struct {
 	Name   string
 	Symbol string
 	Image  string
+	Price  string
 }
 
 func GetAssetPrice(symbol string, isCrypto bool) (*float64, error) {
@@ -173,18 +173,6 @@ func GetAssetPrice(symbol string, isCrypto bool) (*float64, error) {
 	return &asset.QuoteResponse.Result[0].RegularMarketPrice, nil
 }
 
-func GetCoinName(symbol types.CryptoSymbol) string {
-	coins := map[types.CryptoSymbol]string{
-		"BTC":  "Bitcoin",
-		"ETH":  "Ethereum",
-		"BSC":  "Binance Coin",
-		"USDT": "Tether",
-		"SOL":  "Solana",
-		"DOGE": "Dogecoin",
-	}
-	return coins[symbol]
-}
-
 func GetCompanyName(symbol string) (*string, error) {
 	var name companyName
 	accessKey := config.GetConf().StockAccessKey
@@ -214,6 +202,7 @@ func ScrapeStockData() ([]hundredStock, error) {
 				image := e.ChildAttr(".name-td > .logo-container > img", "src")
 				name := e.ChildText(".company-name")
 				symbol := e.ChildText(".company-code")
+				price := e.ChildText("td > .price")
 				num := strconv.Itoa(i + 1)
 
 				data = hundredStock{
@@ -221,6 +210,7 @@ func ScrapeStockData() ([]hundredStock, error) {
 					Name:   name,
 					Symbol: symbol,
 					Image:  base + image,
+					Price:  price,
 				}
 				response = append(response, data)
 			})

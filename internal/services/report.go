@@ -9,24 +9,24 @@ type ReportService interface {
 }
 
 type reportService struct {
-	accountRepo               repositories.IAccountDetailsRepository
-	accountDetailsService     IAccountDetailsService
-	accountTransactionService IAccountTransactionService
-	accountTxnRepo            repositories.IAccountTransactionRepository
-	cryptoRepo                repositories.ICryptoDetailsRepository
-	cryptoService             ICryptoService
-	cryptoTxnRepo             repositories.ICryptoTransactionRepository
+	cashRepo               repositories.ICashAccountRepository
+	accountDetailsService  ICashAccountService
+	cashTransactionService ICashTransactionService
+	accountTxnRepo         repositories.ICashTransactionRepository
+	cryptoRepo             repositories.ICoinRepository
+	cryptoService          ICoinService
+	cryptoTxnRepo          repositories.ICoinTransactionRepository
 }
 
 func NewReportService() ReportService {
 	return &reportService{
-		accountRepo:               repositories.NewAccountDetailsRepo(),
-		accountDetailsService:     NewAccountDetailsService(),
-		accountTransactionService: NewAccountTransactionService(),
-		accountTxnRepo:            repositories.NewAccountTransactionRepo(),
-		cryptoRepo:                repositories.NewCryptoDetailsRepo(),
-		cryptoService:             NewCryptoService(),
-		cryptoTxnRepo:             repositories.NewCryptoTransactionRepo(),
+		cashRepo:               repositories.NewCashRepo(),
+		accountDetailsService:  NewCashAccountService(),
+		cashTransactionService: NewAccountTransactionService(),
+		accountTxnRepo:         repositories.NewCashTransactionRepo(),
+		cryptoRepo:             repositories.NewCoinRepo(),
+		cryptoService:          NewCoinService(),
+		cryptoTxnRepo:          repositories.NewCryptoTransactionRepo(),
 	}
 }
 
@@ -42,14 +42,14 @@ type ReportResponse struct {
 }
 
 func (rs reportService) GetAccountDetailsReport(userId string, dateRange types.DateRange) (*ReportResponse, error) {
-	acctIncome, err := rs.accountTransactionService.GetInflow(dateRange, userId)
-	acctExpense, err := rs.accountTransactionService.GetOutflow(dateRange, userId)
+	acctIncome, err := rs.cashTransactionService.GetInflow(dateRange, userId)
+	acctExpense, err := rs.cashTransactionService.GetOutflow(dateRange, userId)
 	cryptoIncome, err := rs.cryptoService.GetInflow(dateRange, userId)
 	cryptoExpense, err := rs.cryptoService.GetOutflow(dateRange, userId)
 	if err != nil {
 		return nil, err
 	}
-	details, err := rs.accountDetailsService.GetAllAccountsDetails(userId)
+	details, err := rs.accountDetailsService.GetAllCashAccountsDetails(userId)
 	if err != nil {
 		return nil, err
 	}

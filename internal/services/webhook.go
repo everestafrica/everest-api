@@ -14,15 +14,15 @@ type IWebhookService interface {
 }
 
 type webhookService struct {
-	monoUserRepo       repositories.IMonoUserRepository
-	accountDetailsRepo repositories.IAccountDetailsRepository
+	monoUserRepo repositories.IMonoUserRepository
+	cashRepo     repositories.ICashAccountRepository
 }
 
 // NewWebhookService will instantiate WebhookService
 func NewWebhookService() IWebhookService {
 	return &webhookService{
-		monoUserRepo:       repositories.NewMonoUserRepo(),
-		accountDetailsRepo: repositories.NewAccountDetailsRepo(),
+		monoUserRepo: repositories.NewMonoUserRepo(),
+		cashRepo:     repositories.NewCashRepo(),
 	}
 }
 
@@ -34,7 +34,7 @@ func (ws webhookService) MonoWebhook(payload types.MonoWebhookPayload) error {
 			if err != nil {
 				return errors.New("unable to find user with mono Id")
 			}
-			account := models.AccountDetail{
+			account := models.CashAccount{
 				UserId:        user.UserId,
 				AccountId:     response.Account.ID,
 				Institution:   response.Account.Institution.Name,
@@ -42,7 +42,7 @@ func (ws webhookService) MonoWebhook(payload types.MonoWebhookPayload) error {
 				Balance:       response.Account.Balance,
 				Currency:      response.Account.Currency,
 			}
-			err = ws.accountDetailsRepo.Create(&account)
+			err = ws.cashRepo.Create(&account)
 			if err != nil {
 				return err
 			}

@@ -17,9 +17,9 @@ type scheduler struct {
 	news            services.INewsService
 	stock           services.IStockService
 	alert           services.ISettingsService
-	acctTransaction services.IAccountTransactionService
+	acctTransaction services.ICashTransactionService
 	budget          services.IBudgetService
-	crypto          services.ICryptoService
+	crypto          services.ICoinService
 	subscription    services.ISubscriptionService
 	db              *gorm.DB
 }
@@ -35,7 +35,7 @@ func RegisterSchedulers() {
 		alert:           services.NewSettingsService(),
 		acctTransaction: services.NewAccountTransactionService(),
 		budget:          services.NewBudgetService(),
-		crypto:          services.NewCryptoService(),
+		crypto:          services.NewCoinService(),
 		subscription:    services.NewSubscriptionService(),
 		db:              database.DB(),
 	}
@@ -67,13 +67,13 @@ func RegisterSchedulers() {
 	})
 
 	sch.Every(12).Hour().Do(func() {
-		var c []models.CryptoDetail
+		var c []models.CoinWallet
 		if err := s.db.Find(&c).Error; err != nil {
 			log.Error("fetch crypto details error", err)
 			return
 		}
 		for _, v := range c {
-			err := s.crypto.UpdateWallet(v.Symbol, v.WalletAddress, v.UserId)
+			err := s.crypto.UpdateCoinWallet(v.Symbol, v.WalletAddress, v.UserId)
 			if err != nil {
 				log.Error("update crypto wallet error", err)
 				return
@@ -81,17 +81,17 @@ func RegisterSchedulers() {
 		}
 	})
 
-	sch.Every(12).Hour().Do(func() {
-		var users []models.User
-		if err := s.db.Find(&users).Error; err != nil {
-			log.Error("fetch users error", err)
-			return
-		}
-		for _, v := range users {
-			err := s.acctTransaction.SetAccountTransactions(v.UserId)
-			log.Error("update account transactions error", err)
-		}
-	})
+	//sch.Every(12).Hour().Do(func() {
+	//	var users []models.User
+	//	if err := s.db.Find(&users).Error; err != nil {
+	//		log.Error("fetch users error", err)
+	//		return
+	//	}
+	//	for _, v := range users {
+	//		err := s.acctTransaction.SetAccountTransactions(v.UserId)
+	//		log.Error("update account transactions error", err)
+	//	}
+	//})
 
 	sch.Every(1).Minute().Do(func() {
 		var users []models.User
@@ -100,7 +100,7 @@ func RegisterSchedulers() {
 			return
 		}
 		for _, user := range users {
-			subs, err := s.subscription.GetAllSubscriptions(user.UserId)
+			subs, err := s.subscription.GetAllSubscriptions(user.Id)
 			if err != nil {
 				log.Error("get all subscriptions error", err)
 				return
@@ -146,7 +146,7 @@ func RegisterSchedulers() {
 			return
 		}
 		for _, user := range users {
-			alerts, err := s.alert.GetAllPriceAlerts(user.UserId)
+			alerts, err := s.alert.GetAllPriceAlerts(user.Id)
 			if err != nil {
 				log.Error("get price alerts error", err)
 			}
@@ -185,12 +185,12 @@ func RegisterSchedulers() {
 			outflow, err := s.acctTransaction.GetOutflow(types.DateRange{
 				From: firstOfMonth,
 				To:   now,
-			}, user.UserId)
+			}, user.Id)
 			if err != nil {
 				log.Error("error from fetching outflow", err)
 				return
 			}
-			monthBudget, err := s.budget.GetBudget(string(rune(month)), year, user.UserId)
+			monthBudget, err := s.budget.GetBudget(string(rune(month)), year, user.Id)
 			if err != nil {
 				log.Error("error from budget", err)
 				return

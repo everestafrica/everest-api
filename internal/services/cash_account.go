@@ -10,29 +10,29 @@ import (
 	"time"
 )
 
-type IAccountDetailsService interface {
-	SetAccountDetails(code, userId string) error
-	GetAccountDetails(accountId string) (*models.AccountDetail, error)
-	GetAllAccountsDetails(userId string) (*[]models.AccountDetail, error)
-	UnlinkAccount(id string) error
+type ICashAccountService interface {
+	SetCashAccountDetails(code, userId string) error
+	GetCashAccountDetails(accountId string) (*models.CashAccount, error)
+	GetAllCashAccountsDetails(userId string) (*[]models.CashAccount, error)
+	UnlinkCashAccount(id string) error
 }
 
-type accountDetailsService struct {
-	userRepo           repositories.IUserRepository
-	monoUserRepo       repositories.IMonoUserRepository
-	accountDetailsRepo repositories.IAccountDetailsRepository
+type cashAccountService struct {
+	userRepo     repositories.IUserRepository
+	monoUserRepo repositories.IMonoUserRepository
+	cashRepo     repositories.ICashAccountRepository
 }
 
-// NewAccountDetailsService will instantiate AccountDetailsService
-func NewAccountDetailsService() IAccountDetailsService {
-	return &accountDetailsService{
-		userRepo:           repositories.NewUserRepo(),
-		monoUserRepo:       repositories.NewMonoUserRepo(),
-		accountDetailsRepo: repositories.NewAccountDetailsRepo(),
+// NewCashAccountService will instantiate CashAccountService
+func NewCashAccountService() ICashAccountService {
+	return &cashAccountService{
+		userRepo:     repositories.NewUserRepo(),
+		monoUserRepo: repositories.NewMonoUserRepo(),
+		cashRepo:     repositories.NewCashRepo(),
 	}
 }
 
-func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
+func (ad cashAccountService) SetCashAccountDetails(code, userId string) error {
 	monoCode := types.MonoAccountIdRequest{
 		Code: code,
 	}
@@ -61,7 +61,7 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 
 	if details.Meta.DataStatus == "AVAILABLE" {
 		institutionType := ad.GetInstitutionType(details.Account.Institution.Type)
-		account := models.AccountDetail{
+		account := models.CashAccount{
 			UserId:          userId,
 			AccountId:       monoId.Id,
 			Institution:     details.Account.Institution.Name,
@@ -70,7 +70,7 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 			Balance:         details.Account.Balance,
 			Currency:        details.Account.Currency,
 		}
-		err = ad.accountDetailsRepo.Create(&account)
+		err = ad.cashRepo.Create(&account)
 		if err != nil {
 			return err
 		}
@@ -109,23 +109,23 @@ func (ad accountDetailsService) SetAccountDetails(code, userId string) error {
 	return nil
 }
 
-func (ad accountDetailsService) GetAccountDetails(accountId string) (*models.AccountDetail, error) {
-	account, err := ad.accountDetailsRepo.FindByAccountId(accountId)
+func (ad cashAccountService) GetCashAccountDetails(accountId string) (*models.CashAccount, error) {
+	account, err := ad.cashRepo.FindByAccountId(accountId)
 	if err != nil {
 		return nil, err
 	}
 	return account, nil
 }
 
-func (ad accountDetailsService) GetAllAccountsDetails(userId string) (*[]models.AccountDetail, error) {
-	accounts, err := ad.accountDetailsRepo.FindAllByUserId(userId)
+func (ad cashAccountService) GetAllCashAccountsDetails(userId string) (*[]models.CashAccount, error) {
+	accounts, err := ad.cashRepo.FindAllByUserId(userId)
 	if err != nil {
 		return nil, err
 	}
 	return accounts, nil
 }
 
-func (ad accountDetailsService) ReauthoriseUser(userId string) (*string, error) {
+func (ad cashAccountService) ReauthoriseUser(userId string) (*string, error) {
 	user, err := ad.monoUserRepo.FindByUserId(userId)
 	result, err := mono.ReauthoriseUser(user.MonoId)
 	if err != nil {
@@ -139,19 +139,19 @@ func (ad accountDetailsService) ReauthoriseUser(userId string) (*string, error) 
 	return &result.Token, nil
 }
 
-func (ad accountDetailsService) UnlinkAccount(id string) error {
+func (ad cashAccountService) UnlinkCashAccount(id string) error {
 	err := mono.Unlink(id)
 	if err != nil {
 		return err
 	}
-	err = ad.accountDetailsRepo.Delete(id)
+	err = ad.cashRepo.Delete(id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ad accountDetailsService) GetInstitutionType(institutionName string) types.InstitutionType {
+func (ad cashAccountService) GetInstitutionType(institutionName string) types.InstitutionType {
 	savings := []string{"Piggyvest", "Cowrywise"}
 	wallets := []string{"Barter", "Wallets Africa"}
 	investments := []string{"Risevest", "Trove", "Chaka"}
