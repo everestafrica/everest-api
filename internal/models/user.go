@@ -36,8 +36,3 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	u.Id = utils.GetUUID()
 	return nil
 }
-
-//func (b *Base) BeforeSave(tx *gorm.DB) (err error) {
-//	b.UUID = uuid.NewString()
-//	return nil uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-//}

@@ -62,7 +62,7 @@ func (r *cryptoTransactionRepo) FindTransaction(hash string) (*models.CoinTransa
 
 func (r *cryptoTransactionRepo) FindAllTransactions(userId string, p types.Pagination) (*[]models.CoinTransaction, error) {
 	var transactions []models.CoinTransaction
-	if err := r.db.Scopes(paginate(p)).Where("user_id = ?", userId).Order("id DESC").Find(&transactions).Error; err != nil {
+	if err := r.db.Scopes(paginate(p)).Where("user_id = ?", userId).Preload("Coin_wallets").Order("id DESC").Find(&transactions).Error; err != nil {
 		return nil, err
 	}
 

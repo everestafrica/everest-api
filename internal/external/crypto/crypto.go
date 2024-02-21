@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/mitchellh/mapstructure"
 	"io"
 	"io/ioutil"
@@ -152,6 +153,7 @@ func GetBalance(address string, symbol types.CoinSymbol) (*Balance, error) {
 
 		v, err := Get(url, response)
 		if err != nil {
+			log.Info("ETH error", err)
 			return nil, err
 		}
 
@@ -168,6 +170,8 @@ func GetBalance(address string, symbol types.CoinSymbol) (*Balance, error) {
 
 		v, err := Get(url, response)
 		if err != nil {
+			log.Info("BNB error", err)
+
 			return nil, err
 		}
 		res := v.(EthBalance)
@@ -183,6 +187,7 @@ func GetBalance(address string, symbol types.CoinSymbol) (*Balance, error) {
 
 		v, err := SolGet(url, response)
 		if err != nil {
+			log.Info("SOL error", err)
 			return nil, err
 		}
 		res := v.(SolBal)
@@ -191,12 +196,14 @@ func GetBalance(address string, symbol types.CoinSymbol) (*Balance, error) {
 			Value:         float64(res.Lamports) * SolPerLamport,
 		}
 		result = bal
+
 	case types.BTC:
 		url = fmt.Sprintf("https://api.bitaps.com/btc/v1/blockchain/address/state/%s", address)
 		var response BtcBal
 
 		v, err := Get(url, response)
 		if err != nil {
+			log.Info("BTC error", err)
 			return nil, err
 		}
 		res := v.(BtcBal)

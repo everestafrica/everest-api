@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	util "github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/handlers"
@@ -62,8 +63,9 @@ func (ctl *cryptoController) LinkWallet(ctx *fiber.Ctx) error {
 
 	}
 
-	err = ctl.cryptoDetailsService.AddCoin(types.CoinSymbol(body.Symbol), body.Address, userId)
+	err = ctl.cryptoDetailsService.AddCoinWallet(types.CoinSymbol(body.Symbol), body.Address, userId)
 	if err != nil {
+		log.Info("error linking user wallet", err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
 			Message: err.Error(),
@@ -96,7 +98,7 @@ func (ctl *cryptoController) UnLinkWallet(ctx *fiber.Ctx) error {
 
 	}
 
-	err = ctl.cryptoDetailsService.DeleteCoin(types.CoinSymbol(body.Symbol), body.Address, userId)
+	err = ctl.cryptoDetailsService.DeleteCoinWallet(types.CoinSymbol(body.Symbol), body.Address, userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
@@ -116,7 +118,7 @@ func (ctl *cryptoController) GetAllWallets(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	wallets, err := ctl.cryptoDetailsService.GetAllCoins(userId)
+	wallets, err := ctl.cryptoDetailsService.GetAllCoinWallets(userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,
@@ -142,7 +144,7 @@ func (ctl *cryptoController) GetWallet(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	wallet, err := ctl.cryptoDetailsService.GetCoin(id)
+	wallet, err := ctl.cryptoDetailsService.GetCoinWallet(id)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(types.GenericResponse{
 			Success: false,

@@ -73,7 +73,7 @@ func RegisterSchedulers() {
 			return
 		}
 		for _, v := range c {
-			err := s.crypto.UpdateCoin(v.Symbol, v.WalletAddress, v.UserId)
+			err := s.crypto.UpdateCoinWallet(v.Symbol, v.WalletAddress, v.UserId)
 			if err != nil {
 				log.Error("update crypto wallet error", err)
 				return

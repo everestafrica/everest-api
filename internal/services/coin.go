@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/external/crypto"
@@ -11,12 +12,16 @@ import (
 	"time"
 )
 
+//0x639dAec464Bfd4fc5173FD957d6f4363cC96282f
+//bc1q673dyteuz89en8lhhwpjvfdyan78ragj42034n
+//D2aSGBsGESJeyeFuDUd8dpaY2PEeu97kgozPaFGa3g7u
+
 type ICoinService interface {
-	GetAllCoins(userId string) (*[]models.CoinWallet, error)
-	GetCoin(id string) (*models.CoinWallet, error)
-	AddCoin(symbol types.CoinSymbol, address string, userId string) error
-	UpdateCoin(symbol types.CoinSymbol, address, userId string) error
-	DeleteCoin(symbol types.CoinSymbol, address string, userId string) error
+	GetAllCoinWallets(userId string) (*[]models.CoinWallet, error)
+	GetCoinWallet(id string) (*models.CoinWallet, error)
+	AddCoinWallet(symbol types.CoinSymbol, address string, userId string) error
+	UpdateCoinWallet(symbol types.CoinSymbol, address, userId string) error
+	DeleteCoinWallet(symbol types.CoinSymbol, address string, userId string) error
 	GetAllTransactions(userId string) (*[]models.CoinTransaction, error)
 	GetTransaction(hash string) (*models.CoinTransaction, error)
 
@@ -40,7 +45,7 @@ func NewCoinService() ICoinService {
 	}
 }
 
-func (cs coinService) GetAllCoins(userId string) (*[]models.CoinWallet, error) {
+func (cs coinService) GetAllCoinWallets(userId string) (*[]models.CoinWallet, error) {
 	coins, err := cs.coinRepo.FindByUserId(userId)
 	if err != nil {
 		return nil, err
@@ -48,7 +53,7 @@ func (cs coinService) GetAllCoins(userId string) (*[]models.CoinWallet, error) {
 	return coins, nil
 }
 
-func (cs coinService) GetCoin(id string) (*models.CoinWallet, error) {
+func (cs coinService) GetCoinWallet(id string) (*models.CoinWallet, error) {
 	wallet, err := cs.coinRepo.FindById(id)
 	if err != nil {
 		return nil, err
@@ -56,9 +61,10 @@ func (cs coinService) GetCoin(id string) (*models.CoinWallet, error) {
 	return wallet, nil
 }
 
-func (cs coinService) AddCoin(symbol types.CoinSymbol, address string, userId string) error {
+func (cs coinService) AddCoinWallet(symbol types.CoinSymbol, address string, userId string) error {
 	balance, err := crypto.GetBalance(address, symbol)
 	if err != nil {
+		log.Errorf("error getting balance for %s", address)
 		return err
 	}
 
@@ -71,30 +77,32 @@ func (cs coinService) AddCoin(symbol types.CoinSymbol, address string, userId st
 	}
 	err = cs.coinRepo.Create(c)
 	if err != nil {
+		log.Errorf("error creating coin wallet for %s", address)
 		return err
 	}
 
-	err = cs.assetService.AddAsset(string(symbol), true, userId)
-	if err != nil {
-		return err
-	}
+	//err = cs.assetService.AddAsset(string(symbol), true, userId)
+	//if err != nil {
+	//	log.Errorf("error adding asset for %s", address)
+	//	return err
+	//}
 
 	transactions, err := crypto.GetTransaction(address, symbol)
 	if err != nil {
+		log.Errorf("error getting transactions for %s", address)
 		return err
 	}
 	for _, transaction := range *transactions {
 		trx := &models.CoinTransaction{
-			UserId:        userId,
-			WalletAddress: address,
-			Name:          types.CoinName(utils.GetCoinName(symbol)),
-			Symbol:        symbol,
-			Value:         transaction.Value,
-			Date:          transaction.Date,
-			Type:          transaction.Type,
+			UserId:   userId,
+			WalletId: c.Id,
+			Value:    transaction.Value,
+			Date:     transaction.Date,
+			Type:     transaction.Type,
 		}
 		err = cs.coinTrxRepo.Create(trx)
 		if err != nil {
+			log.Errorf("error creating coin transaction for %s", address)
 			return err
 		}
 	}
@@ -102,7 +110,7 @@ func (cs coinService) AddCoin(symbol types.CoinSymbol, address string, userId st
 	return nil
 }
 
-func (cs coinService) UpdateCoin(symbol types.CoinSymbol, address string, userId string) error {
+func (cs coinService) UpdateCoinWallet(symbol types.CoinSymbol, address string, userId string) error {
 	balance, err := crypto.GetBalance(address, symbol)
 	if err != nil {
 		return err
@@ -130,13 +138,11 @@ func (cs coinService) UpdateCoin(symbol types.CoinSymbol, address string, userId
 			return errors.New("stale transaction")
 		}
 		trx := &models.CoinTransaction{
-			UserId:        userId,
-			WalletAddress: address,
-			Name:          types.CoinName(utils.GetCoinName(symbol)),
-			Symbol:        symbol,
-			Value:         transaction.Value,
-			Date:          transaction.Date,
-			Type:          transaction.Type,
+			UserId:   userId,
+			WalletId: c.Id,
+			Value:    transaction.Value,
+			Date:     transaction.Date,
+			Type:     transaction.Type,
 		}
 		err = cs.coinTrxRepo.Create(trx)
 		if err != nil {
@@ -147,7 +153,7 @@ func (cs coinService) UpdateCoin(symbol types.CoinSymbol, address string, userId
 	return nil
 }
 
-func (cs coinService) DeleteCoin(symbol types.CoinSymbol, address string, userId string) error {
+func (cs coinService) DeleteCoinWallet(symbol types.CoinSymbol, address string, userId string) error {
 	err := cs.coinRepo.Delete(userId, symbol, address)
 	if err != nil {
 		return err

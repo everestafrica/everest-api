@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/everestafrica/everest-api/internal/commons/log"
 	"github.com/everestafrica/everest-api/internal/commons/types"
 	"github.com/everestafrica/everest-api/internal/commons/utils"
 	"github.com/everestafrica/everest-api/internal/external/asset"
@@ -43,6 +44,7 @@ func (s assetService) AddAsset(symbol string, isCoin bool, userId string) error 
 		}
 		err = s.assetRepo.Create(newAsset)
 		if err != nil {
+			log.Errorf("Error creating stock asset: %v", err)
 			return err
 		}
 		return nil
@@ -61,6 +63,7 @@ func (s assetService) AddAsset(symbol string, isCoin bool, userId string) error 
 		}
 		err = s.assetRepo.Create(newAsset)
 		if err != nil {
+			log.Errorf("Error creating crypto asset: %v", err)
 			return err
 		}
 		return nil
